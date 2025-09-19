@@ -1,0 +1,188 @@
+@prefix : <https://arden.ag/data/> .
+@prefix arden: <https://arden.ag/ont/core#> .
+@prefix arden-fin: <https://arden.ag/ont/fin#> .
+@prefix arden-crops: <https://arden.ag/ont/crops#> .
+@prefix sosa: <http://www.w3.org/ns/sosa/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix qudt: <http://qudt.org/schema/qudt/> .
+@prefix unit: <http://qudt.org/vocab/unit/> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix time: <http://www.w3.org/2006/time#> .
+@prefix dcat: <http://www.w3.org/ns/dcat#> .
+
+# DCAT Dataset Metadata
+<https://arden.ag/datasets/rma-sob-2023> a dcat:Dataset ;
+  dct:title "RMA Summary of Business (Iowa, 2023)"@en ;
+  dct:description "Crop insurance policies, prevented planting events, and yield estimates with full provenance tracking."@en ;
+  dct:publisher "USDA RMA" ;
+  dct:source <https://www.rma.usda.gov/SummaryOfBusiness> ;
+  dct:issued "2024-01-15"^^xsd:date ;
+  dct:spatial "Iowa, USA" ;
+  dct:temporal [
+    dct:startDate "2023-01-01"^^xsd:date ;
+    dct:endDate "2023-12-31"^^xsd:date
+  ] ;
+  dct:license <https://creativecommons.org/publicdomain/zero/1.0/> ;
+  dcat:keyword "insurance", "risk", "prevented planting", "rma", "iowa" ;
+  dcat:theme <http://publications.europa.eu/resource/authority/data-theme/AGRI> .
+
+# RMA Summary of Business (SoB) 2023 Data - Iowa Counties
+# Source: USDA RMA Data Mart - Public Domain
+# Crop Insurance Indemnities and Prevented Planting
+
+# RMA Data Source
+:rma_datamart a <http://www.w3.org/ns/dcat#Dataset> ;
+  dct:title "USDA RMA Summary of Business"@en ;
+  dct:source <https://www.rma.usda.gov/SummaryOfBusiness> ;
+  dct:publisher "USDA Risk Management Agency"@en .
+
+# RMA Estimation Models
+:rma_apt_model a arden-fin:EstimationModel ;
+  rdfs:label "RMA Actual Production History (APH) Tool"@en ;
+  dct:description "Official RMA yield estimation model for crop insurance"@en .
+
+:rma_pp_model a arden-fin:EstimationModel ;
+  rdfs:label "RMA Prevented Planting Model"@en ;
+  dct:description "RMA model for prevented planting indemnity calculations"@en .
+
+# Crop Insurance Policies - Polk County
+:policy_polk_corn_2023 a arden-fin:InsurancePolicy ;
+  rdfs:label "Polk County Corn Insurance 2023"@en ;
+  arden:locatedInCounty :fips_19153 ;
+  dct:coverage :crop_corn ;
+  <https://example.org/policyYear> "2023"^^xsd:gYear ;
+  <https://example.org/totalPremium> [
+    a qudt:QuantityValue ;
+    qudt:numericValue "8234567.45"^^xsd:decimal ;
+    qudt:unit unit:Dollar
+  ] ;
+  <https://example.org/liabilityAmount> [
+    a qudt:QuantityValue ;
+    qudt:numericValue "156789012.34"^^xsd:decimal ;
+    qudt:unit unit:Dollar
+  ] ;
+  arden:sourceSystemId "RMA_19153_CORN_2023" .
+
+# RMA Yield Estimates (APH-based)
+:rma_est_polk_2023 a arden-fin:ModeledEstimate ;
+  arden-fin:wasGeneratedByModel :rma_apt_model ;
+  prov:generatedAtTime "2023-03-15T00:00:00Z"^^xsd:dateTime ;
+  sosa:resultTime "2023-03-15T00:00:00Z"^^xsd:dateTime ;
+  sosa:hasFeatureOfInterest :county_area_19153 ;
+  sosa:observedProperty :crop_corn ;
+  sosa:hasResult [
+    a qudt:QuantityValue ;
+    qudt:numericValue "195.5"^^xsd:decimal ;
+    qudt:unit unit:BushelPerAcre
+  ] ;
+  rdfs:label "RMA APH Yield Estimate - Polk County Corn 2023"@en ;
+  arden:sourceSystemId "RMA_EST_19153_2023" .
+
+:rma_est_story_2023 a arden-fin:ModeledEstimate ;
+  arden-fin:wasGeneratedByModel :rma_apt_model ;
+  prov:generatedAtTime "2023-03-15T00:00:00Z"^^xsd:dateTime ;
+  sosa:resultTime "2023-03-15T00:00:00Z"^^xsd:dateTime ;
+  sosa:hasFeatureOfInterest :county_area_19169 ;
+  sosa:observedProperty :crop_corn ;
+  sosa:hasResult [
+    a qudt:QuantityValue ;
+    qudt:numericValue "192.8"^^xsd:decimal ;
+    qudt:unit unit:BushelPerAcre
+  ] ;
+  rdfs:label "RMA APH Yield Estimate - Story County Corn 2023"@en ;
+  arden:sourceSystemId "RMA_EST_19169_2023" .
+
+# Prevented Planting Events (2023 Spring Flooding)
+:pp_event_polk_2023 a arden-fin:PreventedPlantingEvent ;
+  rdfs:label "Polk County Prevented Planting - Spring 2023"@en ;
+  arden:locatedInCounty :fips_19153 ;
+  <https://example.org/eventDate> "2023-05-15T00:00:00Z"^^xsd:dateTime ;
+  <https://example.org/cause> "Excess Moisture"@en ;
+  <https://example.org/areaAcres> [
+    a qudt:QuantityValue ;
+    qudt:numericValue "12450.0"^^xsd:decimal ;
+    qudt:unit unit:Acre
+  ] ;
+  <https://example.org/indemnityPaid> [
+    a qudt:QuantityValue ;
+    qudt:numericValue "3875432.10"^^xsd:decimal ;
+    qudt:unit unit:Dollar
+  ] ;
+  arden:sourceSystemId "RMA_PP_19153_2023" ;
+  dct:source :rma_datamart .
+
+:pp_event_linn_2023 a arden-fin:PreventedPlantingEvent ;
+  rdfs:label "Linn County Prevented Planting - Spring 2023"@en ;
+  arden:locatedInCounty :fips_19113 ;
+  <https://example.org/eventDate> "2023-05-18T00:00:00Z"^^xsd:dateTime ;
+  <https://example.org/cause> "Excess Moisture"@en ;
+  <https://example.org/areaAcres> [
+    a qudt:QuantityValue ;
+    qudt:numericValue "8234.5"^^xsd:decimal ;
+    qudt:unit unit:Acre
+  ] ;
+  <https://example.org/indemnityPaid> [
+    a qudt:QuantityValue ;
+    qudt:numericValue "2156789.45"^^xsd:decimal ;
+    qudt:unit unit:Dollar
+  ] ;
+  arden:sourceSystemId "RMA_PP_19113_2023" ;
+  dct:source :rma_datamart .
+
+# Insurance Claims (Yield Loss)
+:claim_johnson_2023 a arden-fin:InsuranceClaim ;
+  rdfs:label "Johnson County Corn Yield Loss Claim 2023"@en ;
+  <https://example.org/referencesPolicy> :policy_johnson_corn_2023 ;
+  <https://example.org/claimDate> "2023-11-15T00:00:00Z"^^xsd:dateTime ;
+  <https://example.org/actualYield> [
+    a qudt:QuantityValue ;
+    qudt:numericValue "152.3"^^xsd:decimal ;
+    qudt:unit unit:BushelPerAcre
+  ] ;
+  <https://example.org/guaranteedYield> [
+    a qudt:QuantityValue ;
+    qudt:numericValue "175.0"^^xsd:decimal ;
+    qudt:unit unit:BushelPerAcre
+  ] ;
+  <https://example.org/indemnityPaid> [
+    a qudt:QuantityValue ;
+    qudt:numericValue "1234567.89"^^xsd:decimal ;
+    qudt:unit unit:Dollar
+  ] ;
+  <https://example.org/lossRatio> "0.87"^^xsd:decimal ;
+  arden:sourceSystemId "RMA_CLAIM_19103_2023" .
+
+:policy_johnson_corn_2023 a arden-fin:InsurancePolicy ;
+  rdfs:label "Johnson County Corn Insurance 2023"@en ;
+  arden:locatedInCounty :fips_19103 ;
+  dct:coverage :crop_corn ;
+  <https://example.org/policyYear> "2023"^^xsd:gYear ;
+  <https://example.org/effectiveDate> "2023-03-15T00:00:00Z"^^xsd:dateTime ;
+  <https://example.org/expirationDate> "2023-12-31T23:59:59Z"^^xsd:dateTime .
+
+# County Summary Statistics (derived from RMA SoB)
+:rma_summary_polk_2023 a sosa:Observation ;
+  rdfs:label "RMA County Summary - Polk County 2023"@en ;
+  sosa:hasFeatureOfInterest :fips_19153 ;
+  sosa:resultTime "2023-12-31T00:00:00Z"^^xsd:dateTime ;
+  <https://example.org/totalPolicies> "2,345"^^xsd:integer ;
+  <https://example.org/totalAcres> [
+    a qudt:QuantityValue ;
+    qudt:numericValue "287456.0"^^xsd:decimal ;
+    qudt:unit unit:Acre
+  ] ;
+  <https://example.org/totalLiability> [
+    a qudt:QuantityValue ;
+    qudt:numericValue "456789123.45"^^xsd:decimal ;
+    qudt:unit unit:Dollar
+  ] ;
+  <https://example.org/totalIndemnities> [
+    a qudt:QuantityValue ;
+    qudt:numericValue "12345678.90"^^xsd:decimal ;
+    qudt:unit unit:Dollar
+  ] ;
+  <https://example.org/lossRatio> "0.23"^^xsd:decimal ;
+  arden:sourceSystemId "RMA_SUMMARY_19153_2023" ;
+  dct:source :rma_datamart .

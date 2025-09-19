@@ -1,0 +1,30 @@
+@prefix arden-socio: <https://arden.ag/ont/socio#> .
+@prefix arden: <https://arden.ag/ont/core#> .
+@prefix owl:  <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix qb:   <http://purl.org/linked-data/cube#> .
+@prefix dct:  <http://purl.org/dc/terms/> .
+
+<https://arden.ag/ont/socio>
+  a owl:Ontology ; rdfs:label "Arden SocioEconomic"@en ; owl:versionInfo "v1.1" .
+
+### DataCube scaffolding
+arden-socio:SocioEconomicDataset a owl:Class ;
+  rdfs:subClassOf qb:DataSet ; rdfs:label "Socio-economic dataset"@en .
+
+arden-socio:SocioEconomicObservation a owl:Class ;
+  rdfs:subClassOf qb:Observation ; rdfs:label "Socio-economic observation"@en .
+
+### Example measures/dimensions (can be extended per Census/ERS variable list)
+arden-socio:measureValue a qb:MeasureProperty ; rdfs:label "measure value"@en .
+arden-socio:unit        a qb:AttributeProperty ; rdfs:label "unit"@en .
+arden-socio:county      a qb:DimensionProperty ; rdfs:label "county"@en .
+arden-socio:year        a qb:DimensionProperty ; rdfs:label "year"@en .
+
+# Pattern:
+# :obs a arden-socio:SocioEconomicObservation ;
+#   qb:dataSet :ersFarmIncome ;
+#   arden-socio:county :FIPS_19153 ;
+#   arden-socio:year "2023"^^xsd:gYear ;
+#   arden-socio:measureValue "74200"^^xsd:decimal ;
+#   arden-socio:unit :USD .

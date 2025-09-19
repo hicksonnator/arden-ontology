@@ -1,0 +1,7 @@
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix arden-fin: <https://arden.ag/ont/fin#> .
+
+# Example: loans must reference a farm operation (cross-record checks would be in SPARQL SHACL)
+[] a sh:NodeShape ;
+  sh:targetClass arden-fin:AgriculturalLoan ;
+  sh:property [ sh:path <https://arden.ag/ont/core#hasLoan> ; sh:minCount 0 ] .

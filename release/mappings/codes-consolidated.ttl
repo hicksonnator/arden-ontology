@@ -1,0 +1,69 @@
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix codes: <https://arden.ag/codes/> .
+
+# Consolidated SKOS Code Schemes
+# Keep all code schemes in one graph for independent updates
+
+# FIPS County Codes
+codes:fips-counties a skos:ConceptScheme ;
+  skos:prefLabel "FIPS County Codes"@en ;
+  dct:source <https://www.census.gov/library/reference/code-lists/ansi.html> ;
+  dct:publisher "US Census Bureau"@en ;
+  dct:issued "2024-01-15"^^xsd:date .
+
+# NASS Crop Codes
+codes:nass-crops a skos:ConceptScheme ;
+  skos:prefLabel "USDA NASS Crop Codes"@en ;
+  dct:source <https://quickstats.nass.usda.gov/> ;
+  dct:publisher "USDA NASS"@en ;
+  dct:issued "2024-01-15"^^xsd:date .
+
+# Census Variable Codes
+codes:census-variables a skos:ConceptScheme ;
+  skos:prefLabel "US Census Variable Codes"@en ;
+  dct:source <https://www.census.gov/programs-surveys/acs/> ;
+  dct:publisher "US Census Bureau"@en ;
+  dct:issued "2024-01-15"^^xsd:date .
+
+# ERS Economic Variables
+codes:ers-variables a skos:ConceptScheme ;
+  skos:prefLabel "USDA ERS Economic Variables"@en ;
+  dct:source <https://www.ers.usda.gov/data-products/county-level-data-sets/> ;
+  dct:publisher "USDA ERS"@en ;
+  dct:issued "2024-01-15"^^xsd:date .
+
+# RMA Program Codes
+codes:rma-programs a skos:ConceptScheme ;
+  skos:prefLabel "RMA Program Codes"@en ;
+  dct:source <https://www.rma.usda.gov/> ;
+  dct:publisher "USDA RMA"@en ;
+  dct:issued "2024-01-15"^^xsd:date .
+
+# Sample Code Concepts (extensible)
+codes:corn a skos:Concept ;
+  skos:inScheme codes:nass-crops ;
+  skos:notation "CORN" ;
+  skos:prefLabel "Corn"@en ;
+  skos:altLabel "Maize"@en .
+
+codes:soybeans a skos:Concept ;
+  skos:inScheme codes:nass-crops ;
+  skos:notation "SOYBEANS" ;
+  skos:prefLabel "Soybeans"@en .
+
+codes:median_hh_income a skos:Concept ;
+  skos:inScheme codes:census-variables ;
+  skos:notation "B19013_001E" ;
+  skos:prefLabel "Median Household Income"@en .
+
+# Update Strategy
+codes:update_policy a <http://www.w3.org/ns/prov#Plan> ;
+  rdfs:label "Code Scheme Update Policy"@en ;
+  dct:description """
+Code schemes can be updated independently by:
+1. Loading new version into codes: named graph
+2. Running SPARQL UPDATE to add/deprecate concepts
+3. Validating downstream data still resolves
+4. No ontology rebuild required for code updates
+"""@en .

@@ -1,0 +1,32 @@
+@prefix arden:    <https://arden.ag/ont/core#> .
+@prefix arden-ag: <https://arden.ag/ont/ag#> .
+@prefix owl:      <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs:     <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix sosa:     <http://www.w3.org/ns/sosa/> .
+@prefix qudt:     <http://qudt.org/schema/qudt/> .
+@prefix unit:     <http://qudt.org/vocab/unit/> .
+
+<https://arden.ag/ont/ag>
+  a owl:Ontology ; rdfs:label "Arden Agriculture"@en ; owl:versionInfo "v1.1" .
+
+### Observations (trials, yields, inputs)
+arden-ag:YieldObservation a owl:Class ;
+  rdfs:subClassOf sosa:Observation ;
+  rdfs:label "Yield observation"@en ;
+  rdfs:comment "Yield of a crop at a parcel/time."@en .
+
+arden-ag:InputUseObservation a owl:Class ;
+  rdfs:subClassOf sosa:Observation ;
+  rdfs:label "Input use observation"@en ;
+  rdfs:comment "Application of input (fertilizer, pesticide, seed treatment) with rate/AI."@en .
+
+### Example instance pattern (documentation only):
+# :obs1 a arden-ag:YieldObservation ;
+#   sosa:hasFeatureOfInterest :parcel42 ;
+#   sosa:observedProperty :CropYield ;
+#   sosa:resultTime "2023-10-01T00:00:00Z"^^xsd:dateTime ;
+#   sosa:hasResult [
+#     a qudt:QuantityValue ;
+#     qudt:numericValue "185.2"^^xsd:decimal ;
+#     qudt:unit unit:BushelPerAcre
+#   ] .

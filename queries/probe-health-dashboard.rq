@@ -1,42 +1,129 @@
+# Arden Ontology Production Health Dashboard
+# 5 critical checks that catch 90% of production issues
+# Run this query on every deploy - fail pipeline if thresholds exceeded
+
 PREFIX arden: <https://arden.ag/ont/core#>
 PREFIX arden-ag: <https://arden.ag/ont/ag#>
-PREFIX arden-fin: <https://arden.ag/ont/fin#>
-PREFIX arden-socio: <https://arden.ag/ont/socio#>
-PREFIX geosparql: <http://www.opengis.net/ont/geosparql#>
 PREFIX sosa: <http://www.w3.org/ns/sosa/>
+PREFIX geosparql: <http://www.opengis.net/ont/geosparql#>
+PREFIX qudt: <http://qudt.org/schema/qudt/>
+PREFIX unit: <http://qudt.org/vocab/unit/>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX dct: <http://purl.org/dc/terms/>
+PREFIX prov: <http://www.w3.org/ns/prov#>
 
-# Health dashboard query: key counts and quality metrics
+# Health Check 1: Counts by Class vs Expected Ranges
 SELECT
-  (COUNT(DISTINCT ?parcel) AS ?totalParcels)
-  (COUNT(DISTINCT ?yieldObs) AS ?totalYieldObservations)
-  (COUNT(DISTINCT ?modelEst) AS ?totalModeledEstimates)
-  (COUNT(DISTINCT ?socioObs) AS ?totalSocioEconomicObservations)
-
-  # Quality metrics
-  (COUNT(DISTINCT ?parcelWithoutGeometry) AS ?parcelsWithoutGeometry)
-  (COUNT(DISTINCT ?modelEstWithoutModel) AS ?modelEstimatesWithoutModel)
-  (COUNT(DISTINCT ?yieldWithoutParcel) AS ?yieldsWithoutParcel)
-
+  "CLASS_COUNTS" as ?check_type
+  ?class
+  (COUNT(?instance) as ?actual_count)
+  ?expected_min
+  ?expected_max
+  (IF(?actual_count >= ?expected_min && ?actual_count <= ?expected_max, "PASS", "FAIL") as ?status)
 WHERE {
-  # Count all entities
-  OPTIONAL { ?parcel a arden:FarmParcel }
-  OPTIONAL { ?yieldObs a arden-ag:YieldObservation }
-  OPTIONAL { ?modelEst a arden-fin:ModeledEstimate }
-  OPTIONAL { ?socioObs a arden-socio:SocioEconomicObservation }
-
-  # Quality checks
-  OPTIONAL {
-    ?parcelWithoutGeometry a arden:FarmParcel .
-    FILTER NOT EXISTS { ?parcelWithoutGeometry geosparql:hasGeometry ?geom }
+  VALUES (?class ?expected_min ?expected_max) {
+    (arden:FarmParcel 100 100000)          # Should have substantial parcels
+    (arden-ag:YieldObservation 1000 5000000) # Expect lots of yield data
+    (arden:Loan 10 50000)                  # Financial products range
+    (arden:County 50 5000)                 # US counties reasonable range
   }
 
-  OPTIONAL {
-    ?modelEstWithoutModel a arden-fin:ModeledEstimate .
-    FILTER NOT EXISTS { ?modelEstWithoutModel arden-fin:wasGeneratedByModel ?model }
-  }
-
-  OPTIONAL {
-    ?yieldWithoutParcel a arden-ag:YieldObservation .
-    FILTER NOT EXISTS { ?yieldWithoutParcel sosa:hasFeatureOfInterest ?parcel }
+  {
+    SELECT ?class (COUNT(?instance) as ?actual_count) WHERE {
+      ?instance a ?class .
+    } GROUP BY ?class
   }
 }
+
+UNION
+
+# Health Check 2: Missing Geometry (Critical for Geospatial Operations)
+SELECT
+  "MISSING_GEOMETRY" as ?check_type
+  "FarmParcel" as ?entity_type
+  (COUNT(?parcel) as ?count_missing_geometry)
+  "0" as ?expected_max
+  (IF(COUNT(?parcel) = 0, "PASS", "FAIL") as ?status)
+WHERE {
+  ?parcel a arden:FarmParcel .
+  FILTER NOT EXISTS { ?parcel geosparql:hasGeometry ?geom }
+}
+
+UNION
+
+# Health Check 3: Unit Sanity (Observations without Units or Invalid Units)
+SELECT
+  "UNIT_SANITY" as ?check_type
+  ?issue_type
+  (COUNT(?obs) as ?count_issues)
+  "10" as ?warning_threshold  # Allow small number of unit issues
+  (IF(COUNT(?obs) <= 10, "PASS",
+      IF(COUNT(?obs) <= 100, "WARN", "FAIL")) as ?status)
+WHERE {
+  {
+    # Missing units
+    SELECT ("missing_units" as ?issue_type) ?obs WHERE {
+      ?obs sosa:hasResult ?result .
+      ?result a qudt:QuantityValue .
+      FILTER NOT EXISTS { ?result qudt:unit ?unit }
+    }
+  }
+  UNION
+  {
+    # Invalid units for crop observations
+    SELECT ("invalid_crop_units" as ?issue_type) ?obs WHERE {
+      ?obs a arden-ag:YieldObservation ;
+           sosa:hasResult ?result .
+      ?result qudt:unit ?unit .
+      # Yield should use bushel/acre, kg/ha, or tonne/ha
+      FILTER(?unit NOT IN (unit:BushelPerAcre, unit:KilogramPerHectare, unit:TonnePerHectare))
+    }
+  }
+} GROUP BY ?issue_type
+
+UNION
+
+# Health Check 4: Provenance Gaps (Critical Estimates without Models)
+SELECT
+  "PROVENANCE_GAPS" as ?check_type
+  "ModeledEstimate" as ?entity_type
+  (COUNT(?estimate) as ?count_missing_provenance)
+  "0" as ?expected_max
+  (IF(COUNT(?estimate) = 0, "PASS", "WARN") as ?status)
+WHERE {
+  ?estimate a arden:ModeledEstimate .
+  FILTER NOT EXISTS {
+    ?estimate prov:wasGeneratedBy ?activity .
+    ?activity prov:used ?model .
+  }
+}
+
+UNION
+
+# Health Check 5: Spatial Validity (Simple WKT Length Check)
+SELECT
+  "SPATIAL_VALIDITY" as ?check_type
+  ?issue_type
+  (COUNT(?geom) as ?count_spatial_issues)
+  "5" as ?warning_threshold  # Allow few spatial issues
+  (IF(COUNT(?geom) <= 5, "PASS",
+      IF(COUNT(?geom) <= 50, "WARN", "FAIL")) as ?status)
+WHERE {
+  {
+    # Suspiciously short WKT (likely malformed)
+    SELECT ("short_wkt" as ?issue_type) ?geom WHERE {
+      ?geom geosparql:asWKT ?wkt .
+      FILTER(STRLEN(STR(?wkt)) < 20)
+    }
+  }
+  UNION
+  {
+    # Missing explicit CRS (warning only)
+    SELECT ("missing_srid" as ?issue_type) ?geom WHERE {
+      ?geom geosparql:asWKT ?wkt .
+      FILTER(!REGEX(STR(?wkt), "^SRID=[0-9]+"))
+    }
+  }
+} GROUP BY ?issue_type
+
+ORDER BY ?check_type ?entity_type

@@ -1,0 +1,60 @@
+@prefix : <https://arden.ag/id/> .
+@prefix arden: <https://arden.ag/ont/core#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+
+# Stable IRI Discipline for Enterprise Joins
+# Ensures consistent identifiers for counties, crops, and other key entities
+
+# FIPS County IRI Pattern
+# Template: https://arden.ag/id/county/{fips_code}
+:county_19153 a arden:County ;
+  skos:notation "19153" ;
+  skos:prefLabel "Polk County, IA"@en ;
+  owl:sameAs <https://arden.ag/data/fips_19153> .
+
+:county_19169 a arden:County ;
+  skos:notation "19169" ;
+  skos:prefLabel "Story County, IA"@en ;
+  owl:sameAs <https://arden.ag/data/fips_19169> .
+
+# Farm Parcel IRI Pattern
+# Template: https://arden.ag/id/parcel/{system_id}
+# Avoid auto-generated UUIDs - use source system keys
+
+# Crop IRI Pattern
+# Template: https://arden.ag/id/crop/{nass_code}
+:crop_corn a arden:Crop ;
+  skos:notation "CORN" ;
+  skos:prefLabel "Corn"@en ;
+  arden:nassCropCode "CORN" .
+
+:crop_soybeans a arden:Crop ;
+  skos:notation "SOYBEANS" ;
+  skos:prefLabel "Soybeans"@en ;
+  arden:nassCropCode "SOYBEANS" .
+
+# Contract/Policy IRI Pattern
+# Template: https://arden.ag/id/policy/{rma_policy_number}
+# Template: https://arden.ag/id/contract/{contract_id}
+
+# IRI Naming Convention Documentation
+:iri_patterns a <http://www.w3.org/2004/02/skos/core#ConceptScheme> ;
+  skos:prefLabel "Arden IRI Naming Patterns"@en ;
+  dct:description """
+Stable IRI patterns for agricultural entities:
+
+Counties: /id/county/{fips}
+Parcels: /id/parcel/{source_system_id}
+Crops: /id/crop/{nass_code}
+Farmers: /id/farmer/{tax_id_hash}
+Operations: /id/operation/{ein}
+Policies: /id/policy/{rma_number}
+Contracts: /id/contract/{contract_id}
+
+Guidelines:
+- Use source system primary keys, not auto-generated UUIDs
+- Avoid blank nodes for any entity used in joins
+- Hash sensitive identifiers (SSN, Tax ID) with consistent salt
+- Version IRIs only for temporal entities (time-bound policies)
+"""@en .

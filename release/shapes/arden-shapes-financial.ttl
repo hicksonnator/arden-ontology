@@ -1,0 +1,96 @@
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix arden: <https://arden.ag/ont/core#> .
+@prefix arden-fin: <https://arden.ag/ont/fin#> .
+@prefix qudt: <http://qudt.org/schema/qudt/> .
+@prefix unit: <http://qudt.org/vocab/unit/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# Agricultural Loan constraints
+arden-fin:AgriculturalLoanShape a sh:NodeShape ;
+  sh:targetClass arden-fin:AgriculturalLoan ;
+
+  # Loan amount must be positive
+  sh:property [
+    sh:path [ sh:alternativePath (
+      <https://example.org/loanAmount>
+      <https://example.org/principalBalance>
+      <https://example.org/currentBalance>
+    )] ;
+    sh:datatype xsd:decimal ;
+    sh:minExclusive 0 ;
+    sh:message "Loan amounts must be positive values"
+  ] ;
+
+  # Interest rates: 0% to 500% (allowing for extreme usury cases)
+  sh:property [
+    sh:path <https://example.org/annualRate> ;
+    sh:datatype xsd:decimal ;
+    sh:minInclusive 0 ;
+    sh:maxInclusive 500 ;
+    sh:message "Annual interest rate must be between 0% and 500%"
+  ] ;
+
+  # Current balance should not exceed original loan amount significantly
+  sh:sparql [
+    sh:message "Current balance exceeds loan amount by more than 200% (potential data error)" ;
+    sh:select """
+      SELECT $this
+      WHERE {
+        $this <https://example.org/loanAmount> ?original ;
+              <https://example.org/currentBalance> ?current .
+        FILTER (?current > (?original * 3))
+      }
+    """
+  ] .
+
+# Date consistency for loans
+arden-fin:LoanDateConstraints a sh:NodeShape ;
+  sh:targetClass arden-fin:AgriculturalLoan ;
+
+  # Start date must be before maturity date
+  sh:sparql [
+    sh:message "Loan start date must be before maturity date" ;
+    sh:select """
+      SELECT $this
+      WHERE {
+        $this <https://example.org/startDate> ?start ;
+              <https://example.org/maturityDate> ?maturity .
+        FILTER (?start >= ?maturity)
+      }
+    """
+  ] ;
+
+  # Loan term should match date difference (within reasonable tolerance)
+  sh:sparql [
+    sh:message "Loan term does not match start/maturity date difference" ;
+    sh:select """
+      SELECT $this
+      WHERE {
+        $this <https://example.org/startDate> ?start ;
+              <https://example.org/maturityDate> ?maturity ;
+              <https://example.org/loanTermYears> ?termYears .
+        BIND((?maturity - ?start) / 365.25 AS ?actualYears)
+        FILTER (ABS(?actualYears - ?termYears) > 0.5)
+      }
+    """
+  ] .
+
+# Prevented Planting Event constraints
+arden-fin:PreventedPlantingShape a sh:NodeShape ;
+  sh:targetClass arden-fin:PreventedPlantingEvent ;
+
+  # Must have a location
+  sh:property [
+    sh:path arden:locatedInCounty ;
+    sh:minCount 1 ;
+    sh:message "Prevented planting events must specify location"
+  ] ;
+
+  # Area affected must be positive
+  sh:property [
+    sh:path <https://example.org/areaAcres> ;
+    sh:datatype xsd:decimal ;
+    sh:minExclusive 0 ;
+    sh:maxInclusive 50000 ;
+    sh:message "Prevented planting area must be between 0 and 50,000 acres"
+  ] .

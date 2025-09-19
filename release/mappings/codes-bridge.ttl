@@ -1,0 +1,21 @@
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix scheme: <https://arden.ag/codes/> .
+
+# SKOS ConceptSchemes for public codes (examples)
+scheme:NASS-CropCodes a skos:ConceptScheme ;
+  skos:prefLabel "USDA NASS Crop Codes"@en .
+
+scheme:CENSUS-Variables a skos:ConceptScheme ;
+  skos:prefLabel "US Census / ERS variable codes"@en .
+
+# Example crop code concept (illustrative)
+scheme:corn a skos:Concept ;
+  skos:inScheme scheme:NASS-CropCodes ;
+  skos:prefLabel "Corn"@en ;
+  skos:notation "CORN" .
+
+# Example Census variable (illustrative)
+scheme:MED_HH_INC a skos:Concept ;
+  skos:inScheme scheme:CENSUS-Variables ;
+  skos:prefLabel "Median household income"@en ;
+  skos:notation "B19013_001E" .  # census var code

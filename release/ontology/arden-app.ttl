@@ -1,0 +1,20 @@
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+<https://arden.ag/ont/app>
+  a owl:Ontology ;
+  rdfs:label "Arden Agricultural Infrastructure - Complete Application Ontology"@en ;
+  rdfs:comment "Enterprise-level agricultural infrastructure ontology integrating all domain modules"@en ;
+  owl:versionInfo "v1.2" ;
+  owl:imports
+    <https://arden.ag/ont/core> ,
+    <https://arden.ag/ont/ag> ,
+    <https://arden.ag/ont/fin> ,
+    <https://arden.ag/ont/geo> ,
+    <https://arden.ag/ont/measure> ,
+    <https://arden.ag/ont/socio> ,
+    <https://arden.ag/ont/equipment> ,
+    <https://arden.ag/ont/crops> ,
+    <https://arden.ag/ont/markets> ,
+    <https://arden.ag/ont/regulatory> ,
+    <https://arden.ag/ont/integration> .

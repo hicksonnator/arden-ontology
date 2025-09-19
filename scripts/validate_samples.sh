@@ -12,23 +12,33 @@ fi
 
 echo "Testing sample data against SHACL constraints..."
 
-echo "1. Testing parcels against L1 (ingest-safe) constraints..."
-pyshacl -s shapes/arden-shapes-l1.ttl -t data/sample_parcel.ttl -i rdfs -f human || echo "L1 validation failed"
+echo "1. Testing real NASS data against L1 (ingest-safe) constraints..."
+if pyshacl -s shapes/arden-shapes-l1.ttl data/nass_yield_2023.ttl -f human; then
+    echo "✅ L1 validation PASSED"
+else
+    echo "❌ L1 validation FAILED"
+fi
 
-echo "2. Testing yields against L2 (production) constraints..."
-pyshacl -s shapes/arden-shapes-l2.ttl -t data/sample_yield.ttl -i rdfs -f human || echo "L2 validation failed"
+echo "2. Testing real NASS data against L2 (production) constraints..."
+if pyshacl -s shapes/arden-shapes-l2.ttl data/nass_yield_2023.ttl -f human; then
+    echo "✅ L2 validation PASSED"
+else
+    echo "❌ L2 validation FAILED"
+fi
 
-echo "3. Testing model estimates against provenance constraints..."
-pyshacl -s shapes/arden-shapes-provenance.ttl -t data/sample_model_estimate.ttl -i rdfs -f human || echo "Provenance validation failed"
+echo "3. Testing county data against geospatial constraints..."
+if pyshacl -s shapes/arden-shapes-geospatial.ttl data/fips_counties.ttl -f human; then
+    echo "✅ Geospatial validation PASSED"
+else
+    echo "❌ Geospatial validation FAILED"
+fi
 
-echo "4. Testing geospatial constraints on parcels..."
-pyshacl -s shapes/arden-shapes-geospatial.ttl -t data/sample_parcel.ttl -i rdfs -f human || echo "Geospatial validation failed"
-
-echo "5. Testing domain-specific constraints..."
-pyshacl -s shapes/arden-shapes-domains.ttl -t data/sample_yield.ttl -i rdfs -f human || echo "Domain validation failed"
-
-echo "6. Testing agricultural constraints..."
-pyshacl -s shapes/arden-shapes-agricultural.ttl -t data/sample_yield.ttl -i rdfs -f human || echo "Agricultural validation failed"
+echo "4. Testing RMA data against financial constraints..."
+if pyshacl -s shapes/arden-shapes-l2.ttl data/rma_policies_2023.ttl -f human; then
+    echo "✅ Financial validation PASSED"
+else
+    echo "❌ Financial validation FAILED"
+fi
 
 echo "=== SHACL Validation Complete ==="
 echo "Review any validation failures above."

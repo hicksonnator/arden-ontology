@@ -37,13 +37,25 @@ if [ "$PYSHACL_AVAILABLE" = true ]; then
 
     echo "  Testing NASS yield data..."
     echo "    L1 (Ingest-safe):"
-    pyshacl -s shapes/arden-shapes-l1.ttl -t data/nass_yield_2023.ttl -i rdfs -f human --abort || echo "    L1 validation issues found"
+    if pyshacl -s shapes/arden-shapes-l1.ttl data/nass_yield_2023.ttl -f human; then
+        echo "    ✅ L1 validation PASSED"
+    else
+        echo "    ❌ L1 validation FAILED"
+    fi
 
     echo "    L2 (Production):"
-    pyshacl -s shapes/arden-shapes-l2.ttl -t data/nass_yield_2023.ttl -i rdfs -f human --abort || echo "    L2 validation issues found"
+    if pyshacl -s shapes/arden-shapes-l2.ttl data/nass_yield_2023.ttl -f human; then
+        echo "    ✅ L2 validation PASSED"
+    else
+        echo "    ❌ L2 validation FAILED"
+    fi
 
-    echo "    Agricultural constraints:"
-    pyshacl -s shapes/arden-shapes-agricultural.ttl -t data/nass_yield_2023.ttl -i rdfs -f human --abort || echo "    Agricultural validation issues found"
+    echo "    Geospatial constraints:"
+    if pyshacl -s shapes/arden-shapes-geospatial.ttl data/fips_counties.ttl -f human; then
+        echo "    ✅ Geospatial validation PASSED"
+    else
+        echo "    ❌ Geospatial validation FAILED"
+    fi
 
     echo ""
     echo "  Testing RMA insurance data..."

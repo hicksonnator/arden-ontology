@@ -1,0 +1,265 @@
+@prefix arden: <https://arden.ag/ont/core#> .
+@prefix arden-int: <https://arden.ag/ont/integration#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix sosa: <http://www.w3.org/ns/sosa/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix dcat: <http://www.w3.org/ns/dcat#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix void: <http://rdfs.org/ns/void#> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix qudt: <http://qudt.org/schema/qudt/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+<https://arden.ag/ont/integration>
+  a owl:Ontology ;
+  rdfs:label "Arden Integration"@en ;
+  rdfs:comment "Patterns for integrating external data sources and APIs"@en ;
+  owl:versionInfo "v1.0" ;
+  owl:imports <https://arden.ag/ont/core> ,
+              <http://www.w3.org/ns/dcat#> ,
+              <http://purl.org/dc/terms/> ,
+              <http://www.w3.org/ns/prov-o-20130430> ,
+              <http://rdfs.org/ns/void#> .
+
+### Anchor Classes (production-tight minimal set)
+arden-int:ExternalDataset a owl:Class ;
+  rdfs:subClassOf dcat:Dataset ;
+  rdfs:label "External Dataset"@en ;
+  rdfs:comment "Dataset from external agricultural data source"@en .
+
+arden-int:ApiEndpoint a owl:Class ;
+  rdfs:label "API Endpoint"@en ;
+  rdfs:comment "REST/GraphQL endpoint for accessing external data"@en .
+
+arden-int:IngestionRun a owl:Class ;
+  rdfs:subClassOf prov:Activity ;
+  rdfs:label "Ingestion Run"@en ;
+  rdfs:comment "Execution of data import process with provenance tracking"@en .
+
+arden-int:WeatherDataSource a owl:Class ;
+  rdfs:subClassOf arden-int:ExternalDataSource ;
+  rdfs:label "Weather Data Source"@en ;
+  rdfs:comment "Weather and climate data service"@en .
+
+### Specific Data Sources (for integration planning)
+arden-int:USDA_NASS a owl:Class ;
+  rdfs:subClassOf arden-int:GovernmentDataSource ;
+  rdfs:label "USDA NASS QuickStats"@en ;
+  rdfs:comment "USDA National Agricultural Statistics Service API"@en .
+
+arden-int:RMA_DataMart a owl:Class ;
+  rdfs:subClassOf arden-int:GovernmentDataSource ;
+  rdfs:label "RMA Data Mart"@en ;
+  rdfs:comment "Risk Management Agency actuarial data"@en .
+
+arden-int:NOAA_Weather a owl:Class ;
+  rdfs:subClassOf arden-int:WeatherDataSource ;
+  rdfs:label "NOAA Weather API"@en ;
+  rdfs:comment "National Weather Service data"@en .
+
+arden-int:DTN_Market a owl:Class ;
+  rdfs:subClassOf arden-int:CommercialDataSource ;
+  rdfs:label "DTN Market Data"@en ;
+  rdfs:comment "DTN commodity pricing and weather services"@en .
+
+### Data Integration Patterns
+arden-int:DataFeed a owl:Class ;
+  rdfs:label "Data Feed"@en ;
+  rdfs:comment "Automated data ingestion from external source"@en .
+
+arden-int:BatchImport a owl:Class ;
+  rdfs:subClassOf arden-int:DataFeed ;
+  rdfs:label "Batch Import"@en ;
+  rdfs:comment "Scheduled bulk data import"@en .
+
+arden-int:StreamingFeed a owl:Class ;
+  rdfs:subClassOf arden-int:DataFeed ;
+  rdfs:label "Streaming Feed"@en ;
+  rdfs:comment "Real-time data stream"@en .
+
+arden-int:APIEndpoint a owl:Class ;
+  rdfs:label "API Endpoint"@en ;
+  rdfs:comment "REST/GraphQL endpoint for data access"@en .
+
+### Data Mapping & Transformation
+arden-int:DataMapping a owl:Class ;
+  rdfs:label "Data Mapping"@en ;
+  rdfs:comment "Rules for transforming external data to Arden ontology"@en .
+
+arden-int:FieldMapping a owl:Class ;
+  rdfs:label "Field Mapping"@en ;
+  rdfs:comment "Mapping between external field and ontology property"@en .
+
+arden-int:ValueTransformation a owl:Class ;
+  rdfs:label "Value Transformation"@en ;
+  rdfs:comment "Rule for transforming data values (units, formats, etc.)"@en .
+
+arden-int:CodeMapping a owl:Class ;
+  rdfs:label "Code Mapping"@en ;
+  rdfs:comment "Mapping between external codes and ontology concepts"@en .
+
+### ETL Process Tracking
+arden-int:ETLProcess a owl:Class ;
+  rdfs:subClassOf prov:Activity ;
+  rdfs:label "ETL Process"@en ;
+  rdfs:comment "Extract, Transform, Load process execution"@en .
+
+arden-int:DataIngestionJob a owl:Class ;
+  rdfs:subClassOf arden-int:ETLProcess ;
+  rdfs:label "Data Ingestion Job"@en ;
+  rdfs:comment "Scheduled job for importing external data"@en .
+
+arden-int:DataValidationJob a owl:Class ;
+  rdfs:subClassOf arden-int:ETLProcess ;
+  rdfs:label "Data Validation Job"@en ;
+  rdfs:comment "Process for validating imported data quality"@en .
+
+### Data Quality & Monitoring
+arden-int:DataQualityReport a owl:Class ;
+  rdfs:label "Data Quality Report"@en ;
+  rdfs:comment "Assessment of imported data quality"@en .
+
+arden-int:IntegrationStatus a owl:Class ;
+  rdfs:label "Integration Status"@en ;
+  rdfs:comment "Status of external data source integration"@en .
+
+arden-int:DataFreshness a owl:Class ;
+  rdfs:subClassOf sosa:Observation ;
+  rdfs:label "Data Freshness"@en ;
+  rdfs:comment "Measure of how current external data is"@en .
+
+### Properties
+arden-int:accessesDataSource a owl:ObjectProperty ;
+  rdfs:domain arden-int:DataFeed ;
+  rdfs:range arden-int:ExternalDataSource ;
+  rdfs:label "accesses data source"@en .
+
+arden-int:usesMapping a owl:ObjectProperty ;
+  rdfs:domain arden-int:DataFeed ;
+  rdfs:range arden-int:DataMapping ;
+  rdfs:label "uses mapping"@en .
+
+arden-int:mapsToProperty a owl:ObjectProperty ;
+  rdfs:domain arden-int:FieldMapping ;
+  rdfs:range owl:Property ;
+  rdfs:label "maps to property"@en .
+
+arden-int:sourceField a owl:DatatypeProperty ;
+  rdfs:domain arden-int:FieldMapping ;
+  rdfs:range xsd:string ;
+  rdfs:label "source field"@en .
+
+arden-int:externalCode a owl:DatatypeProperty ;
+  rdfs:domain arden-int:CodeMapping ;
+  rdfs:range xsd:string ;
+  rdfs:label "external code"@en .
+
+arden-int:internalConcept a owl:ObjectProperty ;
+  rdfs:domain arden-int:CodeMapping ;
+  rdfs:range owl:Thing ;
+  rdfs:label "internal concept"@en .
+
+### API Integration Properties
+arden-int:apiEndpoint a owl:DatatypeProperty ;
+  rdfs:domain arden-int:ExternalDataSource ;
+  rdfs:range xsd:anyURI ;
+  rdfs:label "API endpoint"@en .
+
+arden-int:apiKey a owl:DatatypeProperty ;
+  rdfs:domain arden-int:ExternalDataSource ;
+  rdfs:range xsd:string ;
+  rdfs:label "API key"@en ;
+  rdfs:comment "Authentication key (should be encrypted/secured)"@en .
+
+arden-int:rateLimitPerHour a owl:DatatypeProperty ;
+  rdfs:domain arden-int:ExternalDataSource ;
+  rdfs:range xsd:integer ;
+  rdfs:label "rate limit per hour"@en .
+
+arden-int:responseFormat a owl:DatatypeProperty ;
+  rdfs:domain arden-int:ExternalDataSource ;
+  rdfs:range xsd:string ;
+  rdfs:label "response format"@en ;
+  rdfs:comment "JSON, XML, CSV, etc."@en .
+
+### Scheduling & Automation
+arden-int:scheduleExpression a owl:DatatypeProperty ;
+  rdfs:domain arden-int:DataIngestionJob ;
+  rdfs:range xsd:string ;
+  rdfs:label "schedule expression"@en ;
+  rdfs:comment "Cron expression for job scheduling"@en .
+
+arden-int:lastRunTime a owl:DatatypeProperty ;
+  rdfs:domain arden-int:DataIngestionJob ;
+  rdfs:range xsd:dateTime ;
+  rdfs:label "last run time"@en .
+
+arden-int:nextRunTime a owl:DatatypeProperty ;
+  rdfs:domain arden-int:DataIngestionJob ;
+  rdfs:range xsd:dateTime ;
+  rdfs:label "next run time"@en .
+
+arden-int:jobStatus a owl:DatatypeProperty ;
+  rdfs:domain arden-int:DataIngestionJob ;
+  rdfs:range xsd:string ;
+  rdfs:label "job status"@en ;
+  rdfs:comment "active, paused, failed, completed"@en .
+
+### Data Lineage & Provenance
+arden-int:sourceDataset a owl:ObjectProperty ;
+  rdfs:domain prov:Entity ;
+  rdfs:range dcat:Dataset ;
+  rdfs:label "source dataset"@en ;
+  rdfs:subPropertyOf prov:wasDerivedFrom .
+
+arden-int:importedBy a owl:ObjectProperty ;
+  rdfs:domain prov:Entity ;
+  rdfs:range arden-int:ETLProcess ;
+  rdfs:label "imported by"@en ;
+  rdfs:subPropertyOf prov:wasGeneratedBy .
+
+arden-int:externalReference a owl:DatatypeProperty ;
+  rdfs:domain owl:Thing ;
+  rdfs:range xsd:string ;
+  rdfs:label "external reference"@en ;
+  rdfs:comment "Original identifier in external system"@en .
+
+### Data Quality Metrics
+arden-int:recordCount a owl:DatatypeProperty ;
+  rdfs:domain arden-int:DataQualityReport ;
+  rdfs:range xsd:integer ;
+  rdfs:label "record count"@en .
+
+arden-int:errorCount a owl:DatatypeProperty ;
+  rdfs:domain arden-int:DataQualityReport ;
+  rdfs:range xsd:integer ;
+  rdfs:label "error count"@en .
+
+arden-int:dataCompletenessScore a owl:DatatypeProperty ;
+  rdfs:domain arden-int:DataQualityReport ;
+  rdfs:range xsd:decimal ;
+  rdfs:label "data completeness score"@en ;
+  rdfs:comment "Percentage (0-100) of expected data received"@en .
+
+arden-int:dataAge a owl:DatatypeProperty ;
+  rdfs:domain arden-int:DataFreshness ;
+  rdfs:range xsd:duration ;
+  rdfs:label "data age"@en ;
+  rdfs:comment "Time since data was last updated in source system"@en .
+
+### Cache & Performance
+arden-int:CachedData a owl:Class ;
+  rdfs:label "Cached Data"@en ;
+  rdfs:comment "Locally cached copy of external data"@en .
+
+arden-int:cacheExpiryTime a owl:DatatypeProperty ;
+  rdfs:domain arden-int:CachedData ;
+  rdfs:range xsd:dateTime ;
+  rdfs:label "cache expiry time"@en .
+
+arden-int:cacheHitRate a owl:DatatypeProperty ;
+  rdfs:domain arden-int:ExternalDataSource ;
+  rdfs:range xsd:decimal ;
+  rdfs:label "cache hit rate"@en ;
+  rdfs:comment "Percentage of requests served from cache"@en .
