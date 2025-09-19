@@ -1,0 +1,15 @@
+@prefix : <https://example.org/data#> .
+@prefix arden: <https://arden.ag/ont/core#> .
+@prefix geosparql: <http://www.opengis.net/ont/geosparql#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+
+:county_19153 a skos:Concept ;
+  skos:notation "19153" ;
+  skos:prefLabel "Polk County, IA"@en .
+
+:parcel42 a arden:FarmParcel ;
+  arden:locatedInCounty :county_19153 ;
+  geosparql:hasGeometry [
+    a geosparql:Geometry ;
+    geosparql:asWKT "SRID=4326;POLYGON((-93.75 41.6, -93.74 41.6, -93.74 41.61, -93.75 41.61, -93.75 41.6))"^^geosparql:wktLiteral
+  ] .

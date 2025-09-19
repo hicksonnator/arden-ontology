@@ -1,0 +1,13 @@
+PREFIX arden-fin: <https://arden.ag/ont/fin#>
+PREFIX arden: <https://arden.ag/ont/core#>
+
+# Counties with highest prevented planting area (assumes area literals populated)
+SELECT ?county (SUM(?acres) AS ?ppAcres)
+WHERE {
+  ?e a arden-fin:PreventedPlantingEvent ;
+     arden:locatedInCounty ?county ;
+     <https://example.org/areaAcres> ?acres .
+}
+GROUP BY ?county
+ORDER BY DESC(?ppAcres)
+LIMIT 50

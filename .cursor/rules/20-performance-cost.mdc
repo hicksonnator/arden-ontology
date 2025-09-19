@@ -1,0 +1,20 @@
+---
+description: Next.js + Tailwind perf & cost rules
+globs: app/**/*.tsx, components/**/*.tsx, next.config.* , tailwind.config.*,alwaysApply: false
+---
+
+## Rendering
+- Prefer **static** or **ISR** where possible; use **Server Components** by default.
+- Only opt into SSR for truly dynamic paths. Push heavy logic to the server/edge.
+
+## Bundles & Network
+- Use **dynamic import** for heavy client components; no global client state unless required.
+- Use Next Image and font optimization; set proper caching headers; avoid unbounded rewrites.
+- Keep Tailwind production build lean (proper `content` globs; purge unused classes).
+
+## Runtime & Infra
+- Avoid unnecessary edge functions (cost); when used, keep payloads tiny.
+- Memoize pure client components; avoid re-renders; use React Server Actions carefully.
+
+## Diagnostics
+- Add basic web-vitals logging and measure TTFB/LCP/CLS on previews before merge.

@@ -1,0 +1,8 @@
+---
+description: 
+globs: lib/db/**/*.ts, app/api/**/*.ts, app/**/server-actions*.ts
+---
+- Never expose service-role key to the browser. 
+- Assume **RLS ON**; write explicit policies and test access with anon vs service context.
+- Use parameterized queries and input validation; avoid broad `select *`.
+- Follow the Supabase **Production Checklist** before merges (backups, monitoring, limits).

@@ -1,0 +1,30 @@
+PREFIX arden: <https://arden.ag/ont/core#>
+PREFIX arden-reg: <https://arden.ag/ont/regulatory#>
+PREFIX time: <http://www.w3.org/2006/time#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+# Parcels with water rights expiring in the next 12 months
+SELECT ?parcel ?waterRight ?expirationDate ?farmOperation ?daysToExpiry
+WHERE {
+  # Find farm operations with water rights
+  ?farmOperation a arden:FarmOperation ;
+                 arden-reg:hasWaterRights ?waterRight ;
+                 arden:hasParcel ?parcel .
+
+  # Get water right validity period
+  ?waterRight arden-reg:validityInterval ?interval .
+  ?interval time:hasEnd ?endInstant .
+  ?endInstant time:inXSDDateTime ?expirationDate .
+
+  # Calculate days to expiry
+  BIND(((?expirationDate - NOW()) / "P1D"^^xsd:duration) AS ?daysToExpiry)
+
+  # Filter to next 12 months (365 days)
+  FILTER (?daysToExpiry > 0 && ?daysToExpiry <= 365)
+
+  # Optional: get parcel location for context
+  OPTIONAL {
+    ?parcel arden:locatedInCounty ?county .
+  }
+}
+ORDER BY ?daysToExpiry ?farmOperation

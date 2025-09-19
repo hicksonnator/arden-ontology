@@ -1,0 +1,15 @@
+PREFIX arden-ag: <https://arden.ag/ont/ag#>
+PREFIX sosa: <http://www.w3.org/ns/sosa/>
+PREFIX qudt: <http://qudt.org/schema/qudt/>
+PREFIX unit: <http://qudt.org/vocab/unit/>
+
+# Simple probe query: list all yield observations with their values
+SELECT ?obs ?time ?value ?unit WHERE {
+  ?obs a arden-ag:YieldObservation ;
+       sosa:resultTime ?time ;
+       sosa:hasResult ?result .
+
+  ?result qudt:numericValue ?value ;
+          qudt:unit ?unit .
+}
+ORDER BY ?time

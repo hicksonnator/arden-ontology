@@ -1,0 +1,36 @@
+PREFIX arden: <https://arden.ag/ont/core#>
+PREFIX arden-fin: <https://arden.ag/ont/fin#>
+PREFIX qudt: <http://qudt.org/schema/qudt/>
+PREFIX unit: <http://qudt.org/vocab/unit/>
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+# Real data query: Analyze prevented planting events and insurance impacts
+# Uses real RMA data to understand climate/weather risk patterns
+
+SELECT ?county ?countyLabel ?ppAcres ?indemnity ?indemnityPerAcre ?cause ?eventDate WHERE {
+  # Get prevented planting events
+  ?ppEvent a arden-fin:PreventedPlantingEvent ;
+           arden:locatedInCounty ?county ;
+           <https://example.org/eventDate> ?eventDate ;
+           <https://example.org/cause> ?cause ;
+           <https://example.org/areaAcres> ?acresQV ;
+           <https://example.org/indemnityPaid> ?indemnityQV .
+
+  # Extract values from quantity values
+  ?acresQV qudt:numericValue ?ppAcres ;
+           qudt:unit unit:Acre .
+
+  ?indemnityQV qudt:numericValue ?indemnity ;
+               qudt:unit unit:Dollar .
+
+  # Get county information
+  ?county skos:prefLabel ?countyLabel .
+
+  # Calculate indemnity per acre
+  BIND((?indemnity / ?ppAcres) AS ?indemnityPerAcre)
+
+  # Filter to 2023 spring events
+  FILTER(YEAR(?eventDate) = 2023 && MONTH(?eventDate) >= 3 && MONTH(?eventDate) <= 7)
+}
+ORDER BY DESC(?ppAcres)

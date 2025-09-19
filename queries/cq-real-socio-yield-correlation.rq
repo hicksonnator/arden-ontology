@@ -1,0 +1,56 @@
+PREFIX arden: <https://arden.ag/ont/core#>
+PREFIX arden-ag: <https://arden.ag/ont/ag#>
+PREFIX arden-socio: <https://arden.ag/ont/socio#>
+PREFIX sosa: <http://www.w3.org/ns/sosa/>
+PREFIX qudt: <http://qudt.org/schema/qudt/>
+PREFIX unit: <http://qudt.org/vocab/unit/>
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+PREFIX qb: <http://purl.org/linked-data/cube#>
+
+# Real data query: Explore correlation between county socioeconomic factors and agricultural productivity
+# Uses real Census/ERS and NASS data to analyze rural development patterns
+
+SELECT ?county ?countyLabel ?yield ?medianIncome ?farmEarnings ?population ?yieldPerCapita WHERE {
+  # Get 2023 corn yields
+  ?yieldObs a arden-ag:YieldObservation ;
+            sosa:hasFeatureOfInterest ?area ;
+            sosa:observedProperty <https://arden.ag/data/crop_corn> ;
+            sosa:resultTime ?time ;
+            sosa:hasResult ?yieldResult .
+
+  ?yieldResult qudt:numericValue ?yield ;
+               qudt:unit unit:BushelPerAcre .
+
+  ?area arden:locatedInCounty ?county .
+  ?county skos:prefLabel ?countyLabel .
+
+  # Get median household income
+  ?incomeObs a arden-socio:SocioEconomicObservation ;
+             arden-socio:county ?county ;
+             arden-socio:year "2023"^^xsd:gYear ;
+             arden-socio:variable <https://arden.ag/data/var_median_hh_income> ;
+             arden-socio:measureValue ?medianIncome .
+
+  # Get population
+  ?popObs a arden-socio:SocioEconomicObservation ;
+          arden-socio:county ?county ;
+          arden-socio:year "2023"^^xsd:gYear ;
+          arden-socio:variable <https://arden.ag/data/var_total_population> ;
+          arden-socio:measureValue ?population .
+
+  # Get farm earnings (optional - not all counties may have this)
+  OPTIONAL {
+    ?farmObs a arden-socio:SocioEconomicObservation ;
+             arden-socio:county ?county ;
+             arden-socio:year "2023"^^xsd:gYear ;
+             arden-socio:variable <https://arden.ag/data/var_farm_earnings> ;
+             arden-socio:measureValue ?farmEarnings .
+  }
+
+  # Filter to 2023 data
+  FILTER(YEAR(?time) = 2023)
+
+  # Calculate agricultural productivity per capita (synthetic metric)
+  BIND((?yield / (?population / 1000)) AS ?yieldPerCapita)
+}
+ORDER BY DESC(?yieldPerCapita)

@@ -1,0 +1,162 @@
+@prefix arden: <https://arden.ag/ont/core#> .
+@prefix arden-equip: <https://arden.ag/ont/equipment#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix sosa: <http://www.w3.org/ns/sosa/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix qudt: <http://qudt.org/schema/qudt/> .
+@prefix unit: <http://qudt.org/vocab/unit/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+
+<https://arden.ag/ont/equipment>
+  a owl:Ontology ;
+  rdfs:label "Arden Equipment"@en ;
+  rdfs:comment "Farm equipment, machinery, and infrastructure aligned with ISOBUS/ISO 11783 standards"@en ;
+  owl:versionInfo "v1.0" ;
+  owl:imports <https://arden.ag/ont/core> ,
+              <http://www.w3.org/ns/sosa/> ,
+              <http://www.w3.org/2006/time#> ,
+              <http://qudt.org/2.1/schema/qudt> ,
+              <http://qudt.org/2.1/vocab/unit> .
+
+### Anchor Classes (production-tight minimal set)
+arden-equip:Machine a owl:Class ;
+  rdfs:label "Machine"@en ;
+  rdfs:comment "Base class for agricultural machinery and implements"@en .
+
+arden-equip:Tractor a owl:Class ;
+  rdfs:subClassOf arden-equip:Machine ;
+  rdfs:label "Tractor"@en ;
+  rdfs:comment "Self-propelled agricultural vehicle"@en .
+
+arden-equip:Implement a owl:Class ;
+  rdfs:subClassOf arden-equip:Machine ;
+  rdfs:label "Implement"@en ;
+  rdfs:comment "Tool or attachment used with tractors"@en .
+
+arden-equip:TelemetryEvent a owl:Class ;
+  rdfs:subClassOf sosa:Observation ;
+  rdfs:label "Telemetry Event"@en ;
+  rdfs:comment "Equipment sensor reading or operational data point"@en .
+
+arden-equip:hasEngineHours a owl:ObjectProperty ;
+  rdfs:domain arden-equip:TelemetryEvent ;
+  rdfs:range qudt:QuantityValue ;
+  rdfs:label "has engine hours"@en .
+
+arden-equip:Planter a owl:Class ;
+  rdfs:subClassOf arden-equip:Implement ;
+  rdfs:label "Planter"@en .
+
+arden-equip:Harvester a owl:Class ;
+  rdfs:subClassOf arden-equip:FarmEquipment ;
+  rdfs:label "Harvester"@en .
+
+arden-equip:Sprayer a owl:Class ;
+  rdfs:subClassOf arden-equip:FarmEquipment ;
+  rdfs:label "Sprayer"@en .
+
+### Infrastructure
+arden-equip:FarmInfrastructure a owl:Class ;
+  rdfs:label "Farm Infrastructure"@en ;
+  rdfs:comment "Built agricultural facilities and systems"@en .
+
+arden-equip:GrainBin a owl:Class ;
+  rdfs:subClassOf arden-equip:FarmInfrastructure ;
+  rdfs:label "Grain Storage Bin"@en .
+
+arden-equip:IrrigationSystem a owl:Class ;
+  rdfs:subClassOf arden-equip:FarmInfrastructure ;
+  rdfs:label "Irrigation System"@en .
+
+### Equipment Operations & Telemetry
+arden-equip:EquipmentOperation a owl:Class ;
+  rdfs:subClassOf sosa:Observation ;
+  rdfs:label "Equipment Operation"@en ;
+  rdfs:comment "A recorded operation performed by farm equipment"@en .
+
+arden-equip:TelemetryReading a owl:Class ;
+  rdfs:subClassOf sosa:Observation ;
+  rdfs:label "Equipment Telemetry Reading"@en ;
+  rdfs:comment "Sensor data from equipment (fuel, hours, GPS, etc.)"@en .
+
+### Maintenance & Service
+arden-equip:MaintenanceEvent a owl:Class ;
+  rdfs:subClassOf prov:Activity ;
+  rdfs:label "Maintenance Event"@en ;
+  rdfs:comment "Scheduled or unscheduled equipment maintenance"@en .
+
+arden-equip:ServiceRecord a owl:Class ;
+  rdfs:label "Service Record"@en ;
+  rdfs:comment "Documentation of equipment service history"@en .
+
+### Properties
+arden-equip:operatedBy a owl:ObjectProperty ;
+  rdfs:domain arden-equip:EquipmentOperation ;
+  rdfs:range arden:Farmer ;
+  rdfs:label "operated by"@en .
+
+arden-equip:usesEquipment a owl:ObjectProperty ;
+  rdfs:domain arden-equip:EquipmentOperation ;
+  rdfs:range arden-equip:FarmEquipment ;
+  rdfs:label "uses equipment"@en .
+
+arden-equip:performedOn a owl:ObjectProperty ;
+  rdfs:domain arden-equip:EquipmentOperation ;
+  rdfs:range arden:FarmParcel ;
+  rdfs:label "performed on"@en .
+
+arden-equip:hasMaintenanceRecord a owl:ObjectProperty ;
+  rdfs:domain arden-equip:FarmEquipment ;
+  rdfs:range arden-equip:ServiceRecord ;
+  rdfs:label "has maintenance record"@en .
+
+# ISOBUS/Telemetry properties
+arden-equip:isobusDeviceId a owl:DatatypeProperty ;
+  rdfs:domain arden-equip:FarmEquipment ;
+  rdfs:range xsd:string ;
+  rdfs:label "ISOBUS device identifier"@en ;
+  rdfs:comment "ISO 11783 compliant device identifier"@en .
+
+arden-equip:engineHours a owl:DatatypeProperty ;
+  rdfs:domain arden-equip:TelemetryReading ;
+  rdfs:range xsd:decimal ;
+  rdfs:label "engine hours"@en .
+
+arden-equip:fuelConsumption a owl:ObjectProperty ;
+  rdfs:domain arden-equip:TelemetryReading ;
+  rdfs:range qudt:QuantityValue ;
+  rdfs:label "fuel consumption"@en .
+
+arden-equip:workingWidth a owl:ObjectProperty ;
+  rdfs:domain arden-equip:Implement ;
+  rdfs:range qudt:QuantityValue ;
+  rdfs:label "working width"@en .
+
+### Equipment Status
+arden-equip:equipmentStatus a owl:DatatypeProperty ;
+  rdfs:domain arden-equip:FarmEquipment ;
+  rdfs:range xsd:string ;
+  rdfs:label "equipment status"@en ;
+  rdfs:comment "Values: active, maintenance, retired, sold"@en .
+
+arden-equip:acquisitionDate a owl:DatatypeProperty ;
+  rdfs:domain arden-equip:FarmEquipment ;
+  rdfs:range xsd:date ;
+  rdfs:label "acquisition date"@en .
+
+arden-equip:modelYear a owl:DatatypeProperty ;
+  rdfs:domain arden-equip:FarmEquipment ;
+  rdfs:range xsd:gYear ;
+  rdfs:label "model year"@en .
+
+arden-equip:manufacturer a owl:DatatypeProperty ;
+  rdfs:domain arden-equip:FarmEquipment ;
+  rdfs:range xsd:string ;
+  rdfs:label "manufacturer"@en .
+
+arden-equip:serialNumber a owl:DatatypeProperty ;
+  rdfs:domain arden-equip:FarmEquipment ;
+  rdfs:range xsd:string ;
+  rdfs:label "serial number"@en .

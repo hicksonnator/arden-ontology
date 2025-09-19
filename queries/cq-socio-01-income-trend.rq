@@ -1,0 +1,12 @@
+PREFIX qb: <http://purl.org/linked-data/cube#>
+PREFIX arden-socio: <https://arden.ag/ont/socio#>
+
+# Median household income trend by county (Census proxy)
+SELECT ?county ?year ?value
+WHERE {
+  ?obs a arden-socio:SocioEconomicObservation ;
+       arden-socio:county ?county ;
+       arden-socio:year ?year ;
+       arden-socio:measureValue ?value .
+}
+ORDER BY ?county ?year

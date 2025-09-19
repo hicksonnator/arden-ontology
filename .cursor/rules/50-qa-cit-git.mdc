@@ -1,0 +1,9 @@
+---
+description: 
+globs: 
+---
+- Use small, descriptive commits; one logical change per commit.
+- Run: build, lint, typecheck, and targeted tests before proposing a PR.
+- CI: prefer `npm ci` with a pinned Node LTS; cache node_modules; fail on type errors.
+- Do not commit env files; verify `.gitignore` catches `.env*`.
+- For dependency upgrades, include a short risk note and changelog links

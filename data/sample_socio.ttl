@@ -1,0 +1,26 @@
+@prefix : <https://example.org/data#> .
+@prefix qb: <http://purl.org/linked-data/cube#> .
+@prefix arden-socio: <https://arden.ag/ont/socio#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+:ersFarmIncome a qb:DataSet ;
+  rdfs:label "ERS Farm Income Dataset"@en ;
+  qb:structure arden-socio:CountyEconomicStructure .
+
+:USD a <http://www.w3.org/2004/02/skos/core#Concept> ;
+  <http://www.w3.org/2004/02/skos/core#notation> "USD" ;
+  <http://www.w3.org/2004/02/skos/core#prefLabel> "US Dollar"@en .
+
+:soc1 a arden-socio:SocioEconomicObservation ;
+  qb:dataSet :ersFarmIncome ;
+  arden-socio:county :county_19153 ;
+  arden-socio:year "2023"^^xsd:gYear ;
+  arden-socio:measureValue "74200"^^xsd:decimal ;
+  arden-socio:unit :USD .
+
+:soc2 a arden-socio:SocioEconomicObservation ;
+  qb:dataSet :ersFarmIncome ;
+  arden-socio:county :county_19153 ;
+  arden-socio:year "2022"^^xsd:gYear ;
+  arden-socio:measureValue "68500"^^xsd:decimal ;
+  arden-socio:unit :USD .

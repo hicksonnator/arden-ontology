@@ -1,0 +1,50 @@
+PREFIX arden-markets: <https://arden.ag/ont/markets#>
+PREFIX sosa: <http://www.w3.org/ns/sosa/>
+PREFIX qudt: <http://qudt.org/schema/qudt/>
+PREFIX unit: <http://qudt.org/vocab/unit/>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+# Daily front-month corn futures above 95th percentile last 3 years
+SELECT ?date ?price ?percentile
+WHERE {
+  # Get corn futures prices from last 3 years
+  ?obs a arden-markets:PriceObservation ;
+       sosa:observedProperty <https://arden.ag/codes/corn-futures> ;
+       arden-markets:contractMonth ?contractMonth ;
+       sosa:resultTime ?date ;
+       arden-markets:priceValue ?priceQV .
+
+  ?priceQV qudt:numericValue ?price ;
+           qudt:unit unit:Dollar .
+
+  # Filter to last 3 years and front-month contracts
+  FILTER (?date >= (NOW() - "P3Y"^^xsd:duration))
+  FILTER (?contractMonth >= ?date)  # Front-month contract
+
+  # Calculate if price is above 95th percentile (simplified - would need statistical function)
+  {
+    SELECT (COUNT(*) AS ?totalCount) WHERE {
+      ?allObs a arden-markets:PriceObservation ;
+              sosa:observedProperty <https://arden.ag/codes/corn-futures> ;
+              sosa:resultTime ?allDate ;
+              arden-markets:priceValue/qudt:numericValue ?allPrice .
+      FILTER (?allDate >= (NOW() - "P3Y"^^xsd:duration))
+    }
+  }
+
+  {
+    SELECT (COUNT(*) AS ?belowCount) WHERE {
+      ?belowObs a arden-markets:PriceObservation ;
+                sosa:observedProperty <https://arden.ag/codes/corn-futures> ;
+                sosa:resultTime ?belowDate ;
+                arden-markets:priceValue/qudt:numericValue ?belowPrice .
+      FILTER (?belowDate >= (NOW() - "P3Y"^^xsd:duration))
+      FILTER (?belowPrice < ?price)
+    }
+  }
+
+  BIND((?belowCount / ?totalCount) * 100 AS ?percentile)
+  FILTER (?percentile >= 95)
+}
+ORDER BY DESC(?date)
+LIMIT 50

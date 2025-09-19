@@ -1,0 +1,24 @@
+---
+description: Core agent loop for Rowan Web (Next.js + Tailwind + Clerk + Supabase)
+globs: alwaysApply: true
+---
+## Prime Directive
+- Be correct, minimal, reversible. Prefer small diffs and atomic commits.
+- Before running any command or editing code: **Pause → Plan → Risks → Execute → Verify → Summarize.**
+- Never introduce new libs unless strictly necessary; justify when you do.
+
+## Reflection Loop (use this every time)
+1) **Plan**: state goal, impacted files, and approach in bullets.
+2) **Checks**: confirm env vars, routes, build constraints, and security implications.
+3) **Risks**: list breakage risks (types, auth, RLS, SSR/CSR boundaries).
+4) **Execute**: make smallest viable change; keep code idiomatic.
+5) **Verify**: run build/dev, lint, and targeted checks; paste logs.
+6) **Summarize**: what changed, why, and next safe step.
+
+## Code Style & UX
+- Next.js App Router, TypeScript, functional components, Tailwind for styling.
+- Clean, MBB-style spacing and hierarchy; never clutter the hero.
+
+## Don’ts
+- Don’t commit .env*, secrets, or service keys. Don’t bypass checks with `--no-verify`.
+- Don’t run destructive commands or `--force` fixes without prior Plan/Risks + approval notes.

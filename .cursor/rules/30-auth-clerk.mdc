@@ -1,0 +1,8 @@
+---
+description: Clerk usage guard-rails
+globs: app/**/auth*.tsx, app/**/signin*.tsx, app/**/login*.tsx, components/**/Header*.tsx
+---
+- Show **Google + Microsoft** only (as configured in Clerk Dashboard).
+- SSR-safe usage: on server, use Clerk server helpers; on client, `useAuth()` guards UI.
+- Ensure preview domains are added to Allowed Origins before testing PR deploys.
+- Pull first name from Clerk for greeting on first chat, gated by a local cookie.

@@ -1,0 +1,23 @@
+---
+description: Security Posture
+globs: alwaysApply: true
+---
+
+## Secrets & Auth
+- Use **Clerk** for auth. Keep publishable key client-side only; secret/server keys only on server. Restrict Allowed Origins (localhost, Vercel preview, prod). Prefer OAuth/OIDC flows and least-privilege scopes. 
+- Never log tokens or PII; scrub logs. 
+- When adding providers, verify redirect URLs and state/nonce handling.
+
+## Supabase
+- Enforce **Row Level Security** and explicit policies on all user data tables. Use **anon key** in browser, **service-role key** only on server code. Align with the latest Supabase production checklist for secure rollouts.
+- Avoid long-lived service tokens; rotate credentials regularly.
+
+## Supply Chain
+- Pin deps; avoid surprise majors. Run `npm audit` but never auto-accept `--force`. 
+- Check lockfile in PRs. If a common package shows unusual changes (sudden new maintainer / repo), halt and review.
+- Be aware of active **npm/PyPI compromise waves**; treat even popular packages with scrutiny.
+
+## App Hardening
+- Sanitize/validate all user input (zod + server-side validation). 
+- Use `Content-Security-Policy` and `X-Frame-Options` headers; prefer `SameSite=Lax` cookies; never store secrets in localStorage.
+- Gate all server routes by session; deny by default.

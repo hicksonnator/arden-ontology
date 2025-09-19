@@ -1,0 +1,43 @@
+PREFIX : <https://arden.ag/data/>
+PREFIX arden: <https://arden.ag/ont/core#>
+PREFIX arden-ag: <https://arden.ag/ont/ag#>
+PREFIX sosa: <http://www.w3.org/ns/sosa/>
+PREFIX qudt: <http://qudt.org/schema/qudt/>
+PREFIX unit: <http://qudt.org/vocab/unit/>
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+# SPARQL INSERT template for ETL pipeline
+# Bind variables from your CSV/JSON data source:
+# - ?parcelId (string): "42"
+# - ?fips (string): "19153"
+# - ?ts (string): "2023-10-01T00:00:00Z"
+# - ?val (string): "185.2"
+
+INSERT {
+  ?parcel a arden:FarmParcel ;
+          arden:locatedInCounty ?county .
+
+  ?obs a arden-ag:YieldObservation ;
+       sosa:hasFeatureOfInterest ?parcel ;
+       sosa:resultTime ?timestamp ;
+       sosa:hasResult ?result .
+
+  ?result a qudt:QuantityValue ;
+          qudt:numericValue ?yieldValue ;
+          qudt:unit unit:BushelPerAcre .
+
+  ?county a skos:Concept ;
+          skos:notation ?fips .
+}
+WHERE {
+  # Bind IRIs from CSV columns (your ETL pipeline provides these variables)
+  BIND(IRI(CONCAT("https://arden.ag/data/parcel/", ?parcelId)) AS ?parcel)
+  BIND(IRI(CONCAT("https://arden.ag/data/county/", ?fips)) AS ?county)
+  BIND(IRI(CONCAT("https://arden.ag/data/yield-obs/", ?parcelId, "-", ?obsId)) AS ?obs)
+  BIND(IRI(CONCAT("https://arden.ag/data/yield-result/", ?parcelId, "-", ?obsId)) AS ?result)
+
+  # Type conversions
+  BIND(xsd:dateTime(?ts) AS ?timestamp)
+  BIND(xsd:decimal(?val) AS ?yieldValue)
+}

@@ -1,0 +1,155 @@
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix arden: <https://arden.ag/ont/core#> .
+@prefix arden-fin: <https://arden.ag/ont/fin#> .
+@prefix arden-ag: <https://arden.ag/ont/ag#> .
+@prefix arden-socio: <https://arden.ag/ont/socio#> .
+@prefix sosa: <http://www.w3.org/ns/sosa/> .
+@prefix qb: <http://purl.org/linked-data/cube#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# Farm operations must have either parcels or loans (or both)
+arden:FarmOperationCompleteness a sh:NodeShape ;
+  sh:targetClass arden:FarmOperation ;
+
+  sh:sparql [
+    sh:message "Farm operation must have at least one parcel or loan" ;
+    sh:select """
+      SELECT $this
+      WHERE {
+        $this a arden:FarmOperation .
+        FILTER NOT EXISTS { $this arden:hasParcel ?parcel }
+        FILTER NOT EXISTS { $this arden:hasLoan ?loan }
+      }
+    """
+  ] .
+
+# Prevented planting events must reference valid parcels
+arden-fin:PreventedPlantingParcelConsistency a sh:NodeShape ;
+  sh:targetClass arden-fin:PreventedPlantingEvent ;
+
+  sh:sparql [
+    sh:message "Prevented planting event location must match a known farm parcel county" ;
+    sh:select """
+      SELECT $this
+      WHERE {
+        $this arden:locatedInCounty ?county .
+        FILTER NOT EXISTS {
+          ?parcel a arden:FarmParcel ;
+                  arden:locatedInCounty ?county
+        }
+      }
+    """
+  ] ;
+
+  # Prevented planting events should occur during planting season
+  sh:sparql [
+    sh:message "Prevented planting event outside typical planting season" ;
+    sh:select """
+      SELECT $this
+      WHERE {
+        $this <https://example.org/eventDate> ?eventDate .
+        BIND(MONTH(?eventDate) AS ?month)
+        # Planting season: March-July in Northern Hemisphere
+        FILTER (?month < 3 || ?month > 7)
+      }
+    """
+  ] .
+
+# Insurance claims must reference valid policies
+arden-fin:InsuranceClaimPolicyConsistency a sh:NodeShape ;
+  sh:targetClass arden-fin:InsuranceClaim ;
+
+  sh:property [
+    sh:path <https://example.org/referencesPolicy> ;
+    sh:class arden-fin:InsurancePolicy ;
+    sh:minCount 1 ;
+    sh:message "Insurance claim must reference a valid policy"
+  ] ;
+
+  # Claim date should be within policy coverage period
+  sh:sparql [
+    sh:message "Insurance claim date outside policy coverage period" ;
+    sh:select """
+      SELECT $this
+      WHERE {
+        $this <https://example.org/referencesPolicy> ?policy ;
+              <https://example.org/claimDate> ?claimDate .
+        ?policy <https://example.org/effectiveDate> ?effective ;
+                <https://example.org/expirationDate> ?expiration .
+        FILTER (?claimDate < ?effective || ?claimDate > ?expiration)
+      }
+    """
+  ] .
+
+# Agricultural observations must reference valid parcels within farm operations
+arden:ObservationParcelConsistency a sh:NodeShape ;
+  sh:targetClass arden-ag:YieldObservation , arden-ag:InputUseObservation ;
+
+  sh:sparql [
+    sh:message "Agricultural observation references parcel not associated with any farm operation" ;
+    sh:select """
+      SELECT $this
+      WHERE {
+        $this sosa:hasFeatureOfInterest ?parcel .
+        ?parcel a arden:FarmParcel .
+        FILTER NOT EXISTS {
+          ?operation a arden:FarmOperation ;
+                     arden:hasParcel ?parcel
+        }
+      }
+    """
+  ] .
+
+# Socioeconomic observations must have consistent county references
+arden-socio:CountyConsistency a sh:NodeShape ;
+  sh:targetClass arden-socio:SocioEconomicObservation ;
+
+  # County dimension must match known county entities
+  sh:sparql [
+    sh:message "Socioeconomic observation references unknown county" ;
+    sh:select """
+      SELECT $this
+      WHERE {
+        $this arden-socio:county ?county .
+        FILTER NOT EXISTS {
+          ?county a <https://example.org/County>
+        }
+        # Alternative: check against known FIPS codes
+        FILTER (!REGEX(STR(?county), "FIPS_[0-9]{5}"))
+      }
+    """
+  ] ;
+
+  # Year should be reasonable (not future, not too historical)
+  sh:sparql [
+    sh:message "Socioeconomic observation year outside reasonable range" ;
+    sh:select """
+      SELECT $this
+      WHERE {
+        $this arden-socio:year ?year .
+        BIND(YEAR(NOW()) AS ?currentYear)
+        FILTER (?year > ?currentYear || ?year < (?currentYear - 50))
+      }
+    """
+  ] .
+
+# Cross-dataset temporal alignment
+arden:TemporalAlignment a sh:NodeShape ;
+  sh:targetClass arden-ag:YieldObservation ;
+
+  # Yield observations should align with loan repayment schedules
+  sh:sparql [
+    sh:message "Yield observation timing may not align with related loan schedule" ;
+    sh:select """
+      SELECT $this
+      WHERE {
+        $this sosa:hasFeatureOfInterest ?parcel ;
+              sosa:resultTime ?yieldTime .
+        ?operation arden:hasParcel ?parcel ;
+                   arden:hasLoan ?loan .
+        ?loan <https://example.org/paymentDate> ?paymentDate .
+        # Yield should be observed before payment due (harvest before payment)
+        FILTER (?yieldTime > ?paymentDate)
+      }
+    """
+  ] .

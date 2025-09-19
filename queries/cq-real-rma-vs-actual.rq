@@ -1,0 +1,43 @@
+PREFIX arden: <https://arden.ag/ont/core#>
+PREFIX arden-ag: <https://arden.ag/ont/ag#>
+PREFIX arden-fin: <https://arden.ag/ont/fin#>
+PREFIX sosa: <http://www.w3.org/ns/sosa/>
+PREFIX qudt: <http://qudt.org/schema/qudt/>
+PREFIX unit: <http://qudt.org/vocab/unit/>
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+
+# Real data query: Compare RMA yield estimates vs actual NASS yields by county
+# Demonstrates model prediction accuracy using real agricultural data
+
+SELECT ?county ?countyLabel ?rmaEstimate ?actualYield ?difference ?accuracyPercent WHERE {
+  # Get RMA modeled estimates
+  ?rmaObs a arden-fin:ModeledEstimate ;
+          arden-fin:wasGeneratedByModel <https://arden.ag/data/rma_apt_model> ;
+          sosa:hasFeatureOfInterest ?area ;
+          sosa:hasResult ?rmaResult .
+
+  ?rmaResult qudt:numericValue ?rmaEstimate ;
+             qudt:unit unit:BushelPerAcre .
+
+  # Get actual NASS yields for same area
+  ?nassObs a arden-ag:YieldObservation ;
+           sosa:hasFeatureOfInterest ?area ;
+           sosa:observedProperty <https://arden.ag/data/crop_corn> ;
+           sosa:resultTime ?time ;
+           sosa:hasResult ?nassResult .
+
+  ?nassResult qudt:numericValue ?actualYield ;
+              qudt:unit unit:BushelPerAcre .
+
+  # Get county information
+  ?area arden:locatedInCounty ?county .
+  ?county skos:prefLabel ?countyLabel .
+
+  # Filter to 2023 data
+  FILTER(YEAR(?time) = 2023)
+
+  # Calculate prediction accuracy
+  BIND((?actualYield - ?rmaEstimate) AS ?difference)
+  BIND((1 - (ABS(?difference) / ?actualYield)) * 100 AS ?accuracyPercent)
+}
+ORDER BY DESC(?accuracyPercent)

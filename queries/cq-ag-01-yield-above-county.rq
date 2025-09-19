@@ -1,0 +1,17 @@
+PREFIX sosa: <http://www.w3.org/ns/sosa/>
+PREFIX qudt: <http://qudt.org/schema/qudt/>
+PREFIX arden-ag: <https://arden.ag/ont/ag#>
+PREFIX arden: <https://arden.ag/ont/core#>
+
+# Return parcel yield observations above county average (proxy: assume county avg materialized)
+SELECT ?obs ?parcel ?value
+WHERE {
+  ?obs a arden-ag:YieldObservation ;
+       sosa:hasFeatureOfInterest ?parcel ;
+       sosa:hasResult ?res .
+  ?res qudt:numericValue ?value .
+  ?parcel arden:locatedInCounty ?county .
+  ?county <https://example.org/hasAvgYield> ?avg .
+  FILTER (?value > ?avg)
+}
+LIMIT 100

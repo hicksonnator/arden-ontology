@@ -1,0 +1,102 @@
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix arden: <https://arden.ag/ont/core#> .
+@prefix arden-fin: <https://arden.ag/ont/fin#> .
+@prefix arden-ag: <https://arden.ag/ont/ag#> .
+@prefix arden-socio: <https://arden.ag/ont/socio#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix sosa: <http://www.w3.org/ns/sosa/> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# Source system ID requirements for data lineage
+arden:SourceSystemIdConstraints a sh:NodeShape ;
+  sh:targetClass arden:FarmOperation , arden:FarmParcel , arden-fin:AgriculturalLoan ;
+
+  # All major entities should have source system identifiers
+  sh:property [
+    sh:path arden:sourceSystemId ;
+    sh:datatype xsd:string ;
+    sh:minCount 1 ;
+    sh:minLength 1 ;
+    sh:message "Entity must have non-empty source system identifier for data lineage"
+  ] .
+
+# Modeled estimates must reference models
+arden-fin:ModeledEstimateProvenance a sh:NodeShape ;
+  sh:targetClass arden-fin:ModeledEstimate ;
+
+  # Must reference the model that generated it
+  sh:property [
+    sh:path arden-fin:wasGeneratedByModel ;
+    sh:class arden-fin:EstimationModel ;
+    sh:minCount 1 ;
+    sh:message "Modeled estimate must reference the generating model"
+  ] ;
+
+  # Must have generation time
+  sh:property [
+    sh:path prov:generatedAtTime ;
+    sh:datatype xsd:dateTime ;
+    sh:minCount 1 ;
+    sh:message "Modeled estimate must have generation timestamp"
+  ] ;
+
+  # Generation time should be recent (within 5 years)
+  sh:sparql [
+    sh:message "Modeled estimate generation time is too old (>5 years)" ;
+    sh:select """
+      SELECT $this
+      WHERE {
+        $this prov:generatedAtTime ?time .
+        BIND(NOW() - ?time AS ?age)
+        FILTER (?age > "P5Y"^^xsd:duration)
+      }
+    """
+  ] .
+
+# Observation temporal validity
+arden:ObservationTemporalConstraints a sh:NodeShape ;
+  sh:targetClass arden-ag:YieldObservation , arden-ag:InputUseObservation ;
+
+  # Result time should not be in the future
+  sh:sparql [
+    sh:message "Observation result time cannot be in the future" ;
+    sh:select """
+      SELECT $this
+      WHERE {
+        $this sosa:resultTime ?time .
+        FILTER (?time > NOW())
+      }
+    """
+  ] ;
+
+  # Result time should not be too old (>50 years for historical data)
+  sh:sparql [
+    sh:message "Observation result time is unusually old (>50 years)" ;
+    sh:select """
+      SELECT $this
+      WHERE {
+        $this sosa:resultTime ?time .
+        BIND(NOW() - ?time AS ?age)
+        FILTER (?age > "P50Y"^^xsd:duration)
+      }
+    """
+  ] .
+
+# Socioeconomic dataset provenance
+arden-socio:DatasetProvenance a sh:NodeShape ;
+  sh:targetClass arden-socio:SocioEconomicDataset ;
+
+  # Should have data source attribution
+  sh:property [
+    sh:path dct:source ;
+    sh:minCount 1 ;
+    sh:message "Socioeconomic dataset should specify data source"
+  ] ;
+
+  # Should have temporal coverage
+  sh:property [
+    sh:path dct:temporal ;
+    sh:minCount 1 ;
+    sh:message "Socioeconomic dataset should specify temporal coverage"
+  ] .

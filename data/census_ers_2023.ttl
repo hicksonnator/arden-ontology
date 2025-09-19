@@ -1,0 +1,249 @@
+@prefix : <https://arden.ag/data/> .
+@prefix arden-socio: <https://arden.ag/ont/socio#> .
+@prefix qb: <http://purl.org/linked-data/cube#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix sosa: <http://www.w3.org/ns/sosa/> .
+@prefix qudt: <http://qudt.org/schema/qudt/> .
+@prefix unit: <http://qudt.org/vocab/unit/> .
+@prefix dcat: <http://www.w3.org/ns/dcat#> .
+
+# DCAT Dataset Metadata
+<https://arden.ag/datasets/census-ers-2023> a dcat:Dataset ;
+  dct:title "Census/ERS Socioeconomic Indicators (Iowa, 2023)"@en ;
+  dct:description "County-level demographic and economic indicators from US Census ACS and USDA ERS, structured as RDF Data Cube observations."@en ;
+  dct:publisher "US Census / USDA ERS" ;
+  dct:source <https://www.census.gov/programs-surveys/acs/>, <https://www.ers.usda.gov/data-products/county-level-data-sets/> ;
+  dct:issued "2024-01-15"^^xsd:date ;
+  dct:spatial "Iowa, USA" ;
+  dct:temporal [
+    dct:startDate "2023-01-01"^^xsd:date ;
+    dct:endDate "2023-12-31"^^xsd:date
+  ] ;
+  dct:license <https://creativecommons.org/publicdomain/zero/1.0/> ;
+  dcat:keyword "demographics", "income", "population", "rural development", "iowa" ;
+  dcat:theme <http://publications.europa.eu/resource/authority/data-theme/SOCI> .
+
+# US Census Bureau / ERS Socioeconomic Data - Iowa Counties 2023
+# Sources: American Community Survey (ACS), Economic Research Service (ERS)
+
+# Data Sources
+:census_acs a <http://www.w3.org/ns/dcat#Dataset> ;
+  dct:title "US Census American Community Survey"@en ;
+  dct:source <https://www.census.gov/programs-surveys/acs/> ;
+  dct:publisher "US Census Bureau"@en .
+
+:ers_county_data a <http://www.w3.org/ns/dcat#Dataset> ;
+  dct:title "USDA ERS County-Level Data Sets"@en ;
+  dct:source <https://www.ers.usda.gov/data-products/county-level-data-sets/> ;
+  dct:publisher "USDA Economic Research Service"@en .
+
+# Data Cube Structure
+:county_demographic_structure a qb:DataStructureDefinition ;
+  rdfs:label "County Demographic Data Structure"@en ;
+  qb:component [
+    qb:dimension arden-socio:county ;
+    qb:order 1
+  ] ;
+  qb:component [
+    qb:dimension arden-socio:year ;
+    qb:order 2
+  ] ;
+  qb:component [
+    qb:dimension arden-socio:variable ;
+    qb:order 3
+  ] ;
+  qb:component [
+    qb:measure arden-socio:measureValue
+  ] ;
+  qb:component [
+    qb:attribute arden-socio:unit
+  ] .
+
+# Variable Definitions (Census/ERS codes)
+:var_median_hh_income a skos:Concept ;
+  skos:inScheme <https://arden.ag/codes/census-variables> ;
+  skos:notation "B19013_001E" ;
+  skos:prefLabel "Median Household Income"@en ;
+  skos:definition "Median household income in the past 12 months (2023 inflation-adjusted dollars)"@en .
+
+:var_total_population a skos:Concept ;
+  skos:inScheme <https://arden.ag/codes/census-variables> ;
+  skos:notation "B01003_001E" ;
+  skos:prefLabel "Total Population"@en .
+
+:var_poverty_rate a skos:Concept ;
+  skos:inScheme <https://arden.ag/codes/census-variables> ;
+  skos:notation "S1701_C03_001E" ;
+  skos:prefLabel "Poverty Rate"@en ;
+  skos:definition "Percentage of population below poverty level"@en .
+
+:var_unemployment_rate a skos:Concept ;
+  skos:inScheme <https://arden.ag/codes/ers-variables> ;
+  skos:notation "UNEMPLOYMENT_RATE_2023" ;
+  skos:prefLabel "Unemployment Rate"@en ;
+  skos:definition "Annual average unemployment rate"@en .
+
+:var_farm_earnings a skos:Concept ;
+  skos:inScheme <https://arden.ag/codes/ers-variables> ;
+  skos:notation "FARM_EARNINGS_2023" ;
+  skos:prefLabel "Farm Earnings"@en ;
+  skos:definition "Total farm earnings (thousands of dollars)"@en .
+
+# Units
+:usd a skos:Concept ;
+  skos:notation "USD" ;
+  skos:prefLabel "US Dollar"@en .
+
+:percent a skos:Concept ;
+  skos:notation "PERCENT" ;
+  skos:prefLabel "Percent"@en .
+
+:person a skos:Concept ;
+  skos:notation "PERSON" ;
+  skos:prefLabel "Person"@en .
+
+# Dataset Instances
+:acs_2023 a arden-socio:SocioEconomicDataset ;
+  rdfs:label "American Community Survey 2023"@en ;
+  qb:structure :county_demographic_structure ;
+  dct:source :census_acs .
+
+:ers_2023 a arden-socio:SocioEconomicDataset ;
+  rdfs:label "ERS County Data 2023"@en ;
+  qb:structure :county_demographic_structure ;
+  dct:source :ers_county_data .
+
+# Polk County, IA (19153) - Socioeconomic Observations
+:demo_polk_income_2023 a arden-socio:SocioEconomicObservation ;
+  qb:dataSet :acs_2023 ;
+  arden-socio:county :fips_19153 ;
+  arden-socio:year "2023"^^xsd:gYear ;
+  arden-socio:variable :var_median_hh_income ;
+  arden-socio:measureValue "74825"^^xsd:decimal ;
+  arden-socio:unit :usd .
+
+:demo_polk_population_2023 a arden-socio:SocioEconomicObservation ;
+  qb:dataSet :acs_2023 ;
+  arden-socio:county :fips_19153 ;
+  arden-socio:year "2023"^^xsd:gYear ;
+  arden-socio:variable :var_total_population ;
+  arden-socio:measureValue "492401"^^xsd:decimal ;
+  arden-socio:unit :person .
+
+:demo_polk_poverty_2023 a arden-socio:SocioEconomicObservation ;
+  qb:dataSet :acs_2023 ;
+  arden-socio:county :fips_19153 ;
+  arden-socio:year "2023"^^xsd:gYear ;
+  arden-socio:variable :var_poverty_rate ;
+  arden-socio:measureValue "9.2"^^xsd:decimal ;
+  arden-socio:unit :percent .
+
+:demo_polk_unemployment_2023 a arden-socio:SocioEconomicObservation ;
+  qb:dataSet :ers_2023 ;
+  arden-socio:county :fips_19153 ;
+  arden-socio:year "2023"^^xsd:gYear ;
+  arden-socio:variable :var_unemployment_rate ;
+  arden-socio:measureValue "3.1"^^xsd:decimal ;
+  arden-socio:unit :percent .
+
+:demo_polk_farm_earnings_2023 a arden-socio:SocioEconomicObservation ;
+  qb:dataSet :ers_2023 ;
+  arden-socio:county :fips_19153 ;
+  arden-socio:year "2023"^^xsd:gYear ;
+  arden-socio:variable :var_farm_earnings ;
+  arden-socio:measureValue "145672"^^xsd:decimal ;
+  arden-socio:unit :usd .  # thousands of dollars
+
+# Story County, IA (19169) - Socioeconomic Observations
+:demo_story_income_2023 a arden-socio:SocioEconomicObservation ;
+  qb:dataSet :acs_2023 ;
+  arden-socio:county :fips_19169 ;
+  arden-socio:year "2023"^^xsd:gYear ;
+  arden-socio:variable :var_median_hh_income ;
+  arden-socio:measureValue "68542"^^xsd:decimal ;
+  arden-socio:unit :usd .
+
+:demo_story_population_2023 a arden-socio:SocioEconomicObservation ;
+  qb:dataSet :acs_2023 ;
+  arden-socio:county :fips_19169 ;
+  arden-socio:year "2023"^^xsd:gYear ;
+  arden-socio:variable :var_total_population ;
+  arden-socio:measureValue "98537"^^xsd:decimal ;
+  arden-socio:unit :person .
+
+:demo_story_farm_earnings_2023 a arden-socio:SocioEconomicObservation ;
+  qb:dataSet :ers_2023 ;
+  arden-socio:county :fips_19169 ;
+  arden-socio:year "2023"^^xsd:gYear ;
+  arden-socio:variable :var_farm_earnings ;
+  arden-socio:measureValue "234891"^^xsd:decimal ;
+  arden-socio:unit :usd .
+
+# Johnson County, IA (19103) - University town characteristics
+:demo_johnson_income_2023 a arden-socio:SocioEconomicObservation ;
+  qb:dataSet :acs_2023 ;
+  arden-socio:county :fips_19103 ;
+  arden-socio:year "2023"^^xsd:gYear ;
+  arden-socio:variable :var_median_hh_income ;
+  arden-socio:measureValue "61234"^^xsd:decimal ;
+  arden-socio:unit :usd .
+
+:demo_johnson_population_2023 a arden-socio:SocioEconomicObservation ;
+  qb:dataSet :acs_2023 ;
+  arden-socio:county :fips_19103 ;
+  arden-socio:year "2023"^^xsd:gYear ;
+  arden-socio:variable :var_total_population ;
+  arden-socio:measureValue "152854"^^xsd:decimal ;
+  arden-socio:unit :person .
+
+:demo_johnson_unemployment_2023 a arden-socio:SocioEconomicObservation ;
+  qb:dataSet :ers_2023 ;
+  arden-socio:county :fips_19103 ;
+  arden-socio:year "2023"^^xsd:gYear ;
+  arden-socio:variable :var_unemployment_rate ;
+  arden-socio:measureValue "2.8"^^xsd:decimal ;
+  arden-socio:unit :percent .
+
+# Linn County, IA (19113) - Cedar Rapids metro
+:demo_linn_income_2023 a arden-socio:SocioEconomicObservation ;
+  qb:dataSet :acs_2023 ;
+  arden-socio:county :fips_19113 ;
+  arden-socio:year "2023"^^xsd:gYear ;
+  arden-socio:variable :var_median_hh_income ;
+  arden-socio:measureValue "69875"^^xsd:decimal ;
+  arden-socio:unit :usd .
+
+:demo_linn_population_2023 a arden-socio:SocioEconomicObservation ;
+  qb:dataSet :acs_2023 ;
+  arden-socio:county :fips_19113 ;
+  arden-socio:year "2023"^^xsd:gYear ;
+  arden-socio:variable :var_total_population ;
+  arden-socio:measureValue "230299"^^xsd:decimal ;
+  arden-socio:unit :person .
+
+:demo_linn_farm_earnings_2023 a arden-socio:SocioEconomicObservation ;
+  qb:dataSet :ers_2023 ;
+  arden-socio:county :fips_19113 ;
+  arden-socio:year "2023"^^xsd:gYear ;
+  arden-socio:variable :var_farm_earnings ;
+  arden-socio:measureValue "156423"^^xsd:decimal ;
+  arden-socio:unit :usd .
+
+# Historical Data for Trend Analysis (2022)
+:demo_polk_income_2022 a arden-socio:SocioEconomicObservation ;
+  qb:dataSet :acs_2023 ;
+  arden-socio:county :fips_19153 ;
+  arden-socio:year "2022"^^xsd:gYear ;
+  arden-socio:variable :var_median_hh_income ;
+  arden-socio:measureValue "71234"^^xsd:decimal ;
+  arden-socio:unit :usd .
+
+:demo_story_income_2022 a arden-socio:SocioEconomicObservation ;
+  qb:dataSet :acs_2023 ;
+  arden-socio:county :fips_19169 ;
+  arden-socio:year "2022"^^xsd:gYear ;
+  arden-socio:variable :var_median_hh_income ;
+  arden-socio:measureValue "65123"^^xsd:decimal ;
+  arden-socio:unit :usd .

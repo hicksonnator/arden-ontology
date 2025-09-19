@@ -1,0 +1,29 @@
+PREFIX arden: <https://arden.ag/ont/core#>
+PREFIX arden-equip: <https://arden.ag/ont/equipment#>
+PREFIX sosa: <http://www.w3.org/ns/sosa/>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+# Parcels with operations conducted by a specific tractor in 2024
+SELECT ?parcel ?operation ?date ?tractorId ?operationType
+WHERE {
+  # Bind specific tractor (replace with actual tractor URI)
+  VALUES ?targetTractor { <https://arden.ag/equipment/tractor-123> }
+
+  # Find operations using this tractor
+  ?operation a arden-equip:EquipmentOperation ;
+             arden-equip:usesEquipment ?targetTractor ;
+             arden-equip:performedOn ?parcel ;
+             sosa:resultTime ?date .
+
+  # Filter to 2024
+  FILTER (YEAR(?date) = 2024)
+
+  # Get tractor identifier and operation type
+  ?targetTractor arden-equip:serialNumber ?tractorId .
+
+  OPTIONAL {
+    ?operation a ?operationType .
+    FILTER (?operationType != arden-equip:EquipmentOperation)
+  }
+}
+ORDER BY ?parcel ?date

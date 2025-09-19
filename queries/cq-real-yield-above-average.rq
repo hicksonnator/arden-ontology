@@ -1,0 +1,46 @@
+PREFIX arden: <https://arden.ag/ont/core#>
+PREFIX arden-ag: <https://arden.ag/ont/ag#>
+PREFIX sosa: <http://www.w3.org/ns/sosa/>
+PREFIX qudt: <http://qudt.org/schema/qudt/>
+PREFIX unit: <http://qudt.org/vocab/unit/>
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+
+# Real data query: Iowa counties with 2023 corn yields above state average
+# Uses actual NASS data from nass_yield_2023.ttl
+
+SELECT ?county ?countyLabel ?yield ?aboveAverage WHERE {
+  # Get all 2023 corn yield observations
+  ?obs a arden-ag:YieldObservation ;
+       sosa:hasFeatureOfInterest ?area ;
+       sosa:observedProperty <https://arden.ag/data/crop_corn> ;
+       sosa:resultTime ?time ;
+       sosa:hasResult ?result .
+
+  ?result qudt:numericValue ?yield ;
+          qudt:unit unit:BushelPerAcre .
+
+  ?area arden:locatedInCounty ?county .
+  ?county skos:prefLabel ?countyLabel .
+
+  # Filter to 2023 data
+  FILTER(YEAR(?time) = 2023)
+
+  # Calculate average yield
+  {
+    SELECT (AVG(?allYield) AS ?avgYield) WHERE {
+      ?allObs a arden-ag:YieldObservation ;
+              sosa:observedProperty <https://arden.ag/data/crop_corn> ;
+              sosa:resultTime ?allTime ;
+              sosa:hasResult ?allResult .
+      ?allResult qudt:numericValue ?allYield .
+      FILTER(YEAR(?allTime) = 2023)
+    }
+  }
+
+  # Only counties above average
+  FILTER(?yield > ?avgYield)
+
+  # Calculate how much above average
+  BIND((?yield - ?avgYield) AS ?aboveAverage)
+}
+ORDER BY DESC(?yield)

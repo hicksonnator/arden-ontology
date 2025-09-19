@@ -1,0 +1,176 @@
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix arden: <https://arden.ag/ont/core#> .
+@prefix arden-fin: <https://arden.ag/ont/fin#> .
+@prefix arden-ag: <https://arden.ag/ont/ag#> .
+@prefix arden-equip: <https://arden.ag/ont/equipment#> .
+@prefix arden-crops: <https://arden.ag/ont/crops#> .
+@prefix arden-markets: <https://arden.ag/ont/markets#> .
+@prefix geosparql: <http://www.opengis.net/ont/geosparql#> .
+@prefix sosa: <http://www.w3.org/ns/sosa/> .
+@prefix qudt: <http://qudt.org/schema/qudt/> .
+@prefix unit: <http://qudt.org/vocab/unit/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+### Financial Domain Constraints (thin, high-value rules)
+
+# APR constraints with warning vs error levels
+arden-fin:AgriculturalLoanAPRConstraints a sh:NodeShape ;
+  sh:targetClass arden-fin:AgriculturalLoan ;
+
+  # Hard error: APR cannot be negative
+  sh:property [
+    sh:path <https://example.org/annualRate> ;
+    sh:datatype xsd:decimal ;
+    sh:minInclusive 0 ;
+    sh:severity sh:Violation ;
+    sh:message "APR cannot be negative"
+  ] ;
+
+  # Warning: APR above 100% (usury cases)
+  sh:sparql [
+    sh:severity sh:Warning ;
+    sh:message "APR above 100% - verify usury compliance" ;
+    sh:select """
+      SELECT $this
+      WHERE {
+        $this <https://example.org/annualRate> ?apr .
+        FILTER (?apr > 100)
+      }
+    """
+  ] .
+
+### Agricultural Domain Constraints
+
+# Per-crop unit allow-list for yield observations
+arden-ag:YieldUnitConstraints a sh:NodeShape ;
+  sh:targetClass arden-ag:YieldObservation ;
+
+  sh:sparql [
+    sh:message "Yield unit not allowed for this crop type" ;
+    sh:select """
+      SELECT $this
+      WHERE {
+        $this sosa:hasFeatureOfInterest ?parcel ;
+              sosa:hasResult ?result .
+        ?parcel <https://example.org/growsCrop> ?crop .
+        ?result qudt:unit ?unit .
+
+        # Corn should use bushels per acre or kg per hectare
+        FILTER (
+          (?crop = <https://arden.ag/codes/corn> &&
+           ?unit NOT IN (unit:BushelPerAcre, unit:KilogramPerHectare)) ||
+          (?crop = <https://arden.ag/codes/soybeans> &&
+           ?unit NOT IN (unit:BushelPerAcre, unit:KilogramPerHectare)) ||
+          (?crop = <https://arden.ag/codes/wheat> &&
+           ?unit NOT IN (unit:BushelPerAcre, unit:KilogramPerHectare))
+        )
+      }
+    """
+  ] .
+
+### Geospatial Domain Constraints
+
+# WKT datatype check and CRS presence
+arden:GeospatialDataQuality a sh:NodeShape ;
+  sh:targetClass arden:FarmParcel ;
+
+  # WKT literals must have correct datatype
+  sh:property [
+    sh:path geosparql:hasGeometry/geosparql:asWKT ;
+    sh:datatype geosparql:wktLiteral ;
+    sh:minCount 1 ;
+    sh:message "Geometry must have valid WKT literal with geosparql:wktLiteral datatype"
+  ] ;
+
+  # CRS should be present (EPSG code pattern)
+  sh:sparql [
+    sh:message "Geometry missing coordinate reference system (CRS)" ;
+    sh:select """
+      SELECT $this
+      WHERE {
+        $this geosparql:hasGeometry ?geom .
+        ?geom geosparql:asWKT ?wkt .
+        FILTER (!REGEX(STR(?wkt), "SRID=[0-9]+"))
+      }
+    """
+  ] .
+
+### Provenance Domain Constraints
+
+# Every ModeledEstimate must have exactly one model reference + timestamp
+arden-fin:ModeledEstimateProvenance a sh:NodeShape ;
+  sh:targetClass arden-fin:ModeledEstimate ;
+
+  sh:property [
+    sh:path arden-fin:wasGeneratedByModel ;
+    sh:class arden-fin:EstimationModel ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:message "Modeled estimate must reference exactly one estimation model"
+  ] ;
+
+  sh:property [
+    sh:path <http://www.w3.org/ns/prov#generatedAtTime> ;
+    sh:datatype xsd:dateTime ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:message "Modeled estimate must have exactly one generation timestamp"
+  ] .
+
+### Enterprise Domain Constraints
+
+# Equipment telemetry must include either engineHours or distance (SPARQL-SHACL OR)
+arden-equip:TelemetryCompletenessConstraints a sh:NodeShape ;
+  sh:targetClass arden-equip:TelemetryEvent ;
+
+  sh:sparql [
+    sh:message "Equipment telemetry must include either engine hours or distance measurement" ;
+    sh:select """
+      SELECT $this
+      WHERE {
+        $this a arden-equip:TelemetryEvent .
+        FILTER NOT EXISTS { $this arden-equip:hasEngineHours ?hours }
+        FILTER NOT EXISTS { $this <https://example.org/hasDistance> ?distance }
+      }
+    """
+  ] .
+
+### Markets Domain Constraints
+
+# Price observations must have reasonable currency units
+arden-markets:PriceUnitConstraints a sh:NodeShape ;
+  sh:targetClass arden-markets:PriceObservation ;
+
+  sh:property [
+    sh:path arden-markets:priceValue/qudt:unit ;
+    sh:in ( unit:Dollar unit:Euro unit:Yuan unit:Pound ) ;
+    sh:message "Price observation must use recognized currency unit"
+  ] ;
+
+  # Price values should be positive
+  sh:property [
+    sh:path arden-markets:priceValue/qudt:numericValue ;
+    sh:datatype xsd:decimal ;
+    sh:minExclusive 0 ;
+    sh:message "Price values must be positive"
+  ] .
+
+### Crops Domain Constraints
+
+# BBCH codes must follow standard format
+arden-crops:GrowthStageConstraints a sh:NodeShape ;
+  sh:targetClass arden-crops:GrowthStage ;
+
+  sh:property [
+    sh:path arden-crops:bbchCode ;
+    sh:datatype xsd:string ;
+    sh:pattern "^[0-9]{2}$" ;
+    sh:message "BBCH code must be exactly 2 digits (00-99)"
+  ] ;
+
+  sh:property [
+    sh:path arden-crops:bbchCode ;
+    sh:minInclusive "00" ;
+    sh:maxInclusive "99" ;
+    sh:message "BBCH code must be between 00 and 99"
+  ] .

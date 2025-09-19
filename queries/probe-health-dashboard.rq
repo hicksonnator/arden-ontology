@@ -1,0 +1,42 @@
+PREFIX arden: <https://arden.ag/ont/core#>
+PREFIX arden-ag: <https://arden.ag/ont/ag#>
+PREFIX arden-fin: <https://arden.ag/ont/fin#>
+PREFIX arden-socio: <https://arden.ag/ont/socio#>
+PREFIX geosparql: <http://www.opengis.net/ont/geosparql#>
+PREFIX sosa: <http://www.w3.org/ns/sosa/>
+
+# Health dashboard query: key counts and quality metrics
+SELECT
+  (COUNT(DISTINCT ?parcel) AS ?totalParcels)
+  (COUNT(DISTINCT ?yieldObs) AS ?totalYieldObservations)
+  (COUNT(DISTINCT ?modelEst) AS ?totalModeledEstimates)
+  (COUNT(DISTINCT ?socioObs) AS ?totalSocioEconomicObservations)
+
+  # Quality metrics
+  (COUNT(DISTINCT ?parcelWithoutGeometry) AS ?parcelsWithoutGeometry)
+  (COUNT(DISTINCT ?modelEstWithoutModel) AS ?modelEstimatesWithoutModel)
+  (COUNT(DISTINCT ?yieldWithoutParcel) AS ?yieldsWithoutParcel)
+
+WHERE {
+  # Count all entities
+  OPTIONAL { ?parcel a arden:FarmParcel }
+  OPTIONAL { ?yieldObs a arden-ag:YieldObservation }
+  OPTIONAL { ?modelEst a arden-fin:ModeledEstimate }
+  OPTIONAL { ?socioObs a arden-socio:SocioEconomicObservation }
+
+  # Quality checks
+  OPTIONAL {
+    ?parcelWithoutGeometry a arden:FarmParcel .
+    FILTER NOT EXISTS { ?parcelWithoutGeometry geosparql:hasGeometry ?geom }
+  }
+
+  OPTIONAL {
+    ?modelEstWithoutModel a arden-fin:ModeledEstimate .
+    FILTER NOT EXISTS { ?modelEstWithoutModel arden-fin:wasGeneratedByModel ?model }
+  }
+
+  OPTIONAL {
+    ?yieldWithoutParcel a arden-ag:YieldObservation .
+    FILTER NOT EXISTS { ?yieldWithoutParcel sosa:hasFeatureOfInterest ?parcel }
+  }
+}

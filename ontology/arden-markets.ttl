@@ -1,0 +1,246 @@
+@prefix arden: <https://arden.ag/ont/core#> .
+@prefix arden-markets: <https://arden.ag/ont/markets#> .
+@prefix arden-crops: <https://arden.ag/ont/crops#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix sosa: <http://www.w3.org/ns/sosa/> .
+@prefix qudt: <http://qudt.org/schema/qudt/> .
+@prefix unit: <http://qudt.org/vocab/unit/> .
+@prefix time: <http://www.w3.org/2006/time#> .
+@prefix schema: <https://schema.org/> .
+@prefix fibo-fnd: <https://spec.edmcouncil.org/fibo/ontology/FND/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+<https://arden.ag/ont/markets>
+  a owl:Ontology ;
+  rdfs:label "Arden Markets"@en ;
+  rdfs:comment "Commodity markets, pricing, and supply chain relationships"@en ;
+  owl:versionInfo "v1.0" ;
+  owl:imports <https://arden.ag/ont/core> ,
+              <https://arden.ag/ont/crops> ,
+              <http://qudt.org/2.1/schema/qudt> ,
+              <http://qudt.org/2.1/vocab/unit> ,
+              <http://www.w3.org/2006/time#> .
+
+### Anchor Classes (production-tight minimal set)
+arden-markets:PriceObservation a owl:Class ;
+  rdfs:subClassOf sosa:Observation ;
+  rdfs:label "Price Observation"@en ;
+  rdfs:comment "Market price reading with QUDT QuantityValue in USD per unit"@en .
+
+arden-markets:FuturesContract a owl:Class ;
+  rdfs:label "Futures Contract"@en ;
+  rdfs:comment "Standardized contract for future delivery of commodity"@en .
+
+arden-markets:DeliveryLocation a owl:Class ;
+  rdfs:label "Delivery Location"@en ;
+  rdfs:comment "Geographic location for commodity delivery"@en .
+
+arden-markets:priceValue a owl:ObjectProperty ;
+  rdfs:domain arden-markets:PriceObservation ;
+  rdfs:range qudt:QuantityValue ;
+  rdfs:label "price value"@en ;
+  rdfs:comment "Price amount with currency unit (typically USD)"@en .
+
+### Pricing & Contracts
+arden-markets:CommodityPrice a owl:Class ;
+  rdfs:subClassOf sosa:Observation ;
+  rdfs:label "Commodity Price"@en ;
+  rdfs:comment "Market price observation for agricultural commodity"@en .
+
+arden-markets:FuturesContract a owl:Class ;
+  rdfs:label "Futures Contract"@en ;
+  rdfs:comment "Standardized contract for future delivery of commodity"@en .
+
+arden-markets:ForwardContract a owl:Class ;
+  rdfs:label "Forward Contract"@en ;
+  rdfs:comment "Private contract for future delivery at agreed price"@en .
+
+arden-markets:CashSale a owl:Class ;
+  rdfs:label "Cash Sale"@en ;
+  rdfs:comment "Immediate sale and delivery transaction"@en .
+
+### Supply Chain Entities
+arden-markets:SupplyChainActor a owl:Class ;
+  rdfs:subClassOf schema:Organization ;
+  rdfs:label "Supply Chain Actor"@en ;
+  rdfs:comment "Entity involved in agricultural supply chain"@en .
+
+arden-markets:GrainElevator a owl:Class ;
+  rdfs:subClassOf arden-markets:SupplyChainActor ;
+  rdfs:label "Grain Elevator"@en ;
+  rdfs:comment "Facility for storing and handling grain"@en .
+
+arden-markets:Processor a owl:Class ;
+  rdfs:subClassOf arden-markets:SupplyChainActor ;
+  rdfs:label "Processor"@en ;
+  rdfs:comment "Entity that processes raw agricultural commodities"@en .
+
+arden-markets:InputSupplier a owl:Class ;
+  rdfs:subClassOf arden-markets:SupplyChainActor ;
+  rdfs:label "Input Supplier"@en ;
+  rdfs:comment "Supplier of seeds, fertilizer, chemicals, etc."@en .
+
+arden-markets:Transporter a owl:Class ;
+  rdfs:subClassOf arden-markets:SupplyChainActor ;
+  rdfs:label "Transporter"@en ;
+  rdfs:comment "Entity providing transportation services"@en .
+
+### Input Products & Services
+arden-markets:AgriculturalInput a owl:Class ;
+  rdfs:label "Agricultural Input"@en ;
+  rdfs:comment "Products used in agricultural production"@en .
+
+arden-markets:Seed a owl:Class ;
+  rdfs:subClassOf arden-markets:AgriculturalInput ;
+  rdfs:label "Seed"@en .
+
+arden-markets:Fertilizer a owl:Class ;
+  rdfs:subClassOf arden-markets:AgriculturalInput ;
+  rdfs:label "Fertilizer"@en .
+
+arden-markets:Pesticide a owl:Class ;
+  rdfs:subClassOf arden-markets:AgriculturalInput ;
+  rdfs:label "Pesticide"@en .
+
+arden-markets:Fuel a owl:Class ;
+  rdfs:subClassOf arden-markets:AgriculturalInput ;
+  rdfs:label "Fuel"@en .
+
+### Transactions & Logistics
+arden-markets:SaleTransaction a owl:Class ;
+  rdfs:label "Sale Transaction"@en ;
+  rdfs:comment "Record of commodity sale"@en .
+
+arden-markets:PurchaseTransaction a owl:Class ;
+  rdfs:label "Purchase Transaction"@en ;
+  rdfs:comment "Record of input purchase"@en .
+
+arden-markets:Shipment a owl:Class ;
+  rdfs:label "Shipment"@en ;
+  rdfs:comment "Movement of commodities or inputs"@en .
+
+arden-markets:DeliveryTicket a owl:Class ;
+  rdfs:label "Delivery Ticket"@en ;
+  rdfs:comment "Receipt for delivered commodities"@en .
+
+### Properties
+arden-markets:pricePerUnit a owl:ObjectProperty ;
+  rdfs:domain arden-markets:CommodityPrice ;
+  rdfs:range qudt:QuantityValue ;
+  rdfs:label "price per unit"@en .
+
+arden-markets:forCommodity a owl:ObjectProperty ;
+  rdfs:domain arden-markets:CommodityPrice ;
+  rdfs:range arden-crops:Crop ;
+  rdfs:label "for commodity"@en .
+
+arden-markets:atMarket a owl:ObjectProperty ;
+  rdfs:domain arden-markets:CommodityPrice ;
+  rdfs:range arden-markets:CommodityMarket ;
+  rdfs:label "at market"@en .
+
+arden-markets:priceDate a owl:DatatypeProperty ;
+  rdfs:domain arden-markets:CommodityPrice ;
+  rdfs:range xsd:dateTime ;
+  rdfs:label "price date"@en .
+
+arden-markets:basis a owl:ObjectProperty ;
+  rdfs:domain arden-markets:CommodityPrice ;
+  rdfs:range qudt:QuantityValue ;
+  rdfs:label "basis"@en ;
+  rdfs:comment "Local price differential from futures price"@en .
+
+arden-markets:contractMonth a owl:DatatypeProperty ;
+  rdfs:domain arden-markets:FuturesContract ;
+  rdfs:range xsd:gYearMonth ;
+  rdfs:label "contract month"@en .
+
+arden-markets:deliveryDate a owl:DatatypeProperty ;
+  rdfs:domain arden-markets:ForwardContract , arden-markets:FuturesContract ;
+  rdfs:range xsd:date ;
+  rdfs:label "delivery date"@en .
+
+arden-markets:contractPrice a owl:ObjectProperty ;
+  rdfs:domain arden-markets:ForwardContract ;
+  rdfs:range qudt:QuantityValue ;
+  rdfs:label "contract price"@en .
+
+arden-markets:quantity a owl:ObjectProperty ;
+  rdfs:domain arden-markets:SaleTransaction , arden-markets:PurchaseTransaction ;
+  rdfs:range qudt:QuantityValue ;
+  rdfs:label "quantity"@en .
+
+arden-markets:totalValue a owl:ObjectProperty ;
+  rdfs:domain arden-markets:SaleTransaction , arden-markets:PurchaseTransaction ;
+  rdfs:range qudt:QuantityValue ;
+  rdfs:label "total value"@en .
+
+arden-markets:buyer a owl:ObjectProperty ;
+  rdfs:domain arden-markets:SaleTransaction ;
+  rdfs:range arden-markets:SupplyChainActor ;
+  rdfs:label "buyer"@en .
+
+arden-markets:seller a owl:ObjectProperty ;
+  rdfs:domain arden-markets:SaleTransaction ;
+  rdfs:range arden:FarmOperation ;
+  rdfs:label "seller"@en .
+
+arden-markets:supplier a owl:ObjectProperty ;
+  rdfs:domain arden-markets:PurchaseTransaction ;
+  rdfs:range arden-markets:InputSupplier ;
+  rdfs:label "supplier"@en .
+
+arden-markets:purchaser a owl:ObjectProperty ;
+  rdfs:domain arden-markets:PurchaseTransaction ;
+  rdfs:range arden:FarmOperation ;
+  rdfs:label "purchaser"@en .
+
+### Quality & Grading
+arden-markets:QualityGrade a owl:Class ;
+  rdfs:label "Quality Grade"@en ;
+  rdfs:comment "Standardized quality classification for commodities"@en .
+
+arden-markets:QualityTest a owl:Class ;
+  rdfs:subClassOf sosa:Observation ;
+  rdfs:label "Quality Test"@en ;
+  rdfs:comment "Laboratory analysis of commodity quality"@en .
+
+arden-markets:hasGrade a owl:ObjectProperty ;
+  rdfs:domain arden-markets:SaleTransaction ;
+  rdfs:range arden-markets:QualityGrade ;
+  rdfs:label "has grade"@en .
+
+arden-markets:moistureContent a owl:ObjectProperty ;
+  rdfs:domain arden-markets:QualityTest ;
+  rdfs:range qudt:QuantityValue ;
+  rdfs:label "moisture content"@en .
+
+arden-markets:proteinContent a owl:ObjectProperty ;
+  rdfs:domain arden-markets:QualityTest ;
+  rdfs:range qudt:QuantityValue ;
+  rdfs:label "protein content"@en .
+
+arden-markets:testWeight a owl:ObjectProperty ;
+  rdfs:domain arden-markets:QualityTest ;
+  rdfs:range qudt:QuantityValue ;
+  rdfs:label "test weight"@en .
+
+### Market Integration Points
+arden-markets:exchangeSymbol a owl:DatatypeProperty ;
+  rdfs:domain arden-markets:CommodityExchange ;
+  rdfs:range xsd:string ;
+  rdfs:label "exchange symbol"@en ;
+  rdfs:comment "Trading symbol (e.g., ZC for corn, ZS for soybeans)"@en .
+
+arden-markets:marketDataSource a owl:DatatypeProperty ;
+  rdfs:domain arden-markets:CommodityPrice ;
+  rdfs:range xsd:string ;
+  rdfs:label "market data source"@en ;
+  rdfs:comment "Source of price data (DTN, Reuters, etc.)"@en .
+
+arden-markets:licenseNumber a owl:DatatypeProperty ;
+  rdfs:domain arden-markets:GrainElevator ;
+  rdfs:range xsd:string ;
+  rdfs:label "license number"@en ;
+  rdfs:comment "Government-issued facility license"@en .

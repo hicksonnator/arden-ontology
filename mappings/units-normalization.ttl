@@ -1,0 +1,130 @@
+@prefix : <https://arden.ag/mappings/units#> .
+@prefix unit: <http://qudt.org/vocab/unit/> .
+@prefix qudt: <http://qudt.org/schema/qudt/> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+
+# Units Normalization for Agricultural Data Ingest
+# Maps common agricultural units to QUDT canonical forms
+
+# Yield Units Normalization
+:yield-units a skos:ConceptScheme ;
+  skos:prefLabel "Agricultural Yield Units Mapping"@en .
+
+# Bushels per acre (canonical)
+unit:BushelPerAcre skos:inScheme :yield-units ;
+  skos:prefLabel "Bushels per Acre"@en ;
+  skos:notation "bu/ac", "BU/ACRE", "bushels/acre", "Bu/Ac" .
+
+# Metric equivalents
+unit:KilogramPerHectare skos:inScheme :yield-units ;
+  skos:prefLabel "Kilograms per Hectare"@en ;
+  skos:notation "kg/ha", "KG/HA", "kg/hectare" .
+
+unit:TonnePerHectare skos:inScheme :yield-units ;
+  skos:prefLabel "Tonnes per Hectare"@en ;
+  skos:notation "t/ha", "MT/HA", "tonnes/hectare" .
+
+# Common synonyms and variations
+:bu_acre a skos:Concept ;
+  skos:inScheme :yield-units ;
+  skos:notation "bu/acre" ;
+  skos:exactMatch unit:BushelPerAcre .
+
+:bushels_per_acre a skos:Concept ;
+  skos:inScheme :yield-units ;
+  skos:notation "bushels per acre" ;
+  skos:exactMatch unit:BushelPerAcre .
+
+:kg_per_hectare a skos:Concept ;
+  skos:inScheme :yield-units ;
+  skos:notation "kg per hectare" ;
+  skos:exactMatch unit:KilogramPerHectare .
+
+# Area Units Normalization
+:area-units a skos:ConceptScheme ;
+  skos:prefLabel "Agricultural Area Units Mapping"@en .
+
+unit:Acre skos:inScheme :area-units ;
+  skos:notation "acre", "acres", "ACRE", "ac" .
+
+unit:Hectare skos:inScheme :area-units ;
+  skos:notation "hectare", "hectares", "ha", "HA" .
+
+unit:SquareMeter skos:inScheme :area-units ;
+  skos:notation "m2", "sq m", "square meter" .
+
+# Currency Units
+:currency-units a skos:ConceptScheme ;
+  skos:prefLabel "Agricultural Currency Units"@en .
+
+unit:Dollar skos:inScheme :currency-units ;
+  skos:notation "USD", "$", "dollar", "dollars" .
+
+# Unit Conversion Rules (for ETL processing)
+:conversion-rules a qudt:ConversionMap ;
+  rdfs:label "Agricultural Unit Conversions"@en .
+
+# Bushel to metric conversions (crop-specific)
+:corn-bushel-to-kg a qudt:UnitConversion ;
+  qudt:sourceUnit unit:BushelPerAcre ;
+  qudt:targetUnit unit:KilogramPerHectare ;
+  qudt:conversionMultiplier "62.77"^^xsd:decimal ;  # 1 bu corn = 25.4kg, 1 acre = 0.405 ha
+  dct:description "Corn bushel per acre to kg per hectare (56 lb/bu)"@en .
+
+:soybean-bushel-to-kg a qudt:UnitConversion ;
+  qudt:sourceUnit unit:BushelPerAcre ;
+  qudt:targetUnit unit:KilogramPerHectare ;
+  qudt:conversionMultiplier "67.25"^^xsd:decimal ;  # 1 bu soybeans = 27.2kg
+  dct:description "Soybean bushel per acre to kg per hectare (60 lb/bu)"@en .
+
+# SPARQL Update Template for Unit Normalization
+:unit-normalization-query a <http://www.w3.org/ns/sparql-service-description#Update> ;
+  rdfs:label "Unit Normalization SPARQL Update"@en ;
+  rdfs:comment """
+# Normalize common unit variations to QUDT canonical forms
+PREFIX unit: <http://qudt.org/vocab/unit/>
+PREFIX qudt: <http://qudt.org/schema/qudt/>
+
+DELETE { ?result qudt:unit ?oldUnit }
+INSERT { ?result qudt:unit ?canonicalUnit }
+WHERE {
+  ?result qudt:unit ?oldUnit .
+
+  # Map common variations to canonical units
+  VALUES (?oldUnit ?canonicalUnit) {
+    ("bu/acre" unit:BushelPerAcre)
+    ("BU/ACRE" unit:BushelPerAcre)
+    ("bushels/acre" unit:BushelPerAcre)
+    ("kg/ha" unit:KilogramPerHectare)
+    ("KG/HA" unit:KilogramPerHectare)
+    ("$" unit:Dollar)
+    ("USD" unit:Dollar)
+    ("acres" unit:Acre)
+    ("ACRES" unit:Acre)
+  }
+}
+"""@en .
+
+# ETL Validation Rules
+:unit-validation-rules a <http://www.w3.org/ns/prov#Plan> ;
+  rdfs:label "Unit Validation Rules for ETL"@en ;
+  dct:description """
+ETL Unit Validation Checklist:
+
+1. Pre-ingest normalization:
+   - Convert all unit strings to QUDT IRIs
+   - Validate crop-unit combinations (corn -> bu/acre, soybeans -> bu/acre)
+   - Flag unusual units for manual review
+
+2. Post-ingest validation:
+   - Check all QuantityValues have qudt:unit
+   - Verify unit-value ranges (yields: 0-500 bu/acre)
+   - Ensure consistency within datasets
+
+3. Common errors to catch:
+   - String units instead of IRI references
+   - Mixed metric/imperial within same dataset
+   - Missing units on financial values
+   - Impossible yield values (>500 bu/acre corn)
+"""@en .
