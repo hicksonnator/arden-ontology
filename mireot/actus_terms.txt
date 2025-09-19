@@ -1,0 +1,56 @@
+# ACTUS MIREOT Terms - Core Amortizing Contract Types + Parameters
+# Target: ANN, LAM (opt PAM) + required parameters only
+# Source: https://spec.edmcouncil.org/fibo/ontology/master/latest/ACTUS/
+
+# === CORE CONTRACT TYPES ===
+https://spec.edmcouncil.org/fibo/ontology/ACTUS/ACTUSControlledVocabulary/ACTUSContractType-Annuity
+https://spec.edmcouncil.org/fibo/ontology/ACTUS/ACTUSControlledVocabulary/ACTUSContractType-LinearAmortizer
+https://spec.edmcouncil.org/fibo/ontology/ACTUS/ACTUSControlledVocabulary/ACTUSContractType-PrincipalAtMaturity
+
+# === CONTRACT PARAMETERS ===
+
+## Principal and Notional
+https://spec.edmcouncil.org/fibo/ontology/ACTUS/ACTUSParameterDefinitions/NotionalPrincipal
+https://spec.edmcouncil.org/fibo/ontology/ACTUS/ACTUSParameterDefinitions/hasNotionalPrincipal
+
+## Interest Rate Parameters
+https://spec.edmcouncil.org/fibo/ontology/ACTUS/ACTUSParameterDefinitions/NominalInterestRate
+https://spec.edmcouncil.org/fibo/ontology/ACTUS/ACTUSParameterDefinitions/hasNominalInterestRate
+https://spec.edmcouncil.org/fibo/ontology/ACTUS/ACTUSParameterDefinitions/RateResetCycle
+https://spec.edmcouncil.org/fibo/ontology/ACTUS/ACTUSParameterDefinitions/InterestCalculationBase
+
+## Payment Frequency and Schedule
+https://spec.edmcouncil.org/fibo/ontology/ACTUS/ACTUSParameterDefinitions/CycleAnchorDateOfPrincipalRedemption
+https://spec.edmcouncil.org/fibo/ontology/ACTUS/ACTUSParameterDefinitions/CycleOfPrincipalRedemption
+https://spec.edmcouncil.org/fibo/ontology/ACTUS/ACTUSParameterDefinitions/CycleAnchorDateOfInterestPayment
+https://spec.edmcouncil.org/fibo/ontology/ACTUS/ACTUSParameterDefinitions/CycleOfInterestPayment
+
+## Day Count and Calendar Conventions
+https://spec.edmcouncil.org/fibo/ontology/ACTUS/ACTUSParameterDefinitions/DayCountConvention
+https://spec.edmcouncil.org/fibo/ontology/ACTUS/ACTUSParameterDefinitions/hasDayCountConvention
+https://spec.edmcouncil.org/fibo/ontology/ACTUS/ACTUSParameterDefinitions/BusinessDayConvention
+https://spec.edmcouncil.org/fibo/ontology/ACTUS/ACTUSParameterDefinitions/Calendar
+
+## Contract Lifecycle Dates
+https://spec.edmcouncil.org/fibo/ontology/ACTUS/ACTUSParameterDefinitions/InitialExchangeDate
+https://spec.edmcouncil.org/fibo/ontology/ACTUS/ACTUSParameterDefinitions/MaturityDate
+https://spec.edmcouncil.org/fibo/ontology/ACTUS/ACTUSParameterDefinitions/StatusDate
+
+## Contract Role and Direction
+https://spec.edmcouncil.org/fibo/ontology/ACTUS/ACTUSParameterDefinitions/ContractRole
+https://spec.edmcouncil.org/fibo/ontology/ACTUS/ACTUSParameterDefinitions/hasContractRole
+
+## Amortization Specific
+https://spec.edmcouncil.org/fibo/ontology/ACTUS/ACTUSParameterDefinitions/NextPrincipalRedemptionPayment
+https://spec.edmcouncil.org/fibo/ontology/ACTUS/ACTUSParameterDefinitions/AmortizationDate
+
+# === ACTUS FUNCTIONAL ELEMENTS ===
+https://spec.edmcouncil.org/fibo/ontology/ACTUS/ACTUSAnalytics/ACTUSContractModel
+https://spec.edmcouncil.org/fibo/ontology/ACTUS/ACTUSAnalytics/hasContractType
+
+# === KEY PROPERTIES ===
+https://spec.edmcouncil.org/fibo/ontology/ACTUS/ACTUSParameterDefinitions/hasACTUSParameter
+https://spec.edmcouncil.org/fibo/ontology/ACTUS/ACTUSParameterDefinitions/specifiesParameterValue
+
+# NOTE: Focus on deterministic cash flow generation for ag loans
+# Exclude exotic features like caps, floors, embedded options

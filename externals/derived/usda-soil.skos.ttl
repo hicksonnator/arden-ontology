@@ -1,0 +1,147 @@
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix usda-soil: <https://arden.ag/ont/soil/usda#> .
+
+# ===================================================================
+# USDA Soil Taxonomy SKOS Concept Scheme (Derived)
+# ===================================================================
+#
+# PROVENANCE WARNING: This is a derived SKOS concept scheme created
+# from USDA NRCS official soil taxonomy documents. It is NOT an
+# official USDA publication and should be used for semantic web
+# applications only. Always refer to official USDA sources for
+# authoritative soil classification.
+#
+# Sources:
+# - Soil Taxonomy: A Basic System of Soil Classification (2014)
+# - Keys to Soil Taxonomy, 13th Edition (2022)
+# - The Twelve Orders of Soil Taxonomy (NRCS website)
+#
+# Created: 2024-09-19 for Arden Ontology v1.2.0
+# ===================================================================
+
+# Concept Scheme
+usda-soil:SoilTaxonomy a skos:ConceptScheme ;
+    dct:title "USDA Soil Taxonomy (Derived SKOS Scheme)"@en ;
+    dct:description "A SKOS concept scheme derived from USDA NRCS Soil Taxonomy documents, covering the 12 soil orders for semantic web applications."@en ;
+    dct:creator "Arden Agricultural Ontology Project" ;
+    dct:created "2024-09-19"^^xsd:date ;
+    dct:source <https://www.nrcs.usda.gov/resources/guides-and-instructions/soil-taxonomy> ;
+    dct:source <https://www.nrcs.usda.gov/sites/default/files/2022-06/Soil%20Taxonomy.pdf> ;
+    dct:source <https://www.nrcs.usda.gov/sites/default/files/2022-09/Keys-to-Soil-Taxonomy.pdf> ;
+    prov:wasDerivedFrom <https://www.nrcs.usda.gov/resources/guides-and-instructions/soil-taxonomy> ;
+    skos:hasTopConcept usda-soil:Alfisols,
+                       usda-soil:Andisols,
+                       usda-soil:Aridisols,
+                       usda-soil:Entisols,
+                       usda-soil:Gelisols,
+                       usda-soil:Histosols,
+                       usda-soil:Inceptisols,
+                       usda-soil:Mollisols,
+                       usda-soil:Oxisols,
+                       usda-soil:Spodosols,
+                       usda-soil:Ultisols,
+                       usda-soil:Vertisols .
+
+# ===================================================================
+# THE TWELVE SOIL ORDERS
+# ===================================================================
+
+usda-soil:Alfisols a skos:Concept ;
+    skos:inScheme usda-soil:SoilTaxonomy ;
+    skos:topConceptOf usda-soil:SoilTaxonomy ;
+    skos:prefLabel "Alfisols"@en ;
+    skos:definition "Soils with clay-enriched subsoils and relatively high base saturation. Generally fertile soils with clay accumulation in the B horizon."@en ;
+    skos:notation "AL" ;
+    skos:scopeNote "Common in temperate and tropical regions with moderate leaching. Often used for agriculture and forestry."@en .
+
+usda-soil:Andisols a skos:Concept ;
+    skos:inScheme usda-soil:SoilTaxonomy ;
+    skos:topConceptOf usda-soil:SoilTaxonomy ;
+    skos:prefLabel "Andisols"@en ;
+    skos:definition "Soils formed in volcanic ash and characterized by low bulk density and high phosphorus retention."@en ;
+    skos:notation "AN" ;
+    skos:scopeNote "Found in volcanic regions. Unique properties due to volcanic glass and short-range-order minerals."@en .
+
+usda-soil:Aridisols a skos:Concept ;
+    skos:inScheme usda-soil:SoilTaxonomy ;
+    skos:topConceptOf usda-soil:SoilTaxonomy ;
+    skos:prefLabel "Aridisols"@en ;
+    skos:definition "Soils of arid and semi-arid regions with limited moisture availability and often accumulations of calcium carbonate, gypsum, or more soluble salts."@en ;
+    skos:notation "AR" ;
+    skos:scopeNote "Characteristic of desert and semi-desert regions. Limited agricultural potential without irrigation."@en .
+
+usda-soil:Entisols a skos:Concept ;
+    skos:inScheme usda-soil:SoilTaxonomy ;
+    skos:topConceptOf usda-soil:SoilTaxonomy ;
+    skos:prefLabel "Entisols"@en ;
+    skos:definition "Soils with little or no evidence of pedogenic horizon development. Recent soils with minimal profile development."@en ;
+    skos:notation "EN" ;
+    skos:scopeNote "Found in areas of active erosion, deposition, or on resistant parent materials. Includes recent alluvial and sandy soils."@en .
+
+usda-soil:Gelisols a skos:Concept ;
+    skos:inScheme usda-soil:SoilTaxonomy ;
+    skos:topConceptOf usda-soil:SoilTaxonomy ;
+    skos:prefLabel "Gelisols"@en ;
+    skos:definition "Soils with permafrost within 100 cm of the surface or gelic materials and permafrost within 200 cm."@en ;
+    skos:notation "GE" ;
+    skos:scopeNote "Found in polar and high-altitude regions. Characterized by freeze-thaw cycles and cryoturbation."@en .
+
+usda-soil:Histosols a skos:Concept ;
+    skos:inScheme usda-soil:SoilTaxonomy ;
+    skos:topConceptOf usda-soil:SoilTaxonomy ;
+    skos:prefLabel "Histosols"@en ;
+    skos:definition "Soils with high organic matter content, formed in wetland conditions. Organic soils with thick organic surface layers."@en ;
+    skos:notation "HI" ;
+    skos:scopeNote "Includes peats and mucks. Found in wetlands, bogs, and poorly drained areas."@en .
+
+usda-soil:Inceptisols a skos:Concept ;
+    skos:inScheme usda-soil:SoilTaxonomy ;
+    skos:topConceptOf usda-soil:SoilTaxonomy ;
+    skos:prefLabel "Inceptisols"@en ;
+    skos:definition "Soils with weakly developed horizons showing beginning stages of soil formation but lacking significant clay, iron, or aluminum accumulation."@en ;
+    skos:notation "IN" ;
+    skos:scopeNote "Young soils with moderate development. Common in mountainous and recently glaciated areas."@en .
+
+usda-soil:Mollisols a skos:Concept ;
+    skos:inScheme usda-soil:SoilTaxonomy ;
+    skos:topConceptOf usda-soil:SoilTaxonomy ;
+    skos:prefLabel "Mollisols"@en ;
+    skos:definition "Soils with thick, dark, nutrient-rich surface horizons formed under grassland vegetation. Highly fertile soils."@en ;
+    skos:notation "MO" ;
+    skos:scopeNote "The most fertile soils, formed primarily under grassland. Common in the Great Plains and other prairie regions."@en .
+
+usda-soil:Oxisols a skos:Concept ;
+    skos:inScheme usda-soil:SoilTaxonomy ;
+    skos:topConceptOf usda-soil:SoilTaxonomy ;
+    skos:prefLabel "Oxisols"@en ;
+    skos:definition "Highly weathered soils with few weatherable minerals and dominated by iron and aluminum oxides. Deep, well-drained tropical soils."@en ;
+    skos:notation "OX" ;
+    skos:scopeNote "Found in tropical regions with high temperatures and rainfall. Often have low fertility despite deep profiles."@en .
+
+usda-soil:Spodosols a skos:Concept ;
+    skos:inScheme usda-soil:SoilTaxonomy ;
+    skos:topConceptOf usda-soil:SoilTaxonomy ;
+    skos:prefLabel "Spodosols"@en ;
+    skos:definition "Soils with accumulations of organic matter and aluminum, with or without iron, in the B horizon. Acidic soils with distinct spodic horizons."@en ;
+    skos:notation "SP" ;
+    skos:scopeNote "Common under coniferous forests in cool, humid climates. Characterized by acid leaching and podzolization."@en .
+
+usda-soil:Ultisols a skos:Concept ;
+    skos:inScheme usda-soil:SoilTaxonomy ;
+    skos:topConceptOf usda-soil:SoilTaxonomy ;
+    skos:prefLabel "Ultisols"@en ;
+    skos:definition "Strongly weathered soils with clay accumulation in the B horizon and low base saturation. Acidic, leached soils."@en ;
+    skos:notation "UL" ;
+    skos:scopeNote "Common in humid temperate and tropical regions. Generally have low fertility and require amendments for agriculture."@en .
+
+usda-soil:Vertisols a skos:Concept ;
+    skos:inScheme usda-soil:SoilTaxonomy ;
+    skos:topConceptOf usda-soil:SoilTaxonomy ;
+    skos:prefLabel "Vertisols"@en ;
+    skos:definition "Soils with high clay content that shrink and swell with changes in moisture. Characterized by deep cracks and gilgai micro-relief."@en ;
+    skos:notation "VE" ;
+    skos:scopeNote "Found in areas with distinct wet and dry seasons. Challenging for agriculture due to shrink-swell properties."@en .

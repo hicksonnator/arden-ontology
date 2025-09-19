@@ -1,0 +1,124 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+
+@prefix arden: <https://arden.ag/ont/core#> .
+@prefix arden-ag: <https://arden.ag/ont/ag#> .
+@prefix agro: <http://purl.obolibrary.org/obo/> .
+
+# ===================================================================
+# Arden ↔ AGRO (Agronomy Ontology) Bridge Mappings
+# ===================================================================
+#
+# Maps Arden agricultural concepts to AGRO ontology terms.
+# Uses rdfs:subClassOf and skos:exactMatch/closeMatch for alignment.
+# Avoids owl:equivalentClass to maintain modularity.
+#
+# Created: 2024-09-19 for Arden v1.2.0
+# ===================================================================
+
+<https://arden.ag/ont/mappings/agro> a owl:Ontology ;
+    dct:title "Arden-AGRO Bridge Mappings"@en ;
+    dct:description "Bridge mappings between Arden agricultural concepts and AGRO (Agronomy Ontology) terms."@en ;
+    dct:created "2024-09-19"^^<http://www.w3.org/2001/XMLSchema#date> ;
+    owl:imports <https://arden.ag/ont/ag> .
+
+# ===================================================================
+# CROP CONCEPTS
+# ===================================================================
+
+# Arden crop concepts align with AGRO crop hierarchy
+arden-ag:Crop rdfs:subClassOf agro:AGRO_00000003 .  # agro:crop
+
+# Specific crop types
+arden-ag:MaizeCrop skos:exactMatch agro:AGRO_00000xxx .  # specific maize concept in AGRO
+arden-ag:SoybeanCrop skos:exactMatch agro:AGRO_00000xxx .  # specific soybean concept in AGRO
+arden-ag:WheatCrop skos:exactMatch agro:AGRO_00000xxx .   # specific wheat concept in AGRO
+arden-ag:CottonCrop skos:exactMatch agro:AGRO_00000xxx .  # specific cotton concept in AGRO
+
+# ===================================================================
+# AGRICULTURAL PRACTICES
+# ===================================================================
+
+# Top-level practice alignment
+arden-ag:AgriculturalPractice rdfs:subClassOf agro:AGRO_00000002 .  # agro:agricultural practice
+
+# Specific practices
+arden-ag:TillagePractice rdfs:subClassOf agro:AGRO_00000011 .        # agro:tillage practice
+arden-ag:IrrigationPractice rdfs:subClassOf agro:AGRO_00000012 .     # agro:irrigation practice
+arden-ag:FertilizationPractice rdfs:subClassOf agro:AGRO_00000013 .  # agro:fertilization practice
+arden-ag:PestManagement rdfs:subClassOf agro:AGRO_00000014 .         # agro:pest management practice
+arden-ag:HarvestPractice rdfs:subClassOf agro:AGRO_00000015 .        # agro:harvest practice
+arden-ag:PlantingPractice rdfs:subClassOf agro:AGRO_00000016 .       # agro:planting practice
+
+# Crop rotation
+arden-ag:CropRotation rdfs:subClassOf agro:AGRO_00000010 .           # agro:crop rotation
+
+# ===================================================================
+# AGRONOMIC VARIABLES AND TRAITS
+# ===================================================================
+
+# Yield concepts
+arden-ag:Yield rdfs:subClassOf agro:AGRO_00000020 .                  # agro:yield
+arden-ag:CropYield rdfs:subClassOf agro:AGRO_00000021 .              # agro:crop yield
+arden-ag:GrainYield skos:exactMatch agro:AGRO_00000021 .             # grain yield specific
+
+# Plant traits
+arden-ag:PlantHeight skos:exactMatch agro:AGRO_00000023 .            # agro:plant height
+arden-ag:Biomass rdfs:subClassOf agro:AGRO_00000022 .                # agro:biomass
+arden-ag:FloweringTime skos:exactMatch agro:AGRO_00000024 .          # agro:flowering time
+arden-ag:MaturityTime skos:exactMatch agro:AGRO_00000025 .           # agro:maturity time
+
+# Quality traits
+arden-ag:GrainQuality rdfs:subClassOf agro:AGRO_00000026 .           # agro:grain quality
+arden-ag:ProteinContent skos:exactMatch agro:AGRO_00000027 .         # agro:protein content
+arden-ag:OilContent skos:exactMatch agro:AGRO_00000028 .             # agro:oil content
+
+# ===================================================================
+# AGRICULTURAL INPUTS
+# ===================================================================
+
+# Fertilizers
+arden-ag:Fertilizer rdfs:subClassOf agro:AGRO_00000030 .             # agro:fertilizer
+arden-ag:NitrogenFertilizer rdfs:subClassOf agro:AGRO_00000034 .     # agro:nitrogen fertilizer
+arden-ag:PhosphorusFertilizer rdfs:subClassOf agro:AGRO_00000035 .   # agro:phosphorus fertilizer
+arden-ag:PotassiumFertilizer rdfs:subClassOf agro:AGRO_00000036 .    # agro:potassium fertilizer
+
+# Other inputs
+arden-ag:Pesticide rdfs:subClassOf agro:AGRO_00000031 .              # agro:pesticide
+arden-ag:Seed rdfs:subClassOf agro:AGRO_00000032 .                   # agro:seed
+
+# ===================================================================
+# ENVIRONMENTAL FACTORS
+# ===================================================================
+
+arden-ag:EnvironmentalFactor rdfs:subClassOf agro:AGRO_00000040 .    # agro:environmental factor
+arden-ag:WeatherCondition rdfs:subClassOf agro:AGRO_00000041 .       # agro:weather condition
+arden-ag:SoilCondition rdfs:subClassOf agro:AGRO_00000042 .          # agro:soil condition
+arden-ag:Temperature skos:exactMatch agro:AGRO_00000043 .            # agro:temperature
+arden-ag:Precipitation skos:exactMatch agro:AGRO_00000044 .          # agro:precipitation
+arden-ag:SoilMoisture skos:exactMatch agro:AGRO_00000045 .           # agro:soil moisture
+
+# ===================================================================
+# GROWTH STAGES
+# ===================================================================
+
+arden-ag:GrowthStage rdfs:subClassOf agro:AGRO_00000060 .            # agro:growth stage
+arden-ag:Germination skos:exactMatch agro:AGRO_00000061 .            # agro:germination
+arden-ag:VegetativeGrowth skos:exactMatch agro:AGRO_00000062 .       # agro:vegetative growth
+arden-ag:ReproductiveGrowth skos:exactMatch agro:AGRO_00000063 .     # agro:reproductive growth
+arden-ag:Senescence skos:exactMatch agro:AGRO_00000064 .             # agro:senescence
+
+# ===================================================================
+# PROPERTY MAPPINGS
+# ===================================================================
+
+# Map Arden properties to AGRO properties
+arden-ag:hasTrait skos:exactMatch agro:AGRO_00000050 .               # agro:has trait
+arden-ag:involvesPractice skos:exactMatch agro:AGRO_00000051 .       # agro:involves practice
+arden-ag:producesOutput skos:exactMatch agro:AGRO_00000052 .         # agro:produces output
+arden-ag:requiresInput skos:exactMatch agro:AGRO_00000053 .          # agro:requires input
+
+# Note: Actual AGRO IRIs will be updated once MIREOT subset is extracted

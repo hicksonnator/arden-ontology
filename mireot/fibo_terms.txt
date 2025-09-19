@@ -1,0 +1,90 @@
+# FIBO MIREOT Terms - Minimal Foundations + Business Entities + Loans
+# Target: ≤300 terms focused on FND, BE, and FBC Debt/Loans
+# Source: https://spec.edmcouncil.org/fibo/ontology/master/latest/
+
+# === FOUNDATIONS (FND) ===
+
+## Identifiers and Codes
+https://spec.edmcouncil.org/fibo/ontology/FND/Arrangements/IdentifiersAndIndices/Identifier
+https://spec.edmcouncil.org/fibo/ontology/FND/Arrangements/IdentifiersAndIndices/IdentificationScheme
+https://spec.edmcouncil.org/fibo/ontology/FND/Arrangements/IdentifiersAndIndices/hasIdentifier
+https://spec.edmcouncil.org/fibo/ontology/FND/Arrangements/IdentifiersAndIndices/identifies
+
+## Agents and Parties
+https://spec.edmcouncil.org/fibo/ontology/FND/AgentsAndPeople/Agents/Agent
+https://spec.edmcouncil.org/fibo/ontology/FND/AgentsAndPeople/Agents/AutonomousAgent
+https://spec.edmcouncil.org/fibo/ontology/FND/Parties/Parties/Party
+https://spec.edmcouncil.org/fibo/ontology/FND/Parties/Parties/PartyInRole
+https://spec.edmcouncil.org/fibo/ontology/FND/Parties/Parties/hasParty
+https://spec.edmcouncil.org/fibo/ontology/FND/Parties/Parties/playsRole
+
+## Dates and Time
+https://spec.edmcouncil.org/fibo/ontology/FND/DatesAndTimes/FinancialDates/Date
+https://spec.edmcouncil.org/fibo/ontology/FND/DatesAndTimes/FinancialDates/EffectiveDate
+https://spec.edmcouncil.org/fibo/ontology/FND/DatesAndTimes/FinancialDates/MaturityDate
+https://spec.edmcouncil.org/fibo/ontology/FND/DatesAndTimes/FinancialDates/IssueDate
+https://spec.edmcouncil.org/fibo/ontology/FND/DatesAndTimes/FinancialDates/hasEffectiveDate
+https://spec.edmcouncil.org/fibo/ontology/FND/DatesAndTimes/FinancialDates/hasMaturityDate
+
+## Accounting and Currency
+https://spec.edmcouncil.org/fibo/ontology/FND/Accounting/CurrencyAmount/Currency
+https://spec.edmcouncil.org/fibo/ontology/FND/Accounting/CurrencyAmount/MonetaryAmount
+https://spec.edmcouncil.org/fibo/ontology/FND/Accounting/CurrencyAmount/hasCurrency
+https://spec.edmcouncil.org/fibo/ontology/FND/Accounting/CurrencyAmount/hasAmount
+
+## Agreements and Contracts
+https://spec.edmcouncil.org/fibo/ontology/FND/Agreements/Contracts/Contract
+https://spec.edmcouncil.org/fibo/ontology/FND/Agreements/Contracts/ContractualElement
+https://spec.edmcouncil.org/fibo/ontology/FND/Agreements/Contracts/hasContractualElement
+
+## Relations
+https://spec.edmcouncil.org/fibo/ontology/FND/Relations/Relations/hasName
+https://spec.edmcouncil.org/fibo/ontology/FND/Relations/Relations/hasDescription
+
+# === BUSINESS ENTITIES (BE) ===
+
+## Legal Entities
+https://spec.edmcouncil.org/fibo/ontology/BE/LegalEntities/LegalPersons/LegalEntity
+https://spec.edmcouncil.org/fibo/ontology/BE/LegalEntities/LegalPersons/LegalPerson
+https://spec.edmcouncil.org/fibo/ontology/BE/LegalEntities/CorporateBodies/Corporation
+https://spec.edmcouncil.org/fibo/ontology/BE/OwnershipAndControl/Organizations/Organization
+
+# === FINANCIAL BUSINESS CORE (FBC) - Debt/Loans Minimal ===
+
+## Credit Facilities and Loans
+https://spec.edmcouncil.org/fibo/ontology/FBC/DebtAndEquities/Debt/CreditFacility
+https://spec.edmcouncil.org/fibo/ontology/FBC/DebtAndEquities/Debt/Loan
+https://spec.edmcouncil.org/fibo/ontology/FBC/DebtAndEquities/Debt/DebtInstrument
+https://spec.edmcouncil.org/fibo/ontology/FBC/DebtAndEquities/Debt/CreditAgreement
+https://spec.edmcouncil.org/fibo/ontology/FBC/DebtAndEquities/Debt/hasPrincipalAmount
+https://spec.edmcouncil.org/fibo/ontology/FBC/DebtAndEquities/Debt/hasInterestRate
+
+## Financial Parties and Roles
+https://spec.edmcouncil.org/fibo/ontology/FBC/FunctionalEntities/FinancialServicesEntities/FinancialServiceProvider
+https://spec.edmcouncil.org/fibo/ontology/FBC/ProductsAndServices/ClientsAndAccounts/Client
+https://spec.edmcouncil.org/fibo/ontology/FBC/DebtAndEquities/Debt/Borrower
+https://spec.edmcouncil.org/fibo/ontology/FBC/DebtAndEquities/Debt/Lender
+
+## Interest Rates and Pricing
+https://spec.edmcouncil.org/fibo/ontology/FBC/DebtAndEquities/Debt/InterestRate
+https://spec.edmcouncil.org/fibo/ontology/FBC/DebtAndEquities/Debt/FixedInterestRate
+https://spec.edmcouncil.org/fibo/ontology/FBC/DebtAndEquities/Debt/VariableInterestRate
+https://spec.edmcouncil.org/fibo/ontology/FBC/DebtAndEquities/Debt/RateSpecification
+
+## Payment and Repayment
+https://spec.edmcouncil.org/fibo/ontology/FBC/FunctionalEntities/BusinessCentersAndTimes/Payment
+https://spec.edmcouncil.org/fibo/ontology/FBC/DebtAndEquities/Debt/RepaymentSchedule
+https://spec.edmcouncil.org/fibo/ontology/FBC/DebtAndEquities/Debt/PaymentEvent
+https://spec.edmcouncil.org/fibo/ontology/FBC/DebtAndEquities/Debt/hasRepaymentSchedule
+
+## Financial Obligations
+https://spec.edmcouncil.org/fibo/ontology/FBC/DebtAndEquities/Debt/FinancialObligation
+https://spec.edmcouncil.org/fibo/ontology/FBC/DebtAndEquities/Debt/DebtObligation
+
+# === KEY PROPERTIES ===
+https://spec.edmcouncil.org/fibo/ontology/FBC/DebtAndEquities/Debt/hasNotionalAmount
+https://spec.edmcouncil.org/fibo/ontology/FBC/DebtAndEquities/Debt/hasOutstandingAmount
+https://spec.edmcouncil.org/fibo/ontology/FBC/DebtAndEquities/Debt/hasPaymentFrequency
+
+# NOTE: This minimal set provides essential loan modeling without securities/derivatives
+# ROBOT extract will pull related dependencies to reach ~300 terms

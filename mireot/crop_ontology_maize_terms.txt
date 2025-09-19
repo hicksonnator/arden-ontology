@@ -1,0 +1,65 @@
+# Crop Ontology - Maize/Corn MIREOT Terms
+# Target: ≤100 terms for maize-specific traits and variables
+# Source: https://cropontology.org/ontology/CO_322/rdf (368 variables available)
+
+# Core Maize Crop Class
+http://www.cropontology.org/rdf/CO_322:0000001  # Zea mays (maize/corn)
+
+# Key Agronomic Traits
+http://www.cropontology.org/rdf/CO_322:0000010  # plant height
+http://www.cropontology.org/rdf/CO_322:0000011  # ear height
+http://www.cropontology.org/rdf/CO_322:0000012  # days to silking
+http://www.cropontology.org/rdf/CO_322:0000013  # days to tasseling
+http://www.cropontology.org/rdf/CO_322:0000014  # days to maturity
+http://www.cropontology.org/rdf/CO_322:0000015  # grain yield
+http://www.cropontology.org/rdf/CO_322:0000016  # biomass yield
+http://www.cropontology.org/rdf/CO_322:0000017  # harvest index
+
+# Grain Quality Traits
+http://www.cropontology.org/rdf/CO_322:0000020  # kernel weight
+http://www.cropontology.org/rdf/CO_322:0000021  # kernel moisture
+http://www.cropontology.org/rdf/CO_322:0000022  # protein content
+http://www.cropontology.org/rdf/CO_322:0000023  # starch content
+http://www.cropontology.org/rdf/CO_322:0000024  # oil content
+http://www.cropontology.org/rdf/CO_322:0000025  # kernel density
+http://www.cropontology.org/rdf/CO_322:0000026  # test weight
+
+# Ear and Kernel Morphology
+http://www.cropontology.org/rdf/CO_322:0000030  # ear length
+http://www.cropontology.org/rdf/CO_322:0000031  # ear diameter
+http://www.cropontology.org/rdf/CO_322:0000032  # kernel row number
+http://www.cropontology.org/rdf/CO_322:0000033  # kernels per row
+http://www.cropontology.org/rdf/CO_322:0000034  # kernel length
+http://www.cropontology.org/rdf/CO_322:0000035  # kernel width
+http://www.cropontology.org/rdf/CO_322:0000036  # kernel thickness
+
+# Plant Architecture
+http://www.cropontology.org/rdf/CO_322:0000040  # leaf number
+http://www.cropontology.org/rdf/CO_322:0000041  # leaf area
+http://www.cropontology.org/rdf/CO_322:0000042  # stem diameter
+http://www.cropontology.org/rdf/CO_322:0000043  # tassel branch number
+http://www.cropontology.org/rdf/CO_322:0000044  # lodging score
+
+# Stress Tolerance
+http://www.cropontology.org/rdf/CO_322:0000050  # drought tolerance
+http://www.cropontology.org/rdf/CO_322:0000051  # heat tolerance
+http://www.cropontology.org/rdf/CO_322:0000052  # cold tolerance
+http://www.cropontology.org/rdf/CO_322:0000053  # disease resistance
+http://www.cropontology.org/rdf/CO_322:0000054  # insect resistance
+
+# Growth Stages (BBCH compatible)
+http://www.cropontology.org/rdf/CO_322:0000060  # emergence
+http://www.cropontology.org/rdf/CO_322:0000061  # leaf development
+http://www.cropontology.org/rdf/CO_322:0000062  # tasseling
+http://www.cropontology.org/rdf/CO_322:0000063  # silking
+http://www.cropontology.org/rdf/CO_322:0000064  # grain filling
+http://www.cropontology.org/rdf/CO_322:0000065  # physiological maturity
+
+# Variable Properties
+http://www.cropontology.org/rdf/CO_322:0000070  # trait
+http://www.cropontology.org/rdf/CO_322:0000071  # method
+http://www.cropontology.org/rdf/CO_322:0000072  # scale
+http://www.cropontology.org/rdf/CO_322:0000073  # unit
+
+# NOTE: Actual IRIs will be determined from CO_322 RDF download
+# This seed list targets key agronomic traits used in yield/quality analysis

@@ -1,0 +1,67 @@
+# AGRO (Agronomy Ontology) MIREOT Terms - Agricultural Practices and Traits
+# Target: ≤500 terms focused on crops, practices, and agronomic variables
+# Source: http://purl.obolibrary.org/obo/agro.owl
+
+# Core Agronomy Classes
+http://purl.obolibrary.org/obo/AGRO_00000001  # agronomy
+http://purl.obolibrary.org/obo/AGRO_00000002  # agricultural practice
+http://purl.obolibrary.org/obo/AGRO_00000003  # crop
+http://purl.obolibrary.org/obo/AGRO_00000004  # agronomic variable
+http://purl.obolibrary.org/obo/AGRO_00000005  # agricultural input
+http://purl.obolibrary.org/obo/AGRO_00000006  # agricultural output
+
+# Crop Management Practices
+http://purl.obolibrary.org/obo/AGRO_00000010  # crop rotation
+http://purl.obolibrary.org/obo/AGRO_00000011  # tillage practice
+http://purl.obolibrary.org/obo/AGRO_00000012  # irrigation practice
+http://purl.obolibrary.org/obo/AGRO_00000013  # fertilization practice
+http://purl.obolibrary.org/obo/AGRO_00000014  # pest management practice
+http://purl.obolibrary.org/obo/AGRO_00000015  # harvest practice
+http://purl.obolibrary.org/obo/AGRO_00000016  # planting practice
+http://purl.obolibrary.org/obo/AGRO_00000017  # cultivation practice
+
+# Agronomic Variables and Traits
+http://purl.obolibrary.org/obo/AGRO_00000020  # yield
+http://purl.obolibrary.org/obo/AGRO_00000021  # crop yield
+http://purl.obolibrary.org/obo/AGRO_00000022  # biomass
+http://purl.obolibrary.org/obo/AGRO_00000023  # plant height
+http://purl.obolibrary.org/obo/AGRO_00000024  # flowering time
+http://purl.obolibrary.org/obo/AGRO_00000025  # maturity time
+http://purl.obolibrary.org/obo/AGRO_00000026  # grain quality
+http://purl.obolibrary.org/obo/AGRO_00000027  # protein content
+http://purl.obolibrary.org/obo/AGRO_00000028  # oil content
+
+# Agricultural Inputs
+http://purl.obolibrary.org/obo/AGRO_00000030  # fertilizer
+http://purl.obolibrary.org/obo/AGRO_00000031  # pesticide
+http://purl.obolibrary.org/obo/AGRO_00000032  # seed
+http://purl.obolibrary.org/obo/AGRO_00000033  # water
+http://purl.obolibrary.org/obo/AGRO_00000034  # nitrogen fertilizer
+http://purl.obolibrary.org/obo/AGRO_00000035  # phosphorus fertilizer
+http://purl.obolibrary.org/obo/AGRO_00000036  # potassium fertilizer
+
+# Environmental Factors
+http://purl.obolibrary.org/obo/AGRO_00000040  # environmental factor
+http://purl.obolibrary.org/obo/AGRO_00000041  # weather condition
+http://purl.obolibrary.org/obo/AGRO_00000042  # soil condition
+http://purl.obolibrary.org/obo/AGRO_00000043  # temperature
+http://purl.obolibrary.org/obo/AGRO_00000044  # precipitation
+http://purl.obolibrary.org/obo/AGRO_00000045  # soil moisture
+http://purl.obolibrary.org/obo/AGRO_00000046  # soil pH
+
+# Key Properties
+http://purl.obolibrary.org/obo/AGRO_00000050  # has trait
+http://purl.obolibrary.org/obo/AGRO_00000051  # involves practice
+http://purl.obolibrary.org/obo/AGRO_00000052  # produces output
+http://purl.obolibrary.org/obo/AGRO_00000053  # requires input
+http://purl.obolibrary.org/obo/AGRO_00000054  # measured by
+
+# Growth Stages and Phenology
+http://purl.obolibrary.org/obo/AGRO_00000060  # growth stage
+http://purl.obolibrary.org/obo/AGRO_00000061  # germination
+http://purl.obolibrary.org/obo/AGRO_00000062  # vegetative growth
+http://purl.obolibrary.org/obo/AGRO_00000063  # reproductive growth
+http://purl.obolibrary.org/obo/AGRO_00000064  # senescence
+
+# NOTE: This is a seed list. ROBOT extract will pull related terms automatically
+# to reach the ~500 term target while maintaining logical coherence.

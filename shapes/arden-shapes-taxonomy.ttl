@@ -1,0 +1,337 @@
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+
+@prefix arden: <https://arden.ag/ont/core#> .
+@prefix arden-ag: <https://arden.ag/ont/ag#> .
+@prefix ncbitaxon: <http://purl.obolibrary.org/obo/NCBITaxon_> .
+
+# ===================================================================
+# SHACL Shapes for Taxonomic Data Validation
+# ===================================================================
+#
+# Validates species identification, taxonomic alignment with NCBITaxon,
+# and prevents mixing crop/animal species in observations.
+#
+# L1: Permissive (warnings)
+# L2: Production-ready (errors)
+# L3: Enterprise-strict (blocking)
+#
+# Created: 2024-09-19 for Arden v1.2.0
+# ===================================================================
+
+<https://arden.ag/ont/shapes/taxonomy> a owl:Ontology ;
+    rdfs:label "Arden Taxonomic Validation Shapes"@en ;
+    rdfs:comment "SHACL shapes for validating taxonomic and species data."@en .
+
+# ===================================================================
+# SPECIES IDENTIFICATION SHAPES
+# ===================================================================
+
+arden:SpeciesShape a sh:NodeShape ;
+    sh:targetClass arden-ag:Species ;
+    rdfs:label "Species Shape"@en ;
+
+    # L2: Species must have taxonomic classification
+    sh:property [
+        sh:path arden-ag:hasTaxonomicClassification ;
+        sh:minCount 1 ;
+        sh:severity sh:Violation ;
+        sh:message "Species must have taxonomic classification"@en
+    ] ;
+
+    # L2: Taxonomic classification should reference NCBITaxon
+    sh:property [
+        sh:path arden-ag:hasTaxonomicClassification ;
+        sh:or (
+            [ sh:nodeKind sh:IRI ; sh:pattern "^http://purl.obolibrary.org/obo/NCBITaxon_" ]
+            [
+                sh:property [
+                    sh:path skos:exactMatch ;
+                    sh:nodeKind sh:IRI ;
+                    sh:pattern "^http://purl.obolibrary.org/obo/NCBITaxon_"
+                ]
+            ]
+        ) ;
+        sh:severity sh:Violation ;
+        sh:message "Species taxonomic classification must reference NCBITaxon"@en
+    ] ;
+
+    # L2: Species must have common or scientific name
+    sh:or (
+        [
+            sh:property [
+                sh:path arden-ag:hasCommonName ;
+                sh:minCount 1
+            ]
+        ]
+        [
+            sh:property [
+                sh:path arden-ag:hasScientificName ;
+                sh:minCount 1
+            ]
+        ]
+    ) ;
+    sh:severity sh:Violation ;
+    sh:message "Species must have either common name or scientific name"@en .
+
+# ===================================================================
+# CROP SPECIES VALIDATION
+# ===================================================================
+
+arden:CropSpeciesShape a sh:NodeShape ;
+    sh:targetClass arden-ag:CropSpecies ;
+    rdfs:label "Crop Species Shape"@en ;
+
+    # L2: Crop species should reference plant taxa
+    sh:property [
+        sh:path arden-ag:hasTaxonomicClassification ;
+        sh:or (
+            [ sh:hasValue ncbitaxon:4577 ]    # Zea mays (maize)
+            [ sh:hasValue ncbitaxon:3847 ]    # Glycine max (soybean)
+            [ sh:hasValue ncbitaxon:4565 ]    # Triticum aestivum (wheat)
+            [ sh:hasValue ncbitaxon:3635 ]    # Gossypium hirsutum (cotton)
+            [
+                sh:property [
+                    sh:path skos:broader ;
+                    sh:hasValue ncbitaxon:3398   # Magnoliophyta (flowering plants)
+                ]
+            ]
+        ) ;
+        sh:severity sh:Warning ;
+        sh:message "Crop species should reference known plant taxa in NCBITaxon"@en
+    ] .
+
+# ===================================================================
+# LIVESTOCK SPECIES VALIDATION
+# ===================================================================
+
+arden:LivestockSpeciesShape a sh:NodeShape ;
+    sh:targetClass arden-ag:LivestockSpecies ;
+    rdfs:label "Livestock Species Shape"@en ;
+
+    # L2: Livestock species should reference animal taxa
+    sh:property [
+        sh:path arden-ag:hasTaxonomicClassification ;
+        sh:or (
+            [ sh:hasValue ncbitaxon:9913 ]    # Bos taurus (cattle)
+            [ sh:hasValue ncbitaxon:9825 ]    # Sus scrofa (pig)
+            [ sh:hasValue ncbitaxon:9031 ]    # Gallus gallus (chicken)
+            [ sh:hasValue ncbitaxon:9940 ]    # Ovis aries (sheep)
+            [ sh:hasValue ncbitaxon:9925 ]    # Capra hircus (goat)
+            [
+                sh:property [
+                    sh:path skos:broader ;
+                    sh:hasValue ncbitaxon:40674   # Mammalia
+                ]
+            ]
+        ) ;
+        sh:severity sh:Warning ;
+        sh:message "Livestock species should reference known animal taxa in NCBITaxon"@en
+    ] .
+
+# ===================================================================
+# OBSERVATION SPECIES CONSISTENCY
+# ===================================================================
+
+arden:CropObservationSpeciesShape a sh:NodeShape ;
+    sh:targetClass arden-ag:CropObservation ;
+    rdfs:label "Crop Observation Species Shape"@en ;
+
+    # L2: Crop observations should only reference crop species
+    sh:property [
+        sh:path arden-ag:observedSpecies ;
+        sh:class arden-ag:CropSpecies ;
+        sh:severity sh:Violation ;
+        sh:message "Crop observation should only reference crop species, not livestock"@en
+    ] .
+
+arden:LivestockObservationSpeciesShape a sh:NodeShape ;
+    sh:targetClass arden-ag:LivestockObservation ;
+    rdfs:label "Livestock Observation Species Shape"@en ;
+
+    # L2: Livestock observations should only reference livestock species
+    sh:property [
+        sh:path arden-ag:observedSpecies ;
+        sh:class arden-ag:LivestockSpecies ;
+        sh:severity sh:Violation ;
+        sh:message "Livestock observation should only reference livestock species, not crops"@en
+    ] .
+
+# ===================================================================
+# MIXED SPECIES VALIDATION
+# ===================================================================
+
+arden:MixedSpeciesObservationShape a sh:NodeShape ;
+    sh:targetClass arden-ag:AgriculturalObservation ;
+    rdfs:label "Mixed Species Observation Shape"@en ;
+
+    # L2: Single observation should not mix crop and livestock species
+    sh:sparql [
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this arden-ag:observedSpecies ?species1 ;
+                      arden-ag:observedSpecies ?species2 .
+                ?species1 a arden-ag:CropSpecies .
+                ?species2 a arden-ag:LivestockSpecies .
+            }
+        """ ;
+        sh:severity sh:Violation ;
+        sh:message "Single observation should not mix crop and livestock species"@en
+    ] .
+
+# ===================================================================
+# TAXONOMIC HIERARCHY VALIDATION
+# ===================================================================
+
+arden:TaxonomicHierarchyShape a sh:NodeShape ;
+    sh:targetClass arden-ag:Species ;
+    rdfs:label "Taxonomic Hierarchy Shape"@en ;
+
+    # L1: Species should be properly classified in taxonomic hierarchy
+    sh:sparql [
+        sh:select """
+            SELECT $this ?classification
+            WHERE {
+                $this arden-ag:hasTaxonomicClassification ?classification .
+                ?classification a ?type .
+                FILTER (?type != owl:NamedIndividual && ?type != arden-ag:TaxonomicClassification)
+                FILTER NOT EXISTS {
+                    ?classification skos:broader ?parent .
+                }
+                FILTER NOT EXISTS {
+                    ?parent skos:narrower ?classification .
+                }
+            }
+        """ ;
+        sh:severity sh:Info ;
+        sh:message "Species classification should be part of taxonomic hierarchy"@en
+    ] .
+
+# ===================================================================
+# SCIENTIFIC NAME VALIDATION
+# ===================================================================
+
+arden:ScientificNameShape a sh:NodeShape ;
+    sh:targetClass arden-ag:Species ;
+    rdfs:label "Scientific Name Shape"@en ;
+
+    # L1: Scientific names should follow binomial nomenclature
+    sh:property [
+        sh:path arden-ag:hasScientificName ;
+        sh:pattern "^[A-Z][a-z]+ [a-z]+( [a-z]+)?$" ;
+        sh:severity sh:Warning ;
+        sh:message "Scientific name should follow binomial nomenclature (Genus species)"@en
+    ] .
+
+# ===================================================================
+# SPECIES CODE VALIDATION
+# ===================================================================
+
+arden:SpeciesCodeShape a sh:NodeShape ;
+    sh:targetClass arden-ag:Species ;
+    rdfs:label "Species Code Shape"@en ;
+
+    # L1: Species should have standardized codes when available
+    sh:property [
+        sh:path arden-ag:hasSpeciesCode ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:severity sh:Info ;
+        sh:message "Species should have standardized code when available"@en
+    ] .
+
+# Crop-specific codes
+arden:CropCodeShape a sh:NodeShape ;
+    sh:targetClass arden-ag:CropSpecies ;
+    rdfs:label "Crop Code Shape"@en ;
+
+    # L1: Major crops should use standard NASS codes
+    sh:property [
+        sh:path arden-ag:hasNASSCode ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:pattern "^[0-9]{2,4}$" ;
+        sh:severity sh:Info ;
+        sh:message "Major crops should have NASS commodity code"@en
+    ] .
+
+# ===================================================================
+# BENEFICIAL ORGANISM VALIDATION
+# ===================================================================
+
+arden:BeneficialOrganismShape a sh:NodeShape ;
+    sh:targetClass arden-ag:BeneficialOrganism ;
+    rdfs:label "Beneficial Organism Shape"@en ;
+
+    # L2: Beneficial organisms should have ecological role
+    sh:property [
+        sh:path arden-ag:hasEcologicalRole ;
+        sh:minCount 1 ;
+        sh:in (
+            arden-ag:Pollinator
+            arden-ag:PredatorInsect
+            arden-ag:ParasiticInsect
+            arden-ag:SoilMicroorganism
+        ) ;
+        sh:severity sh:Warning ;
+        sh:message "Beneficial organism should specify ecological role"@en
+    ] .
+
+# ===================================================================
+# PEST ORGANISM VALIDATION
+# ===================================================================
+
+arden:PestOrganismShape a sh:NodeShape ;
+    sh:targetClass arden-ag:PestOrganism ;
+    rdfs:label "Pest Organism Shape"@en ;
+
+    # L2: Pest organisms should specify target crops
+    sh:property [
+        sh:path arden-ag:targetsSpecies ;
+        sh:minCount 1 ;
+        sh:class arden-ag:CropSpecies ;
+        sh:severity sh:Warning ;
+        sh:message "Pest organism should specify target crop species"@en
+    ] ;
+
+    # L1: Should have pest classification
+    sh:property [
+        sh:path arden-ag:hasPestClassification ;
+        sh:maxCount 1 ;
+        sh:in (
+            arden-ag:Insect
+            arden-ag:Disease
+            arden-ag:Weed
+            arden-ag:Nematode
+            arden-ag:Vertebrate
+        ) ;
+        sh:severity sh:Info ;
+        sh:message "Pest should specify classification type"@en
+    ] .
+
+# ===================================================================
+# NCBI TAXON REFERENCE VALIDATION
+# ===================================================================
+
+arden:NCBITaxonReferenceShape a sh:NodeShape ;
+    sh:targetNode arden-ag:TaxonomicClassification ;
+    rdfs:label "NCBI Taxon Reference Shape"@en ;
+
+    # L2: NCBITaxon references should be valid
+    sh:sparql [
+        sh:select """
+            SELECT $this ?taxonId
+            WHERE {
+                $this skos:exactMatch ?ncbiRef .
+                BIND(STRAFTER(STR(?ncbiRef), "http://purl.obolibrary.org/obo/NCBITaxon_") AS ?taxonId)
+                FILTER (!REGEX(?taxonId, "^[0-9]+$"))
+            }
+        """ ;
+        sh:severity sh:Violation ;
+        sh:message "NCBITaxon reference should have valid numeric taxon ID"@en
+    ] .

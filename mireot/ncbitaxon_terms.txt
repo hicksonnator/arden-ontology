@@ -1,0 +1,77 @@
+# NCBITaxon MIREOT Terms - Top Nodes + Agricultural Species
+# Target: ≤50 terms (top taxonomy + key species for ag)
+# Source: http://purl.obolibrary.org/obo/ncbitaxon.owl
+
+# === TOP LEVEL TAXONOMY ===
+http://purl.obolibrary.org/obo/NCBITaxon_1        # root
+http://purl.obolibrary.org/obo/NCBITaxon_131567  # cellular organisms
+http://purl.obolibrary.org/obo/NCBITaxon_2759    # Eukaryota
+
+# === PLANT KINGDOM ===
+http://purl.obolibrary.org/obo/NCBITaxon_33090   # Viridiplantae (green plants)
+http://purl.obolibrary.org/obo/NCBITaxon_35493   # Streptophyta (land plants)
+http://purl.obolibrary.org/obo/NCBITaxon_3193    # Embryophyta (land plants)
+http://purl.obolibrary.org/obo/NCBITaxon_58023   # Tracheophyta (vascular plants)
+http://purl.obolibrary.org/obo/NCBITaxon_78536   # Euphyllophyta
+http://purl.obolibrary.org/obo/NCBITaxon_58024   # Spermatophyta (seed plants)
+
+# === FLOWERING PLANTS ===
+http://purl.obolibrary.org/obo/NCBITaxon_3398    # Magnoliophyta (flowering plants)
+http://purl.obolibrary.org/obo/NCBITaxon_71240   # Eudicots
+http://purl.obolibrary.org/obo/NCBITaxon_4479    # Poaceae (grass family)
+
+# === MAJOR CROP SPECIES ===
+
+## Maize/Corn
+http://purl.obolibrary.org/obo/NCBITaxon_4577    # Zea (corn genus)
+http://purl.obolibrary.org/obo/NCBITaxon_4577    # Zea mays (maize/corn)
+
+## Soybean
+http://purl.obolibrary.org/obo/NCBITaxon_3847    # Glycine (soybean genus)
+http://purl.obolibrary.org/obo/NCBITaxon_3847    # Glycine max (soybean)
+
+## Wheat
+http://purl.obolibrary.org/obo/NCBITaxon_4564    # Triticum (wheat genus)
+http://purl.obolibrary.org/obo/NCBITaxon_4565    # Triticum aestivum (wheat)
+
+## Cotton
+http://purl.obolibrary.org/obo/NCBITaxon_3634    # Gossypium (cotton genus)
+http://purl.obolibrary.org/obo/NCBITaxon_3635    # Gossypium hirsutum (upland cotton)
+
+# === ANIMAL KINGDOM ===
+http://purl.obolibrary.org/obo/NCBITaxon_33208   # Metazoa (animals)
+http://purl.obolibrary.org/obo/NCBITaxon_6072    # Eumetazoa
+http://purl.obolibrary.org/obo/NCBITaxon_33213   # Bilateria
+http://purl.obolibrary.org/obo/NCBITaxon_7711    # Chordata (vertebrates)
+http://purl.obolibrary.org/obo/NCBITaxon_7742    # Vertebrata
+http://purl.obolibrary.org/obo/NCBITaxon_40674   # Mammalia (mammals)
+
+# === LIVESTOCK SPECIES ===
+
+## Cattle
+http://purl.obolibrary.org/obo/NCBITaxon_9903    # Bos (cattle genus)
+http://purl.obolibrary.org/obo/NCBITaxon_9913    # Bos taurus (cattle)
+
+## Swine
+http://purl.obolibrary.org/obo/NCBITaxon_9823    # Sus (pig genus)
+http://purl.obolibrary.org/obo/NCBITaxon_9825    # Sus scrofa (domestic pig)
+
+## Poultry
+http://purl.obolibrary.org/obo/NCBITaxon_9031    # Gallus gallus (chicken)
+
+# === BENEFICIAL ORGANISMS ===
+
+## Pollinators
+http://purl.obolibrary.org/obo/NCBITaxon_7460    # Apis (honeybee genus)
+http://purl.obolibrary.org/obo/NCBITaxon_7460    # Apis mellifera (honeybee)
+
+# === COMMON PESTS ===
+
+## Corn Rootworm
+http://purl.obolibrary.org/obo/NCBITaxon_51257   # Diabrotica (rootworm genus)
+
+## Soybean Aphid
+http://purl.obolibrary.org/obo/NCBITaxon_106157  # Aphis glycines (soybean aphid)
+
+# NOTE: Minimal set for agricultural species identification and SHACL validation
+# Supports crop/livestock/pest classification without excessive taxonomy depth
