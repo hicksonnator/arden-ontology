@@ -1,0 +1,469 @@
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix arden: <https://arden.ag/ont/core#> .
+@prefix arden-ag: <https://arden.ag/ont/ag#> .
+@prefix arden-fin: <https://arden.ag/ont/fin#> .
+@prefix arden-labor: <https://arden.ag/ont/labor#> .
+@prefix arden-evidence: <https://arden.ag/ont/evidence#> .
+@prefix bridge: <https://arden.ag/ont/bridge#> .
+@prefix qudt: <http://qudt.org/schema/qudt/> .
+@prefix unit: <http://qudt.org/vocab/unit/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# ==================================================
+# KILLER QUESTIONS v1.3.0 SHACL VALIDATION
+# ==================================================
+
+# KQ1: FAMILY FARM CHILD LABOR TAX VALIDATION
+
+arden:KQ1_FamilyLaborTaxValidation a sh:NodeShape ;
+    sh:targetClass arden:FamilyLaborTaxDecision ;
+    rdfs:label "KQ1: Family Labor Tax Decision Validation" ;
+
+    # Must have IRS evidence
+    sh:property [
+        sh:path arden-evidence:hasEvidenceChain ;
+        sh:minCount 1 ;
+        sh:message "Family labor tax decision must have evidence chain"
+    ] ;
+
+    # Evidence chain must include IRS authority
+    sh:sparql [
+        sh:message "Family labor tax decision requires IRS regulatory evidence" ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this arden-evidence:hasEvidenceChain ?chain .
+                FILTER NOT EXISTS {
+                    ?chain arden-evidence:includes ?evidence .
+                    ?evidence a arden-evidence:IRSLaborTaxEvidence .
+                }
+            }
+        """
+    ] ;
+
+    # Child age must be verified
+    sh:sparql [
+        sh:message "Child age must be verified for tax exemption determination" ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this arden:involves ?child .
+                ?child a arden-labor:FarmFamilyChild .
+                FILTER NOT EXISTS {
+                    ?child arden:age ?age .
+                    FILTER (?age >= 0 && ?age <= 25)
+                }
+            }
+        """
+    ] ;
+
+    # Wage exemption calculation must be present
+    sh:sparql [
+        sh:message "Maximum exempt wages must be calculated based on child age and family farm status" ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this arden:involves ?child .
+                ?child a arden-labor:FarmFamilyChild ;
+                       arden:age ?age .
+                FILTER (?age < 18)
+                FILTER NOT EXISTS {
+                    ?child bridge:maximumExemptWages ?exemptAmount .
+                    FILTER (?exemptAmount >= 0)
+                }
+            }
+        """
+    ] .
+
+# KQ2: H-2A SEASONAL WORKER COMPLIANCE VALIDATION
+
+arden:KQ2_H2AWorkerComplianceValidation a sh:NodeShape ;
+    sh:targetClass arden:H2AWorkerDecision ;
+    rdfs:label "KQ2: H-2A Worker Decision Validation" ;
+
+    # Must have DOL compliance evidence
+    sh:sparql [
+        sh:message "H-2A worker decision requires current DOL compliance evidence" ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this arden-evidence:hasEvidenceChain ?chain .
+                FILTER NOT EXISTS {
+                    ?chain arden-evidence:includes ?evidence .
+                    ?evidence a arden-evidence:DOLComplianceEvidence ;
+                              arden-evidence:extractedOn ?timestamp .
+                    FILTER (?timestamp > (NOW() - "P365D"^^xsd:duration))  # Within 1 year
+                }
+            }
+        """
+    ] ;
+
+    # Worker count and duration must be specified
+    sh:property [
+        sh:path arden:numberOfWorkers ;
+        sh:datatype xsd:integer ;
+        sh:minCount 1 ;
+        sh:minInclusive 1 ;
+        sh:maxInclusive 1000 ;  # Reasonable upper bound
+        sh:message "H-2A decision must specify number of workers (1-1000)"
+    ] ;
+
+    sh:property [
+        sh:path arden:workPeriod ;
+        sh:class qudt:Quantity ;
+        sh:minCount 1 ;
+        sh:message "H-2A decision must specify work period duration"
+    ] ;
+
+    # Total compliance cost calculation
+    sh:sparql [
+        sh:message "Total H-2A compliance cost calculation missing or inconsistent" ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this arden:numberOfWorkers ?workers ;
+                      arden:workPeriod ?period ;
+                      bridge:totalComplianceCost ?totalCost .
+
+                ?period qudt:numericValue ?days ;
+                        qudt:unit unit:DAY .
+
+                # Basic validation: total cost should be > (workers * days * minimum wage)
+                BIND (?workers * ?days * 15.0 AS ?minimumExpected)  # $15/day minimum
+                FILTER (?totalCost < ?minimumExpected)
+            }
+        """
+    ] ;
+
+    # Housing requirements validation
+    sh:sparql [
+        sh:message "H-2A housing requirements not adequately specified" ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this arden:numberOfWorkers ?workers .
+                FILTER (?workers >= 5)  # Significant housing requirements for 5+ workers
+
+                FILTER NOT EXISTS {
+                    $this arden:housingPlan ?housing .
+                    ?housing a bridge:H2AHousingRequirement ;
+                             bridge:housingCostPerWorker ?dailyCost .
+                    FILTER (?dailyCost > 0)
+                }
+            }
+        """
+    ] .
+
+# KQ3: GRAIN FUTURES COLLATERAL VALIDATION
+
+arden:KQ3_GrainFuturesCollateralValidation a sh:NodeShape ;
+    sh:targetClass arden:GrainCollateralDecision ;
+    rdfs:label "KQ3: Grain Futures Collateral Decision Validation" ;
+
+    # Must have current commodity price evidence
+    sh:sparql [
+        sh:message "Grain collateral decision requires current commodity price evidence (<24 hours)" ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this arden-evidence:hasEvidenceChain ?chain .
+                FILTER NOT EXISTS {
+                    ?chain arden-evidence:includes ?evidence .
+                    ?evidence a arden-evidence:CommodityPriceEvidence ;
+                              arden-evidence:extractedOn ?timestamp .
+                    FILTER (?timestamp > (NOW() - "PT24H"^^xsd:duration))
+                }
+            }
+        """
+    ] ;
+
+    # Grain inventory must be quantified with proper units
+    sh:sparql [
+        sh:message "Grain inventory quantity must be specified in standard agricultural units" ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this arden:involves ?loan .
+                ?loan arden-fin:securedBy ?grainInventory .
+                ?grainInventory arden:quantity ?qty .
+                ?qty qudt:unit ?unit .
+
+                # Must use bushels, tons, or other standard grain units
+                FILTER (?unit NOT IN (unit:BU, unit:TON, unit:MT))
+            }
+        """
+    ] ;
+
+    # LTV calculation must be present and reasonable
+    sh:sparql [
+        sh:message "Loan-to-value ratio calculation missing or outside acceptable range" ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this arden:involves ?loan .
+                ?loan a arden-fin:GrainInventoryLoan ;
+                      arden-fin:loanAmount ?loanAmount ;
+                      arden-fin:securedBy ?grainInventory .
+
+                ?grainInventory bridge:currentMarketValue ?marketValue .
+
+                BIND (?loanAmount / ?marketValue AS ?ltv)
+
+                # Grain inventory LTV should be 50-85%
+                FILTER (?ltv < 0.5 || ?ltv > 0.85)
+            }
+        """
+    ] ;
+
+    # Margin call threshold must be specified
+    sh:property [
+        sh:path bridge:marginCallThreshold ;
+        sh:datatype xsd:decimal ;
+        sh:minCount 1 ;
+        sh:minInclusive 0.05 ;  # 5% minimum
+        sh:maxInclusive 0.30 ;  # 30% maximum
+        sh:message "Grain inventory loan must specify margin call threshold (5-30%)"
+    ] ;
+
+    # Futures contract basis spread validation
+    sh:sparql [
+        sh:message "Futures-cash basis spread outside normal range" ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this arden:involves ?loan .
+                ?loan arden-fin:securedBy ?grainInventory .
+                ?grainInventory a bridge:FuturesBasedCollateral ;
+                               bridge:futuresCollateralSpread ?basisSpread .
+
+                # Basis spread should typically be -$0.50 to +$0.30 per bushel
+                FILTER (?basisSpread < -0.50 || ?basisSpread > 0.30)
+            }
+        """
+    ] .
+
+# KQ4: OPERATING LOAN CASH FLOW CAPACITY VALIDATION
+
+arden:KQ4_OperatingLoanCapacityValidation a sh:NodeShape ;
+    sh:targetClass arden:LoanCapacityDecision ;
+    rdfs:label "KQ4: Operating Loan Capacity Decision Validation" ;
+
+    # Must have cash flow projection evidence
+    sh:sparql [
+        sh:message "Loan capacity decision requires comprehensive cash flow evidence" ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this arden-evidence:hasEvidenceChain ?chain .
+
+                # Count required evidence types
+                {
+                    SELECT ?chain (COUNT(DISTINCT ?evidenceType) AS ?typeCount)
+                    WHERE {
+                        ?chain arden-evidence:includes ?evidence .
+
+                        # Yield evidence
+                        { ?evidence a arden-evidence:YieldEvidence . BIND("yield" AS ?evidenceType) }
+                        UNION
+                        # Input cost evidence
+                        { ?evidence a arden-evidence:InputCostEvidence . BIND("input-cost" AS ?evidenceType) }
+                        UNION
+                        # Market price evidence
+                        { ?evidence a arden-evidence:CommodityPriceEvidence . BIND("price" AS ?evidenceType) }
+                        UNION
+                        # Historical cash flow evidence
+                        { ?evidence a arden-evidence:CashFlowEvidence . BIND("cash-flow" AS ?evidenceType) }
+                    }
+                    GROUP BY ?chain
+                }
+
+                # Require at least 3 of 4 evidence types
+                FILTER (?typeCount < 3)
+            }
+        """
+    ] ;
+
+    # DSCR must meet minimum threshold
+    sh:sparql [
+        sh:message "Debt service coverage ratio below acceptable threshold for operating loan" ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this arden:involves ?loan .
+                ?loan a arden-fin:CashFlowBasedLoan ;
+                      bridge:debtServiceCoverageRatio ?dscr .
+
+                # Minimum DSCR of 1.2 for operating loans
+                FILTER (?dscr < 1.2)
+            }
+        """
+    ] ;
+
+    # Cash flow projection must cover full crop cycle
+    sh:sparql [
+        sh:message "Cash flow projection must cover complete crop cycle (12 months minimum)" ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this arden:involves ?loan .
+                ?loan arden-fin:basedOn ?cashFlowProjection .
+                ?cashFlowProjection arden:projectionPeriod ?period .
+                ?period qudt:numericValue ?months ;
+                        qudt:unit unit:MO .
+
+                FILTER (?months < 12)
+            }
+        """
+    ] ;
+
+    # Seasonal cash flow gap analysis
+    sh:sparql [
+        sh:message "Seasonal cash flow gap analysis required for operating loan sizing" ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this arden:involves ?loan .
+                ?loan arden-fin:basedOn ?cashFlowProjection .
+
+                FILTER NOT EXISTS {
+                    ?cashFlowProjection bridge:seasonalCashFlowGap ?gap .
+                    ?gap qudt:numericValue ?gapAmount .
+                    FILTER (?gapAmount >= 0)  # Gap amount should be specified
+                }
+            }
+        """
+    ] ;
+
+    # Yield risk sensitivity analysis
+    sh:sparql [
+        sh:message "Loan capacity must account for yield variability risk" ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this arden:involves ?loan .
+                ?loan a arden-fin:CashFlowBasedLoan .
+
+                # Must consider yield downside scenario
+                FILTER NOT EXISTS {
+                    ?scenario a arden:YieldDownsideScenario ;
+                             arden:appliesTo ?loan ;
+                             arden:yieldReduction ?reduction .
+                    FILTER (?reduction >= 0.1)  # At least 10% yield reduction scenario
+                }
+            }
+        """
+    ] .
+
+# CROSS-CUTTING HIGH-STAKES DECISION VALIDATION
+
+arden:HighStakesDecisionValidation a sh:NodeShape ;
+    sh:targetClass arden:HighStakesDecision ;
+    rdfs:label "High Stakes Decision Cross-Cutting Validation" ;
+
+    # All high-stakes decisions must have evidence chains
+    sh:property [
+        sh:path arden-evidence:hasEvidenceChain ;
+        sh:minCount 1 ;
+        sh:class arden-evidence:EvidenceChain ;
+        sh:message "High-stakes decision must have evidence chain"
+    ] ;
+
+    # Evidence chain strength threshold
+    sh:sparql [
+        sh:message "Evidence chain strength insufficient for high-stakes decision (min 70%)" ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this arden-evidence:hasEvidenceChain ?chain .
+                ?chain arden-evidence:chainStrength ?strength .
+                FILTER (?strength < 0.7)
+            }
+        """
+    ] ;
+
+    # Multiple evidence sources required
+    sh:sparql [
+        sh:message "High-stakes decision requires evidence from multiple independent sources" ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this arden-evidence:hasEvidenceChain ?chain .
+
+                {
+                    SELECT ?chain (COUNT(DISTINCT ?source) AS ?sourceCount)
+                    WHERE {
+                        ?chain arden-evidence:includes ?evidence .
+                        ?evidence arden-evidence:wasGeneratedBy ?source .
+                    }
+                    GROUP BY ?chain
+                }
+
+                FILTER (?sourceCount < 2)
+            }
+        """
+    ] ;
+
+    # Decision outcome must be recorded
+    sh:property [
+        sh:path bridge:decisionOutcome ;
+        sh:minCount 1 ;
+        sh:class bridge:DecisionOutcome ;
+        sh:message "High-stakes decision must record outcome"
+    ] ;
+
+    # Minimum confidence requirements by decision type
+    sh:sparql [
+        sh:message "Tax-related decisions require higher confidence evidence (min 85%)" ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this a ?decisionType .
+                FILTER (?decisionType IN (arden:FamilyLaborTaxDecision, arden:H2AWorkerDecision))
+
+                $this arden-evidence:hasEvidenceChain ?chain .
+                ?chain arden-evidence:chainStrength ?strength .
+                FILTER (?strength < 0.85)
+            }
+        """
+    ] .
+
+# UNITS AND QUDT CONSISTENCY FOR KILLER QUESTIONS
+
+arden:KillerQuestionUnitConsistency a sh:NodeShape ;
+    sh:targetClass qudt:Quantity ;
+    sh:targetSubjectsOf arden:involves ;
+    rdfs:label "Killer Question Unit Consistency" ;
+
+    # All quantities must have units and numeric values
+    sh:property [
+        sh:path qudt:numericValue ;
+        sh:minCount 1 ;
+        sh:datatype xsd:decimal ;
+        sh:message "All quantities in killer questions must have numeric values"
+    ] ;
+
+    sh:property [
+        sh:path qudt:unit ;
+        sh:minCount 1 ;
+        sh:message "All quantities in killer questions must have units"
+    ] ;
+
+    # Financial amounts must use currency units
+    sh:sparql [
+        sh:message "Financial quantities must use proper currency units" ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this a ?type .
+                FILTER (?type IN (
+                    arden-fin:LoanAmount,
+                    bridge:totalComplianceCost,
+                    bridge:maximumExemptWages
+                ))
+
+                $this qudt:unit ?unit .
+                FILTER (?unit NOT IN (unit:USD, unit:CAD))
+            }
+        """
+    ] .

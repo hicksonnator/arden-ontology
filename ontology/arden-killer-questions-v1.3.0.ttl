@@ -1,0 +1,330 @@
+@prefix : <https://arden.ag/ont/kq#> .
+@prefix arden: <https://arden.ag/ont/core#> .
+@prefix arden-ag: <https://arden.ag/ont/ag#> .
+@prefix arden-fin: <https://arden.ag/ont/fin#> .
+@prefix arden-labor: <https://arden.ag/ont/labor#> .
+@prefix arden-tax: <https://arden.ag/ont/tax#> .
+@prefix arden-evidence: <https://arden.ag/ont/evidence#> .
+@prefix bridge: <https://arden.ag/ont/bridge#> .
+@prefix fibo: <https://spec.edmcouncil.org/fibo/ontology/> .
+@prefix agro: <http://purl.obolibrary.org/obo/> .
+@prefix qudt: <http://qudt.org/schema/qudt/> .
+@prefix unit: <http://qudt.org/vocab/unit/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# ==================================================
+# ARDEN KILLER QUESTIONS v1.3.0 - PRODUCTION GRADE
+# ==================================================
+
+<https://arden.ag/ont/kq#> a owl:Ontology ;
+    rdfs:label "Arden Killer Questions Ontology v1.3.0"@en ;
+    rdfs:comment "Production-grade ontology for high-stakes agricultural finance decisions"@en ;
+    owl:versionInfo "1.3.0" .
+
+# ===== KILLER QUESTION 1: FAMILY FARM CHILD LABOR TAX =====
+
+# Decision class
+arden:FamilyLaborTaxDecision a owl:Class ;
+    rdfs:label "Family Labor Tax Decision"@en ;
+    rdfs:comment "Decision regarding tax treatment of family members working on farm"@en ;
+    rdfs:subClassOf arden:HighStakesDecision .
+
+# Core entities
+arden-labor:FarmFamilyChild a owl:Class ;
+    rdfs:label "Farm Family Child"@en ;
+    rdfs:comment "Child of farm owner working on family farm"@en ;
+    rdfs:subClassOf arden-labor:FarmFamilyEmployee ;
+    owl:equivalentClass [
+        owl:intersectionOf (
+            arden-labor:FarmFamilyEmployee
+            [ owl:someValuesFrom xsd:integer ; owl:onProperty arden:age ]
+            [ owl:hasValue true ; owl:onProperty bridge:isChildOfOwner ]
+        )
+    ] .
+
+# Tax exemption bridge
+bridge:Under18FarmLaborExemption a owl:Class ;
+    rdfs:label "Under-18 Farm Labor Tax Exemption"@en ;
+    rdfs:comment "IRS exemption from Medicare/Social Security withholding for farm family children under 18"@en ;
+    rdfs:subClassOf arden-tax:TaxExemption ;
+    owl:equivalentClass [
+        owl:intersectionOf (
+            arden-tax:TaxExemption
+            [ owl:allValuesFrom [
+                owl:intersectionOf (
+                    xsd:integer
+                    [ owl:maxInclusive 17 ]
+                )
+            ] ; owl:onProperty arden:applicableAge ]
+        )
+    ] .
+
+# Calculation properties
+bridge:maximumExemptWages a owl:DatatypeProperty ;
+    rdfs:label "maximum exempt wages"@en ;
+    rdfs:comment "Maximum wages exempt from withholding under family farm rules"@en ;
+    rdfs:domain arden-labor:FarmFamilyChild ;
+    rdfs:range xsd:decimal .
+
+bridge:scheduleF​DeductionImpact a owl:DatatypeProperty ;
+    rdfs:label "Schedule F deduction impact"@en ;
+    rdfs:comment "Impact on Schedule F farm business deductions"@en ;
+    rdfs:domain arden:FamilyLaborTaxDecision ;
+    rdfs:range xsd:decimal .
+
+# ===== KILLER QUESTION 2: H-2A SEASONAL WORKER COMPLIANCE =====
+
+arden:H2AWorkerDecision a owl:Class ;
+    rdfs:label "H-2A Worker Decision"@en ;
+    rdfs:comment "Decision regarding H-2A seasonal worker hiring and compliance"@en ;
+    rdfs:subClassOf arden:HighStakesDecision .
+
+arden-labor:H2ASeasonalWorker a owl:Class ;
+    rdfs:label "H-2A Seasonal Worker"@en ;
+    rdfs:comment "Temporary agricultural worker under H-2A visa program"@en ;
+    rdfs:subClassOf arden-labor:SeasonalFarmWorker .
+
+# H-2A specific requirements
+bridge:H2AHousingRequirement a owl:Class ;
+    rdfs:label "H-2A Housing Requirement"@en ;
+    rdfs:comment "DOL-mandated housing standards for H-2A workers"@en ;
+    rdfs:subClassOf arden:ComplianceRequirement .
+
+bridge:H2AWageRate a owl:Class ;
+    rdfs:label "H-2A Wage Rate"@en ;
+    rdfs:comment "Adverse Effect Wage Rate for H-2A workers by region"@en ;
+    rdfs:subClassOf arden-labor:WageRate ;
+    owl:equivalentClass [
+        owl:intersectionOf (
+            arden-labor:WageRate
+            [ owl:hasValue true ; owl:onProperty bridge:isAEWRCompliant ]
+        )
+    ] .
+
+# Cost calculation properties
+bridge:totalComplianceCost a owl:DatatypeProperty ;
+    rdfs:label "total compliance cost"@en ;
+    rdfs:comment "Total cost including wages, housing, transportation for H-2A program"@en ;
+    rdfs:domain arden:H2AWorkerDecision ;
+    rdfs:range qudt:Quantity .
+
+bridge:housingCostPerWorker a owl:DatatypeProperty ;
+    rdfs:label "housing cost per worker"@en ;
+    rdfs:comment "Daily housing cost per H-2A worker"@en ;
+    rdfs:domain bridge:H2AHousingRequirement ;
+    rdfs:range qudt:Quantity .
+
+# ===== KILLER QUESTION 3: GRAIN FUTURES COLLATERAL IMPACT =====
+
+arden:GrainCollateralDecision a owl:Class ;
+    rdfs:label "Grain Collateral Decision"@en ;
+    rdfs:comment "Decision regarding grain inventory as loan collateral with futures price exposure"@en ;
+    rdfs:subClassOf arden:HighStakesDecision .
+
+arden-fin:GrainInventoryLoan a owl:Class ;
+    rdfs:label "Grain Inventory Loan"@en ;
+    rdfs:comment "Loan secured by stored grain inventory"@en ;
+    rdfs:subClassOf arden-fin:CommodityLoan ;
+    owl:equivalentClass [
+        owl:intersectionOf (
+            arden-fin:CommodityLoan
+            [ owl:someValuesFrom arden-ag:StoredGrain ; owl:onProperty arden-fin:securedBy ]
+        )
+    ] .
+
+# Futures contract bridge
+bridge:FuturesBasedCollateral a owl:Class ;
+    rdfs:label "Futures-Based Collateral"@en ;
+    rdfs:comment "Collateral valued based on commodity futures contracts"@en ;
+    rdfs:subClassOf arden-fin:CollateralAsset ;
+    owl:equivalentClass [
+        owl:intersectionOf (
+            arden-fin:CollateralAsset
+            [ owl:someValuesFrom arden-fin:FuturesContract ; owl:onProperty bridge:pricedAgainst ]
+        )
+    ] .
+
+# Price relationship properties
+bridge:futuresCollateralSpread a owl:DatatypeProperty ;
+    rdfs:label "futures collateral spread"@en ;
+    rdfs:comment "Basis spread between local cash price and futures price"@en ;
+    rdfs:domain bridge:FuturesBasedCollateral ;
+    rdfs:range xsd:decimal .
+
+bridge:collateralVolatilityAdjustment a owl:DatatypeProperty ;
+    rdfs:label "collateral volatility adjustment"@en ;
+    rdfs:comment "LTV adjustment based on commodity price volatility"@en ;
+    rdfs:domain arden-fin:GrainInventoryLoan ;
+    rdfs:range xsd:decimal .
+
+bridge:marginCallThreshold a owl:DatatypeProperty ;
+    rdfs:label "margin call threshold"@en ;
+    rdfs:comment "Price decline percentage that triggers margin call"@en ;
+    rdfs:domain arden-fin:GrainInventoryLoan ;
+    rdfs:range xsd:decimal .
+
+# ===== KILLER QUESTION 4: OPERATING LOAN CASH FLOW CAPACITY =====
+
+arden:LoanCapacityDecision a owl:Class ;
+    rdfs:label "Loan Capacity Decision"@en ;
+    rdfs:comment "Decision regarding maximum operating loan capacity based on projected cash flows"@en ;
+    rdfs:subClassOf arden:HighStakesDecision .
+
+arden-fin:CashFlowBasedLoan a owl:Class ;
+    rdfs:label "Cash Flow Based Loan"@en ;
+    rdfs:comment "Loan sized based on projected agricultural cash flows"@en ;
+    rdfs:subClassOf arden-fin:OperatingLoan ;
+    owl:equivalentClass [
+        owl:intersectionOf (
+            arden-fin:OperatingLoan
+            [ owl:someValuesFrom arden-fin:CashFlowProjection ; owl:onProperty arden-fin:basedOn ]
+        )
+    ] .
+
+# Cash flow calculation bridge
+bridge:YieldBasedRevenue a owl:Class ;
+    rdfs:label "Yield-Based Revenue"@en ;
+    rdfs:comment "Projected revenue based on historical yield and current commodity prices"@en ;
+    rdfs:subClassOf arden-fin:ProjectedRevenue ;
+    owl:equivalentClass [
+        owl:intersectionOf (
+            arden-fin:ProjectedRevenue
+            [ owl:someValuesFrom arden-ag:YieldProjection ; owl:onProperty bridge:derivedFromYield ]
+            [ owl:someValuesFrom arden-fin:CommodityPrice ; owl:onProperty bridge:pricedAt ]
+        )
+    ] .
+
+# Financial capacity metrics
+bridge:debtServiceCoverageRatio a owl:DatatypeProperty ;
+    rdfs:label "debt service coverage ratio"@en ;
+    rdfs:comment "Ratio of net operating income to total debt service"@en ;
+    rdfs:domain arden-fin:CashFlowBasedLoan ;
+    rdfs:range xsd:decimal .
+
+bridge:loanCapacityMultiplier a owl:DatatypeProperty ;
+    rdfs:label "loan capacity multiplier"@en ;
+    rdfs:comment "Multiplier applied to net income for loan capacity calculation"@en ;
+    rdfs:domain arden:LoanCapacityDecision ;
+    rdfs:range xsd:decimal .
+
+bridge:seasonalCashFlowGap a owl:DatatypeProperty ;
+    rdfs:label "seasonal cash flow gap"@en ;
+    rdfs:comment "Maximum negative cash flow during growing season"@en ;
+    rdfs:domain arden-fin:CashFlowProjection ;
+    rdfs:range qudt:Quantity .
+
+# ===== CROSS-CUTTING BRIDGE PROPERTIES =====
+
+# Evidence requirements for killer questions
+bridge:requiresMinimumConfidence a owl:DatatypeProperty ;
+    rdfs:label "requires minimum confidence"@en ;
+    rdfs:comment "Minimum confidence level required for evidence supporting this decision"@en ;
+    rdfs:domain arden:HighStakesDecision ;
+    rdfs:range xsd:decimal .
+
+bridge:requiresMultipleSourceEvidence a owl:DatatypeProperty ;
+    rdfs:label "requires multiple source evidence"@en ;
+    rdfs:comment "Whether decision requires evidence from multiple independent sources"@en ;
+    rdfs:domain arden:HighStakesDecision ;
+    rdfs:range xsd:boolean .
+
+# Decision outcome tracking
+bridge:decisionOutcome a owl:ObjectProperty ;
+    rdfs:label "decision outcome"@en ;
+    rdfs:comment "Outcome of the high-stakes decision"@en ;
+    rdfs:domain arden:HighStakesDecision .
+
+bridge:DecisionOutcome a owl:Class ;
+    rdfs:label "Decision Outcome"@en ;
+    rdfs:comment "Result of a high-stakes agricultural finance decision"@en .
+
+bridge:Approved a bridge:DecisionOutcome ;
+    rdfs:label "Approved" .
+
+bridge:Denied a bridge:DecisionOutcome ;
+    rdfs:label "Denied" .
+
+bridge:RequiresAdditionalEvidence a bridge:DecisionOutcome ;
+    rdfs:label "Requires Additional Evidence" .
+
+# ===== PROPERTY CHARACTERISTICS =====
+
+# Functional properties (single values)
+bridge:maximumExemptWages rdf:type owl:FunctionalProperty .
+bridge:totalComplianceCost rdf:type owl:FunctionalProperty .
+bridge:debtServiceCoverageRatio rdf:type owl:FunctionalProperty .
+bridge:seasonalCashFlowGap rdf:type owl:FunctionalProperty .
+
+# Datatype property constraints
+[ rdf:type owl:AllDisjointClasses ;
+  owl:members (
+    arden:FamilyLaborTaxDecision
+    arden:H2AWorkerDecision
+    arden:GrainCollateralDecision
+    arden:LoanCapacityDecision
+  ) ] .
+
+# Age constraint for farm family children
+[ rdf:type owl:Class ;
+  owl:equivalentClass arden-labor:FarmFamilyChild ;
+  rdfs:subClassOf [
+    rdf:type owl:Restriction ;
+    owl:onProperty arden:age ;
+    owl:allValuesFrom [
+      rdf:type rdfs:Datatype ;
+      owl:onDatatype xsd:integer ;
+      owl:withRestrictions ( [ owl:minInclusive 0 ] [ owl:maxInclusive 25 ] )
+    ]
+  ]
+] .
+
+# DSCR threshold constraint
+[ rdf:type owl:Class ;
+  owl:equivalentClass arden-fin:CashFlowBasedLoan ;
+  rdfs:subClassOf [
+    rdf:type owl:Restriction ;
+    owl:onProperty bridge:debtServiceCoverageRatio ;
+    owl:allValuesFrom [
+      rdf:type rdfs:Datatype ;
+      owl:onDatatype xsd:decimal ;
+      owl:withRestrictions ( [ owl:minInclusive "1.0"^^xsd:decimal ] )
+    ]
+  ]
+] .
+
+# ===== KILLER QUESTION SPARQL QUERY TEMPLATES =====
+
+# These are embedded as annotations for query generation
+
+arden:FamilyLaborTaxDecision rdfs:comment """
+SPARQL Query Template for KQ1:
+SELECT ?exemptWages ?deductionImpact WHERE {
+  ?child a arden-labor:FarmFamilyChild ;
+         arden:age ?age ;
+         bridge:maximumExemptWages ?exemptWages .
+
+  ?decision a arden:FamilyLaborTaxDecision ;
+            bridge:scheduleF​DeductionImpact ?deductionImpact ;
+            arden:involves ?child .
+
+  FILTER (?age < 18)
+}
+""" .
+
+arden:GrainCollateralDecision rdfs:comment """
+SPARQL Query Template for KQ3:
+SELECT ?currentLTV ?marginCallRisk WHERE {
+  ?loan a arden-fin:GrainInventoryLoan ;
+        arden-fin:securedBy ?grainInventory ;
+        bridge:marginCallThreshold ?threshold .
+
+  ?grainInventory bridge:currentMarketValue ?marketValue .
+  ?loan arden-fin:loanAmount ?loanAmount .
+
+  BIND (?loanAmount / ?marketValue AS ?currentLTV)
+  BIND ((?currentLTV > 0.8) AS ?marginCallRisk)
+}
+""" .

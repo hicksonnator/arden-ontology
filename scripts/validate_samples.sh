@@ -40,6 +40,13 @@ else
     echo "❌ Financial validation FAILED"
 fi
 
+echo "5. Testing enhanced v1.2.1 validation suite..."
+if pyshacl sample_data/enhanced-test-data.ttl -s shapes/arden-shapes-enhanced-v1.2.1.ttl -f human; then
+    echo "⚠️ Enhanced validation PASSED (no quality issues detected)"
+else
+    echo "✅ Enhanced validation WORKING (detected quality issues as expected)"
+fi
+
 echo "=== SHACL Validation Complete ==="
 echo "Review any validation failures above."
 echo "Green bars = production-ready data patterns!"

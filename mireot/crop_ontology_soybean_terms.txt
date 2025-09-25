@@ -3,63 +3,63 @@
 # Source: https://cropontology.org/ontology/CO_336/rdf (90 variables available)
 
 # Core Soybean Crop Class
-http://www.cropontology.org/rdf/CO_336:0000001  # Glycine max (soybean)
+https://cropontology.org/rdf/CO_336:0000001  # Glycine max (soybean)
 
 # Key Agronomic Traits
-http://www.cropontology.org/rdf/CO_336:0000010  # plant height
-http://www.cropontology.org/rdf/CO_336:0000011  # node number
-http://www.cropontology.org/rdf/CO_336:0000012  # days to flowering
-http://www.cropontology.org/rdf/CO_336:0000013  # days to pod set
-http://www.cropontology.org/rdf/CO_336:0000014  # days to maturity
-http://www.cropontology.org/rdf/CO_336:0000015  # seed yield
-http://www.cropontology.org/rdf/CO_336:0000016  # biomass yield
-http://www.cropontology.org/rdf/CO_336:0000017  # harvest index
+https://cropontology.org/rdf/CO_336:0000010  # plant height
+https://cropontology.org/rdf/CO_336:0000011  # node number
+https://cropontology.org/rdf/CO_336:0000012  # days to flowering
+https://cropontology.org/rdf/CO_336:0000013  # days to pod set
+https://cropontology.org/rdf/CO_336:0000014  # days to maturity
+https://cropontology.org/rdf/CO_336:0000015  # seed yield
+https://cropontology.org/rdf/CO_336:0000016  # biomass yield
+https://cropontology.org/rdf/CO_336:0000017  # harvest index
 
 # Seed Quality Traits
-http://www.cropontology.org/rdf/CO_336:0000020  # seed weight
-http://www.cropontology.org/rdf/CO_336:0000021  # seed moisture
-http://www.cropontology.org/rdf/CO_336:0000022  # protein content
-http://www.cropontology.org/rdf/CO_336:0000023  # oil content
-http://www.cropontology.org/rdf/CO_336:0000024  # fatty acid composition
-http://www.cropontology.org/rdf/CO_336:0000025  # isoflavone content
-http://www.cropontology.org/rdf/CO_336:0000026  # test weight
+https://cropontology.org/rdf/CO_336:0000020  # seed weight
+https://cropontology.org/rdf/CO_336:0000021  # seed moisture
+https://cropontology.org/rdf/CO_336:0000022  # protein content
+https://cropontology.org/rdf/CO_336:0000023  # oil content
+https://cropontology.org/rdf/CO_336:0000024  # fatty acid composition
+https://cropontology.org/rdf/CO_336:0000025  # isoflavone content
+https://cropontology.org/rdf/CO_336:0000026  # test weight
 
 # Pod and Seed Morphology
-http://www.cropontology.org/rdf/CO_336:0000030  # pod number
-http://www.cropontology.org/rdf/CO_336:0000031  # pod length
-http://www.cropontology.org/rdf/CO_336:0000032  # seeds per pod
-http://www.cropontology.org/rdf/CO_336:0000033  # seed length
-http://www.cropontology.org/rdf/CO_336:0000034  # seed width
-http://www.cropontology.org/rdf/CO_336:0000035  # seed thickness
-http://www.cropontology.org/rdf/CO_336:0000036  # seed coat color
+https://cropontology.org/rdf/CO_336:0000030  # pod number
+https://cropontology.org/rdf/CO_336:0000031  # pod length
+https://cropontology.org/rdf/CO_336:0000032  # seeds per pod
+https://cropontology.org/rdf/CO_336:0000033  # seed length
+https://cropontology.org/rdf/CO_336:0000034  # seed width
+https://cropontology.org/rdf/CO_336:0000035  # seed thickness
+https://cropontology.org/rdf/CO_336:0000036  # seed coat color
 
 # Plant Architecture
-http://www.cropontology.org/rdf/CO_336:0000040  # leaf number
-http://www.cropontology.org/rdf/CO_336:0000041  # leaf area
-http://www.cropontology.org/rdf/CO_336:0000042  # stem diameter
-http://www.cropontology.org/rdf/CO_336:0000043  # branch number
-http://www.cropontology.org/rdf/CO_336:0000044  # lodging score
+https://cropontology.org/rdf/CO_336:0000040  # leaf number
+https://cropontology.org/rdf/CO_336:0000041  # leaf area
+https://cropontology.org/rdf/CO_336:0000042  # stem diameter
+https://cropontology.org/rdf/CO_336:0000043  # branch number
+https://cropontology.org/rdf/CO_336:0000044  # lodging score
 
 # Stress Tolerance
-http://www.cropontology.org/rdf/CO_336:0000050  # drought tolerance
-http://www.cropontology.org/rdf/CO_336:0000051  # heat tolerance
-http://www.cropontology.org/rdf/CO_336:0000052  # cold tolerance
-http://www.cropontology.org/rdf/CO_336:0000053  # disease resistance
-http://www.cropontology.org/rdf/CO_336:0000054  # insect resistance
+https://cropontology.org/rdf/CO_336:0000050  # drought tolerance
+https://cropontology.org/rdf/CO_336:0000051  # heat tolerance
+https://cropontology.org/rdf/CO_336:0000052  # cold tolerance
+https://cropontology.org/rdf/CO_336:0000053  # disease resistance
+https://cropontology.org/rdf/CO_336:0000054  # insect resistance
 
 # Growth Stages (BBCH compatible)
-http://www.cropontology.org/rdf/CO_336:0000060  # emergence
-http://www.cropontology.org/rdf/CO_336:0000061  # vegetative growth
-http://www.cropontology.org/rdf/CO_336:0000062  # flowering
-http://www.cropontology.org/rdf/CO_336:0000063  # pod development
-http://www.cropontology.org/rdf/CO_336:0000064  # seed filling
-http://www.cropontology.org/rdf/CO_336:0000065  # physiological maturity
+https://cropontology.org/rdf/CO_336:0000060  # emergence
+https://cropontology.org/rdf/CO_336:0000061  # vegetative growth
+https://cropontology.org/rdf/CO_336:0000062  # flowering
+https://cropontology.org/rdf/CO_336:0000063  # pod development
+https://cropontology.org/rdf/CO_336:0000064  # seed filling
+https://cropontology.org/rdf/CO_336:0000065  # physiological maturity
 
 # Variable Properties
-http://www.cropontology.org/rdf/CO_336:0000070  # trait
-http://www.cropontology.org/rdf/CO_336:0000071  # method
-http://www.cropontology.org/rdf/CO_336:0000072  # scale
-http://www.cropontology.org/rdf/CO_336:0000073  # unit
+https://cropontology.org/rdf/CO_336:0000070  # trait
+https://cropontology.org/rdf/CO_336:0000071  # method
+https://cropontology.org/rdf/CO_336:0000072  # scale
+https://cropontology.org/rdf/CO_336:0000073  # unit
 
 # NOTE: Actual IRIs will be determined from CO_336 RDF download
 # This seed list targets key agronomic traits used in yield/quality analysis

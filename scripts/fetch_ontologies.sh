@@ -14,8 +14,8 @@ echo "Fetching core semantic web foundations..."
 # Pin minimal kernels; the rest will be sliced via ROBOT MIREOT
 curl -L -o externals/sosa.ttl        https://www.w3.org/ns/sosa/sosa.ttl
 curl -L -o externals/geosparql.rdf   https://schemas.opengis.net/geosparql/1.0/geosparql_vocab_all.rdf
-curl -L -o externals/qudt-schema.ttl https://qudt.org/2.1/schema/QUDT-v2.1.ttl
-curl -L -o externals/qudt-units.ttl  https://qudt.org/2.1/vocab/VOCAB-UNITS-ALL-v2.1.ttl
+curl -L -o externals/qudt-schema.ttl https://raw.githubusercontent.com/qudt/qudt-public-repo/master/schema/SCHEMA_QUDT-v2.1.ttl
+curl -L -o externals/qudt-units.ttl  https://raw.githubusercontent.com/qudt/qudt-public-repo/master/vocab/unit/VOCAB_QUDT-UNITS-ALL-v2.1.ttl
 curl -L -o externals/skos.rdf        https://www.w3.org/2009/08/skos-reference/skos.rdf
 curl -L -o externals/prov.ttl        https://www.w3.org/ns/prov.ttl
 curl -L -o externals/dcat.ttl        https://www.w3.org/ns/dcat3.ttl

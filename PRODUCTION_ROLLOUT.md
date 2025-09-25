@@ -245,7 +245,7 @@ sha256sum externals/*.ttl >> externals/LOCKFILE.md
 2. **Performance Issues**
    ```bash
    # Check for expensive queries
-   EXPLAIN SPARQL SELECT * WHERE { ?s ?p ?o }
+   EXPLAIN SPARQL SELECT * WHERE { ?s ?p ?o }we 
 
    # Add indexes on frequently queried properties
    CREATE INDEX ON parcels(county_fips);

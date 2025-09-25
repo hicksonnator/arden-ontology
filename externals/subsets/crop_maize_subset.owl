@@ -1,0 +1,584 @@
+<?xml version="1.0"?>
+<rdf:RDF xmlns="https://cropontology.org/rdf/"
+     xml:base="https://cropontology.org/rdf/"
+     xmlns:owl="http://www.w3.org/2002/07/owl#"
+     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+     xmlns:xml="http://www.w3.org/XML/1998/namespace"
+     xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+     xmlns:rdf1="https://cropontology.org/rdf/"
+     xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+     xmlns:skos="http://www.w3.org/2004/02/skos/core#">
+    <owl:Ontology rdf:about="https://cropontology.org/rdf/"/>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Annotation properties
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- http://www.w3.org/2004/02/skos/core#definition -->
+
+    <owl:AnnotationProperty rdf:about="http://www.w3.org/2004/02/skos/core#definition"/>
+    
+
+
+    <!-- https://cropontology.org/rdf/acronym -->
+
+    <owl:AnnotationProperty rdf:about="https://cropontology.org/rdf/acronym"/>
+    
+
+
+    <!-- https://cropontology.org/rdf/attribute -->
+
+    <owl:AnnotationProperty rdf:about="https://cropontology.org/rdf/attribute"/>
+    
+
+
+    <!-- https://cropontology.org/rdf/entity -->
+
+    <owl:AnnotationProperty rdf:about="https://cropontology.org/rdf/entity"/>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Classes
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- https://cropontology.org/rdf/Agronomic -->
+
+    <owl:Class rdf:about="https://cropontology.org/rdf/Agronomic">
+        <rdfs:subClassOf rdf:resource="https://cropontology.org/rdf/Trait"/>
+    </owl:Class>
+    
+
+
+    <!-- https://cropontology.org/rdf/Biotic_stress -->
+
+    <owl:Class rdf:about="https://cropontology.org/rdf/Biotic_stress">
+        <rdfs:subClassOf rdf:resource="https://cropontology.org/rdf/Trait"/>
+    </owl:Class>
+    
+
+
+    <!-- https://cropontology.org/rdf/Morphological -->
+
+    <owl:Class rdf:about="https://cropontology.org/rdf/Morphological">
+        <rdfs:subClassOf rdf:resource="https://cropontology.org/rdf/Trait"/>
+    </owl:Class>
+    
+
+
+    <!-- https://cropontology.org/rdf/Phenological -->
+
+    <owl:Class rdf:about="https://cropontology.org/rdf/Phenological">
+        <rdfs:subClassOf rdf:resource="https://cropontology.org/rdf/Trait"/>
+    </owl:Class>
+    
+
+
+    <!-- https://cropontology.org/rdf/Physiological -->
+
+    <owl:Class rdf:about="https://cropontology.org/rdf/Physiological">
+        <rdfs:subClassOf rdf:resource="https://cropontology.org/rdf/Trait"/>
+    </owl:Class>
+    
+
+
+    <!-- https://cropontology.org/rdf/Quality -->
+
+    <owl:Class rdf:about="https://cropontology.org/rdf/Quality">
+        <rdfs:subClassOf rdf:resource="https://cropontology.org/rdf/Trait"/>
+    </owl:Class>
+    
+
+
+    <!-- https://cropontology.org/rdf/Trait -->
+
+    <owl:Class rdf:about="https://cropontology.org/rdf/Trait"/>
+    
+
+
+    <!-- https://cropontology.org/rdf/CO_322:0000001 -->
+
+    <owl:Class rdf:about="https://cropontology.org/rdf/CO_322:0000001">
+        <rdfs:subClassOf rdf:resource="https://cropontology.org/rdf/Phenological"/>
+        <rdfs:label xml:lang="en">Anthesis silking interval</rdfs:label>
+        <skos:definition xml:lang="en">Anthesis silking interval.</skos:definition>
+        <acronym xml:lang="en">ASI</acronym>
+        <attribute>anthesis silking interval</attribute>
+        <entity>Plant</entity>
+    </owl:Class>
+    
+
+
+    <!-- https://cropontology.org/rdf/CO_322:0000010 -->
+
+    <owl:Class rdf:about="https://cropontology.org/rdf/CO_322:0000010">
+        <rdfs:subClassOf rdf:resource="https://cropontology.org/rdf/Agronomic"/>
+        <rdfs:label xml:lang="en">Grain number</rdfs:label>
+        <skos:definition xml:lang="en">Grain number.</skos:definition>
+        <acronym xml:lang="en">GN</acronym>
+        <attribute>number</attribute>
+        <entity>Grain</entity>
+    </owl:Class>
+    
+
+
+    <!-- https://cropontology.org/rdf/CO_322:0000011 -->
+
+    <owl:Class rdf:about="https://cropontology.org/rdf/CO_322:0000011">
+        <rdfs:subClassOf rdf:resource="https://cropontology.org/rdf/Agronomic"/>
+        <rdfs:label xml:lang="en">Plant aspect</rdfs:label>
+        <skos:definition xml:lang="en">Qualitative observation of plant ideotype. In another word, it rates characteristics such as plant and ear height, uniformity of plants, disease and insect damage, and lodging.</skos:definition>
+        <acronym xml:lang="en">PAsp</acronym>
+        <attribute>aspect</attribute>
+        <entity>Plant</entity>
+    </owl:Class>
+    
+
+
+    <!-- https://cropontology.org/rdf/CO_322:0000012 -->
+
+    <owl:Class rdf:about="https://cropontology.org/rdf/CO_322:0000012">
+        <rdfs:subClassOf rdf:resource="https://cropontology.org/rdf/Agronomic"/>
+        <rdfs:label xml:lang="en">Senescence</rdfs:label>
+        <skos:definition xml:lang="en">Leaf senescence.</skos:definition>
+        <acronym xml:lang="en">Sen</acronym>
+        <attribute>senescence</attribute>
+        <entity>Leaf</entity>
+    </owl:Class>
+    
+
+
+    <!-- https://cropontology.org/rdf/CO_322:0000013 -->
+
+    <owl:Class rdf:about="https://cropontology.org/rdf/CO_322:0000013">
+        <rdfs:subClassOf rdf:resource="https://cropontology.org/rdf/Morphological"/>
+        <rdfs:label xml:lang="en">Silk length</rdfs:label>
+        <skos:definition xml:lang="en">Silk length.</skos:definition>
+        <acronym xml:lang="en">SilkLng</acronym>
+        <attribute>length</attribute>
+        <entity>Silk</entity>
+    </owl:Class>
+    
+
+
+    <!-- https://cropontology.org/rdf/CO_322:0000014 -->
+
+    <owl:Class rdf:about="https://cropontology.org/rdf/CO_322:0000014">
+        <rdfs:subClassOf rdf:resource="https://cropontology.org/rdf/Agronomic"/>
+        <rdfs:label xml:lang="en">Silk growth rate</rdfs:label>
+        <skos:definition xml:lang="en">Growth rate of silk.</skos:definition>
+        <acronym xml:lang="en">SilkGrwR</acronym>
+        <attribute>growth rate</attribute>
+        <entity>Silk</entity>
+    </owl:Class>
+    
+
+
+    <!-- https://cropontology.org/rdf/CO_322:0000015 -->
+
+    <owl:Class rdf:about="https://cropontology.org/rdf/CO_322:0000015">
+        <rdfs:subClassOf rdf:resource="https://cropontology.org/rdf/Morphological"/>
+        <rdfs:label xml:lang="en">Ear length</rdfs:label>
+        <skos:definition xml:lang="en">Ear length.</skos:definition>
+        <acronym xml:lang="en">ELng</acronym>
+        <attribute>length</attribute>
+        <entity>Ear</entity>
+    </owl:Class>
+    
+
+
+    <!-- https://cropontology.org/rdf/CO_322:0000016 -->
+
+    <owl:Class rdf:about="https://cropontology.org/rdf/CO_322:0000016">
+        <rdfs:subClassOf rdf:resource="https://cropontology.org/rdf/Agronomic"/>
+        <rdfs:label xml:lang="en">Ear growth rate</rdfs:label>
+        <skos:definition xml:lang="en">Growth rate of the ear(s) on a plant. It may include the sum of the apical and sub-apical ear growth from prolific plants.</skos:definition>
+        <acronym xml:lang="en">EGrwR</acronym>
+        <attribute>growth rate</attribute>
+        <entity>Ear</entity>
+    </owl:Class>
+    
+
+
+    <!-- https://cropontology.org/rdf/CO_322:0000017 -->
+
+    <owl:Class rdf:about="https://cropontology.org/rdf/CO_322:0000017">
+        <rdfs:subClassOf rdf:resource="https://cropontology.org/rdf/Agronomic"/>
+        <rdfs:label xml:lang="en">Ear height</rdfs:label>
+        <skos:definition xml:lang="en">Plant height from base to the insertion of the top (uppermost) ear.</skos:definition>
+        <acronym xml:lang="en">EH</acronym>
+        <attribute>height to insertion of uppermost ear</attribute>
+        <entity>Plant</entity>
+    </owl:Class>
+    
+
+
+    <!-- https://cropontology.org/rdf/CO_322:0000020 -->
+
+    <owl:Class rdf:about="https://cropontology.org/rdf/CO_322:0000020">
+        <rdfs:subClassOf rdf:resource="https://cropontology.org/rdf/Agronomic"/>
+        <rdfs:label xml:lang="en">Ear position</rdfs:label>
+        <skos:definition xml:lang="en">Ear position as a ratio of ear height to plant height.</skos:definition>
+        <acronym xml:lang="en">EPo</acronym>
+        <attribute>position</attribute>
+        <entity>Ear</entity>
+    </owl:Class>
+    
+
+
+    <!-- https://cropontology.org/rdf/CO_322:0000021 -->
+
+    <owl:Class rdf:about="https://cropontology.org/rdf/CO_322:0000021">
+        <rdfs:subClassOf rdf:resource="https://cropontology.org/rdf/Agronomic"/>
+        <rdfs:label xml:lang="en">Ear number</rdfs:label>
+        <skos:definition xml:lang="en">Ear number.</skos:definition>
+        <acronym xml:lang="en">EN</acronym>
+        <attribute>number</attribute>
+        <entity>Ear</entity>
+    </owl:Class>
+    
+
+
+    <!-- https://cropontology.org/rdf/CO_322:0000024 -->
+
+    <owl:Class rdf:about="https://cropontology.org/rdf/CO_322:0000024">
+        <rdfs:subClassOf rdf:resource="https://cropontology.org/rdf/Physiological"/>
+        <rdfs:label xml:lang="en">Young leaf chlorophyll content</rdfs:label>
+        <skos:definition xml:lang="en">Chlorophyll content in the young leaf.</skos:definition>
+        <acronym xml:lang="en">YLChl</acronym>
+        <attribute>Chlorophyll content</attribute>
+        <entity>Young leaf</entity>
+    </owl:Class>
+    
+
+
+    <!-- https://cropontology.org/rdf/CO_322:0000025 -->
+
+    <owl:Class rdf:about="https://cropontology.org/rdf/CO_322:0000025">
+        <rdfs:subClassOf rdf:resource="https://cropontology.org/rdf/Morphological"/>
+        <rdfs:label xml:lang="en">Leaf length</rdfs:label>
+        <skos:definition xml:lang="en">Leaf length.</skos:definition>
+        <acronym xml:lang="en">LLng</acronym>
+        <attribute>length</attribute>
+        <entity>Leaf</entity>
+    </owl:Class>
+    
+
+
+    <!-- https://cropontology.org/rdf/CO_322:0000026 -->
+
+    <owl:Class rdf:about="https://cropontology.org/rdf/CO_322:0000026">
+        <rdfs:subClassOf rdf:resource="https://cropontology.org/rdf/Morphological"/>
+        <rdfs:label xml:lang="en">Leaf width</rdfs:label>
+        <skos:definition xml:lang="en">Leaf width.</skos:definition>
+        <acronym xml:lang="en">LWid</acronym>
+        <attribute>width</attribute>
+        <entity>Leaf</entity>
+    </owl:Class>
+    
+
+
+    <!-- https://cropontology.org/rdf/CO_322:0000030 -->
+
+    <owl:Class rdf:about="https://cropontology.org/rdf/CO_322:0000030">
+        <rdfs:subClassOf rdf:resource="https://cropontology.org/rdf/Phenological"/>
+        <rdfs:label xml:lang="en">Anthesis time</rdfs:label>
+        <skos:definition xml:lang="en">Anthesis time.</skos:definition>
+        <acronym xml:lang="en">Ant</acronym>
+        <attribute>anthesis time</attribute>
+        <entity>Plant</entity>
+    </owl:Class>
+    
+
+
+    <!-- https://cropontology.org/rdf/CO_322:0000031 -->
+
+    <owl:Class rdf:about="https://cropontology.org/rdf/CO_322:0000031">
+        <rdfs:subClassOf rdf:resource="https://cropontology.org/rdf/Phenological"/>
+        <rdfs:label xml:lang="en">Silking time</rdfs:label>
+        <skos:definition xml:lang="en">Silking time.</skos:definition>
+        <acronym xml:lang="en">Silk</acronym>
+        <attribute>silking time</attribute>
+        <entity>Plant</entity>
+    </owl:Class>
+    
+
+
+    <!-- https://cropontology.org/rdf/CO_322:0000032 -->
+
+    <owl:Class rdf:about="https://cropontology.org/rdf/CO_322:0000032">
+        <rdfs:subClassOf rdf:resource="https://cropontology.org/rdf/Phenological"/>
+        <rdfs:label xml:lang="en">Maturity time</rdfs:label>
+        <skos:definition xml:lang="en">Maturity time.</skos:definition>
+        <attribute>maturity time</attribute>
+        <entity>Plant</entity>
+    </owl:Class>
+    
+
+
+    <!-- https://cropontology.org/rdf/CO_322:0000033 -->
+
+    <owl:Class rdf:about="https://cropontology.org/rdf/CO_322:0000033">
+        <rdfs:subClassOf rdf:resource="https://cropontology.org/rdf/Agronomic"/>
+        <rdfs:label xml:lang="en">Grain moisture</rdfs:label>
+        <skos:definition xml:lang="en">Grain moisture.</skos:definition>
+        <acronym xml:lang="en">GMoi</acronym>
+        <attribute>moisture content</attribute>
+        <entity>Grain</entity>
+    </owl:Class>
+    
+
+
+    <!-- https://cropontology.org/rdf/CO_322:0000034 -->
+
+    <owl:Class rdf:about="https://cropontology.org/rdf/CO_322:0000034">
+        <rdfs:subClassOf rdf:resource="https://cropontology.org/rdf/Agronomic"/>
+        <rdfs:label xml:lang="en">Root lodging incidence</rdfs:label>
+        <skos:definition xml:lang="en">Root lodging incidence. The plants that show root lodging, i.e. those stems that are inclining by more than 45¡.</skos:definition>
+        <acronym xml:lang="en">RLodgInc</acronym>
+        <attribute>root lodging incidence</attribute>
+        <entity>Plant</entity>
+    </owl:Class>
+    
+
+
+    <!-- https://cropontology.org/rdf/CO_322:0000035 -->
+
+    <owl:Class rdf:about="https://cropontology.org/rdf/CO_322:0000035">
+        <rdfs:subClassOf rdf:resource="https://cropontology.org/rdf/Agronomic"/>
+        <rdfs:label xml:lang="en">Stem lodging incidence</rdfs:label>
+        <skos:definition xml:lang="en">Stem lodging incidence. The plants that show stem lodging, i.e. those stems that are broken below the ear.</skos:definition>
+        <acronym xml:lang="en">SLodgInc</acronym>
+        <attribute>stem lodging incidence</attribute>
+        <entity>Plant</entity>
+    </owl:Class>
+    
+
+
+    <!-- https://cropontology.org/rdf/CO_322:0000041 -->
+
+    <owl:Class rdf:about="https://cropontology.org/rdf/CO_322:0000041">
+        <rdfs:subClassOf rdf:resource="https://cropontology.org/rdf/Quality"/>
+        <rdfs:label xml:lang="en">Endosperm hardness</rdfs:label>
+        <skos:definition xml:lang="en">Endosperm hardness.</skos:definition>
+        <acronym xml:lang="en">EndoHard</acronym>
+        <attribute>hardness</attribute>
+        <entity>Endosperm</entity>
+    </owl:Class>
+    
+
+
+    <!-- https://cropontology.org/rdf/CO_322:0000050 -->
+
+    <owl:Class rdf:about="https://cropontology.org/rdf/CO_322:0000050">
+        <rdfs:subClassOf rdf:resource="https://cropontology.org/rdf/Biotic_stress"/>
+        <rdfs:label xml:lang="en">Stewarts wilt incidence</rdfs:label>
+        <skos:definition xml:lang="en">Stewart wilt (Erwinia stewartii) incidence.</skos:definition>
+        <acronym xml:lang="en">SteWiltInc</acronym>
+        <attribute>Stewarts wilt incidence</attribute>
+        <entity>Plant</entity>
+    </owl:Class>
+    
+
+
+    <!-- https://cropontology.org/rdf/CO_322:0000051 -->
+
+    <owl:Class rdf:about="https://cropontology.org/rdf/CO_322:0000051">
+        <rdfs:subClassOf rdf:resource="https://cropontology.org/rdf/Biotic_stress"/>
+        <rdfs:label xml:lang="en">Bacterial leaf stripe severity</rdfs:label>
+        <skos:definition xml:lang="en">Bacterial leaf stripe (Pseudomonas rubrilinians) severity.</skos:definition>
+        <acronym xml:lang="en">BCLSSev</acronym>
+        <attribute>Bacterial leaf stripe severity</attribute>
+        <entity>Leaf</entity>
+    </owl:Class>
+    
+
+
+    <!-- https://cropontology.org/rdf/CO_322:0000052 -->
+
+    <owl:Class rdf:about="https://cropontology.org/rdf/CO_322:0000052">
+        <rdfs:subClassOf rdf:resource="https://cropontology.org/rdf/Biotic_stress"/>
+        <rdfs:label xml:lang="en">Bacterial stalk rot incidence</rdfs:label>
+        <skos:definition xml:lang="en">Bacterial stalk rot (Erwinia chrysanthemi) incidence.</skos:definition>
+        <acronym xml:lang="en">BactSRInc</acronym>
+        <attribute>Bacterial stalk rot incidence</attribute>
+        <entity>Plant</entity>
+    </owl:Class>
+    
+
+
+    <!-- https://cropontology.org/rdf/CO_322:0000053 -->
+
+    <owl:Class rdf:about="https://cropontology.org/rdf/CO_322:0000053">
+        <rdfs:subClassOf rdf:resource="https://cropontology.org/rdf/Biotic_stress"/>
+        <rdfs:label xml:lang="en">Maize bushy stunt severity</rdfs:label>
+        <skos:definition xml:lang="en">Maize bushy stunt (caused by mycoplasma like organism, MLO) severity.</skos:definition>
+        <acronym xml:lang="en">CSCMSev</acronym>
+        <attribute>Maize bushy stunt severity</attribute>
+        <entity>Plant</entity>
+    </owl:Class>
+    
+
+
+    <!-- https://cropontology.org/rdf/CO_322:0000054 -->
+
+    <owl:Class rdf:about="https://cropontology.org/rdf/CO_322:0000054">
+        <rdfs:subClassOf rdf:resource="https://cropontology.org/rdf/Biotic_stress"/>
+        <rdfs:label xml:lang="en">Rust severity</rdfs:label>
+        <skos:definition xml:lang="en">Multiple rust pathogens severity.</skos:definition>
+        <acronym xml:lang="en">RustSev</acronym>
+        <attribute>Rust severity</attribute>
+        <entity>Leaf</entity>
+    </owl:Class>
+    
+
+
+    <!-- https://cropontology.org/rdf/CO_322:0000060 -->
+
+    <owl:Class rdf:about="https://cropontology.org/rdf/CO_322:0000060">
+        <rdfs:subClassOf rdf:resource="https://cropontology.org/rdf/Biotic_stress"/>
+        <rdfs:label xml:lang="en">Black bundle incidence</rdfs:label>
+        <skos:definition xml:lang="en">Black bundle (Acremonium strictum) incidence.</skos:definition>
+        <acronym xml:lang="en">AstriInc</acronym>
+        <attribute>Black bundle incidence</attribute>
+        <entity>Plant</entity>
+    </owl:Class>
+    
+
+
+    <!-- https://cropontology.org/rdf/CO_322:0000061 -->
+
+    <owl:Class rdf:about="https://cropontology.org/rdf/CO_322:0000061">
+        <rdfs:subClassOf rdf:resource="https://cropontology.org/rdf/Biotic_stress"/>
+        <rdfs:label xml:lang="en">Stalk rot incidence</rdfs:label>
+        <skos:definition xml:lang="en">Stalk rot (multiple pathogens or an unidentified pathogen) incidence.</skos:definition>
+        <acronym xml:lang="en">SRInc</acronym>
+        <attribute>Stalk rot incidence</attribute>
+        <entity>Plant</entity>
+    </owl:Class>
+    
+
+
+    <!-- https://cropontology.org/rdf/CO_322:0000062 -->
+
+    <owl:Class rdf:about="https://cropontology.org/rdf/CO_322:0000062">
+        <rdfs:subClassOf rdf:resource="https://cropontology.org/rdf/Biotic_stress"/>
+        <rdfs:label xml:lang="en">Charcoal rot incidence</rdfs:label>
+        <skos:definition xml:lang="en">Charcoal rot or (Macrophomina phaseolina) incidence.</skos:definition>
+        <acronym xml:lang="en">CharRInc</acronym>
+        <attribute>Charcoal rot incidence</attribute>
+        <entity>Plant</entity>
+    </owl:Class>
+    
+
+
+    <!-- https://cropontology.org/rdf/CO_322:0000063 -->
+
+    <owl:Class rdf:about="https://cropontology.org/rdf/CO_322:0000063">
+        <rdfs:subClassOf rdf:resource="https://cropontology.org/rdf/Biotic_stress"/>
+        <rdfs:label xml:lang="en">Fusarium stalk rot incidence</rdfs:label>
+        <skos:definition xml:lang="en">Fusarium stalk rot incidence.</skos:definition>
+        <acronym xml:lang="en">FusSRInc</acronym>
+        <attribute>Fusarium stalk rot incidence</attribute>
+        <entity>Plant</entity>
+    </owl:Class>
+    
+
+
+    <!-- https://cropontology.org/rdf/CO_322:0000064 -->
+
+    <owl:Class rdf:about="https://cropontology.org/rdf/CO_322:0000064">
+        <rdfs:subClassOf rdf:resource="https://cropontology.org/rdf/Biotic_stress"/>
+        <rdfs:label xml:lang="en">Fusarium moniliforme stalk rot incidence</rdfs:label>
+        <skos:definition xml:lang="en">Fusarium moniliforme stalk rot incidence.</skos:definition>
+        <acronym xml:lang="en">FmonSRInc</acronym>
+        <attribute>Fusarium moniliforme stalk rot incidence</attribute>
+        <entity>Plant</entity>
+    </owl:Class>
+    
+
+
+    <!-- https://cropontology.org/rdf/CO_322:0000065 -->
+
+    <owl:Class rdf:about="https://cropontology.org/rdf/CO_322:0000065">
+        <rdfs:subClassOf rdf:resource="https://cropontology.org/rdf/Biotic_stress"/>
+        <rdfs:label xml:lang="en">Fusarium graminearum stalk rot incidence</rdfs:label>
+        <skos:definition xml:lang="en">Fusarium graminearum stalk rot incidence.</skos:definition>
+        <acronym xml:lang="en">FgramSRInc</acronym>
+        <attribute>Fusarium graminearum stalk rot incidence</attribute>
+        <entity>Plant</entity>
+    </owl:Class>
+    
+
+
+    <!-- https://cropontology.org/rdf/CO_322:0000070 -->
+
+    <owl:Class rdf:about="https://cropontology.org/rdf/CO_322:0000070">
+        <rdfs:subClassOf rdf:resource="https://cropontology.org/rdf/Biotic_stress"/>
+        <rdfs:label xml:lang="en">Fusarium graminearum ear rot severity</rdfs:label>
+        <skos:definition xml:lang="en">Fusarium graminearum ear rot severity.</skos:definition>
+        <acronym xml:lang="en">FgramERSev</acronym>
+        <attribute>Fusarium graminearum ear rot severity</attribute>
+        <entity>Ear</entity>
+    </owl:Class>
+    
+
+
+    <!-- https://cropontology.org/rdf/CO_322:0000071 -->
+
+    <owl:Class rdf:about="https://cropontology.org/rdf/CO_322:0000071">
+        <rdfs:subClassOf rdf:resource="https://cropontology.org/rdf/Biotic_stress"/>
+        <rdfs:label xml:lang="en">Fusarium moniliforme ear rot severity</rdfs:label>
+        <skos:definition xml:lang="en">Fusarium moniliforme ear rot severity.</skos:definition>
+        <acronym xml:lang="en">FmonERSev</acronym>
+        <attribute>Fusarium moniliforme ear rot severity</attribute>
+        <entity>Ear</entity>
+    </owl:Class>
+    
+
+
+    <!-- https://cropontology.org/rdf/CO_322:0000072 -->
+
+    <owl:Class rdf:about="https://cropontology.org/rdf/CO_322:0000072">
+        <rdfs:subClassOf rdf:resource="https://cropontology.org/rdf/Biotic_stress"/>
+        <rdfs:label xml:lang="en">Aspergillus flavus ear rot severity</rdfs:label>
+        <skos:definition xml:lang="en">Aspergillus flavus ear rot severity.</skos:definition>
+        <acronym xml:lang="en">AflavERSev</acronym>
+        <attribute>Aspergillus flavus ear rot severity</attribute>
+        <entity>Ear</entity>
+    </owl:Class>
+    
+
+
+    <!-- https://cropontology.org/rdf/CO_322:0000073 -->
+
+    <owl:Class rdf:about="https://cropontology.org/rdf/CO_322:0000073">
+        <rdfs:subClassOf rdf:resource="https://cropontology.org/rdf/Biotic_stress"/>
+        <rdfs:label xml:lang="en">Stenocarpella ear rot severity</rdfs:label>
+        <skos:definition xml:lang="en">Stenocarpella (=Diplodia) ear rot severity.</skos:definition>
+        <acronym xml:lang="en">SmaySev</acronym>
+        <attribute>Stenocarpella ear rot severity</attribute>
+        <entity>Ear</entity>
+    </owl:Class>
+</rdf:RDF>
+
+
+
+<!-- Generated by the OWL API (version 4.5.29) https://github.com/owlcs/owlapi -->
+

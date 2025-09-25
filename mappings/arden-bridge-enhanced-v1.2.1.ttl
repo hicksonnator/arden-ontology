@@ -1,0 +1,559 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+
+@prefix arden: <https://arden.ag/ont/core#> .
+@prefix arden-ag: <https://arden.ag/ont/ag#> .
+@prefix arden-fin: <https://arden.ag/ont/fin#> .
+@prefix bridge: <https://arden.ag/ont/bridge#> .
+@prefix qudt: <http://qudt.org/schema/qudt/> .
+@prefix unit: <http://qudt.org/vocab/unit/> .
+
+# ===================================================================
+# Arden Enhanced Cross-Domain Bridge v1.2.1
+# ===================================================================
+#
+# Production-grade semantic enhancements:
+# 1. Rich class expressions with complex axioms
+# 2. Property characteristics and constraints
+# 3. Disjointness axioms for semantic boundaries
+# 4. Cardinality constraints for data validation
+# 5. Value restrictions for business rules
+# 6. Inverse properties for bidirectional reasoning
+#
+# Transforms basic bridge to sophisticated reasoning platform
+# ===================================================================
+
+<https://arden.ag/ont/bridge/enhanced> a owl:Ontology ;
+    dct:title "Arden Enhanced Cross-Domain Bridge v1.2.1"@en ;
+    dct:description "Production-grade agriculture-finance bridge with rich semantic axiomatization"@en ;
+    dct:created "2024-09-24"^^xsd:date ;
+    owl:versionInfo "v1.2.1" ;
+    rdfs:comment "Enhanced from basic bridge with semantic richness, property axioms, and validation constraints"@en .
+
+# ===================================================================
+# ENHANCED CLASS DEFINITIONS (Rich Axiomatization)
+# ===================================================================
+
+# Transform from basic subclass to rich equivalent class expressions
+bridge:CornAsset owl:equivalentClass [
+    owl:intersectionOf (
+        bridge:CommodityAsset
+        [ owl:hasValue arden-ag:MaizeCrop ; owl:onProperty bridge:representsCommodity ]
+        [ owl:someValuesFrom unit:BushelPerAcre ; owl:onProperty bridge:standardYieldUnit ]
+        [ owl:someValuesFrom bridge:SecuritizationEligible ; owl:onProperty rdf:type ]
+        [ owl:someValuesFrom bridge:GrainStorageEligible ; owl:onProperty rdf:type ]
+    )
+] ;
+    rdfs:label "Corn Commodity Asset"@en ;
+    rdfs:comment "Financial asset representing corn with specific yield units and securitization eligibility"@en .
+
+bridge:WheatAsset owl:equivalentClass [
+    owl:intersectionOf (
+        bridge:CommodityAsset
+        [ owl:hasValue arden-ag:WheatCrop ; owl:onProperty bridge:representsCommodity ]
+        [ owl:someValuesFrom unit:BushelPerAcre ; owl:onProperty bridge:standardYieldUnit ]
+        [ owl:someValuesFrom bridge:WheatFuturesContract ; owl:onProperty bridge:tradedVia ]
+        [ owl:someValuesFrom bridge:ExportEligible ; owl:onProperty rdf:type ]
+    )
+] ;
+    rdfs:label "Wheat Commodity Asset"@en ;
+    rdfs:comment "Financial asset representing wheat with futures market integration"@en .
+
+bridge:SoybeanAsset owl:equivalentClass [
+    owl:intersectionOf (
+        bridge:CommodityAsset
+        [ owl:hasValue arden-ag:SoybeanCrop ; owl:onProperty bridge:representsCommodity ]
+        [ owl:someValuesFrom unit:BushelPerAcre ; owl:onProperty bridge:standardYieldUnit ]
+        [ owl:someValuesFrom bridge:OilseedProcessingEligible ; owl:onProperty rdf:type ]
+    )
+] ;
+    rdfs:label "Soybean Commodity Asset"@en .
+
+# Enhanced risk factor classes with constraints
+bridge:DroughtRisk owl:equivalentClass [
+    owl:intersectionOf (
+        arden-ag:AgRiskFactor
+        [ owl:someValuesFrom bridge:ProductionRisk ; owl:onProperty bridge:mapsToRiskFactor ]
+        [ owl:someValuesFrom bridge:YieldImpactFactor ; owl:onProperty bridge:hasImpactType ]
+        [ owl:allValuesFrom bridge:PositiveProbability ; owl:onProperty bridge:riskProbability ]
+    )
+] ;
+    rdfs:label "Drought Risk Factor"@en ;
+    rdfs:comment "Agricultural drought risk with quantified production impact and probability bounds"@en .
+
+bridge:SoilErosionRisk owl:equivalentClass [
+    owl:intersectionOf (
+        arden-ag:AgRiskFactor
+        [ owl:someValuesFrom bridge:LandValueRisk ; owl:onProperty bridge:mapsToRiskFactor ]
+        [ owl:someValuesFrom bridge:LongTermImpactFactor ; owl:onProperty bridge:hasImpactType ]
+        [ owl:allValuesFrom bridge:ConservationMitigated ; owl:onProperty bridge:mitigationStrategy ]
+    )
+] ;
+    rdfs:label "Soil Erosion Risk Factor"@en .
+
+# ===================================================================
+# PROPERTY CHARACTERISTICS & AXIOMS
+# ===================================================================
+
+# Core bridge properties with rich characteristics
+bridge:representsCommodity rdf:type owl:ObjectProperty ,
+                                   owl:FunctionalProperty ,
+                                   owl:InverseFunctionalProperty ;
+    rdfs:label "represents commodity"@en ;
+    rdfs:comment "Bijective relationship between commodity assets and agricultural commodities"@en ;
+    rdfs:domain bridge:CommodityAsset ;
+    rdfs:range arden-ag:Crop ;
+    owl:inverseOf bridge:representedBy .
+
+bridge:representedBy rdf:type owl:ObjectProperty ,
+                             owl:FunctionalProperty ,
+                             owl:InverseFunctionalProperty ;
+    rdfs:label "represented by"@en ;
+    rdfs:domain arden-ag:Crop ;
+    rdfs:range bridge:CommodityAsset .
+
+bridge:drivesCashFlow rdf:type owl:ObjectProperty ,
+                              owl:IrreflexiveProperty ;
+    rdfs:label "drives cash flow"@en ;
+    rdfs:comment "Causal relationship: crop yield measurements influence financial planning assumptions"@en ;
+    rdfs:domain qudt:QuantityValue ;
+    rdfs:range arden-fin:CashFlowAssumption ;
+    owl:propertyChainAxiom ( bridge:cropYieldOf bridge:usedInPlan ) ;
+    owl:inverseOf bridge:drivenBy .
+
+bridge:drivenBy rdf:type owl:ObjectProperty ;
+    rdfs:label "driven by"@en ;
+    rdfs:domain arden-fin:CashFlowAssumption ;
+    rdfs:range qudt:QuantityValue .
+
+bridge:hasMarketPrice rdf:type owl:ObjectProperty ,
+                              owl:FunctionalProperty ;
+    rdfs:label "has market price"@en ;
+    rdfs:comment "Each commodity asset has exactly one current market price"@en ;
+    rdfs:domain bridge:CommodityAsset ;
+    rdfs:range bridge:MonetaryValue ;
+    owl:inverseOf bridge:priceOf .
+
+bridge:priceOf rdf:type owl:ObjectProperty ,
+               owl:InverseFunctionalProperty ;
+    rdfs:label "price of"@en ;
+    rdfs:domain bridge:MonetaryValue ;
+    rdfs:range bridge:CommodityAsset .
+
+bridge:mapsToRiskFactor rdf:type owl:ObjectProperty ,
+                                owl:IrreflexiveProperty ,
+                                owl:AsymmetricProperty ;
+    rdfs:label "maps to risk factor"@en ;
+    rdfs:comment "Directional mapping from agricultural to financial risk factors"@en ;
+    rdfs:domain arden-ag:AgRiskFactor ;
+    rdfs:range arden-fin:CollateralRiskFactor ;
+    owl:inverseOf bridge:mappedFromRisk .
+
+bridge:mappedFromRisk rdf:type owl:ObjectProperty ;
+    rdfs:label "mapped from risk"@en ;
+    rdfs:domain arden-fin:CollateralRiskFactor ;
+    rdfs:range arden-ag:AgRiskFactor .
+
+# ===================================================================
+# DISJOINTNESS AXIOMS (Semantic Boundaries)
+# ===================================================================
+
+# Fundamental domain disjointness
+arden-ag:Crop owl:disjointWith arden-fin:FinancialInstrument .
+arden-ag:AgRiskFactor owl:disjointWith arden-fin:FinancialAsset .
+bridge:CommodityAsset owl:disjointWith arden-fin:DebtInstrument .
+
+# Commodity asset partitioning
+bridge:GrainAsset owl:disjointWith bridge:LivestockAsset .
+bridge:CornAsset owl:disjointWith bridge:WheatAsset .
+bridge:WheatAsset owl:disjointWith bridge:SoybeanAsset .
+bridge:CornAsset owl:disjointWith bridge:SoybeanAsset .
+
+# Risk factor partitioning
+bridge:ProductionRisk owl:disjointWith bridge:LandValueRisk .
+bridge:ShortTermRisk owl:disjointWith bridge:LongTermRisk .
+bridge:DroughtRisk owl:disjointWith bridge:SoilErosionRisk .
+
+# Quantity kind partitioning
+bridge:YieldQuantityKind owl:disjointWith arden-fin:MonetaryQuantityKind .
+bridge:AreaQuantityKind owl:disjointWith bridge:VolumeQuantityKind .
+
+# ===================================================================
+# CARDINALITY CONSTRAINTS (Data Validation)
+# ===================================================================
+
+# Commodity assets must have specific relationships
+bridge:CommodityAsset rdfs:subClassOf [
+    owl:onProperty bridge:representsCommodity ;
+    owl:cardinality "1"^^xsd:nonNegativeInteger  # Exactly one commodity per asset
+] , [
+    owl:onProperty bridge:hasMarketPrice ;
+    owl:cardinality "1"^^xsd:nonNegativeInteger  # Exactly one current price
+] , [
+    owl:onProperty bridge:standardYieldUnit ;
+    owl:cardinality "1"^^xsd:nonNegativeInteger  # Exactly one yield unit
+] .
+
+# Loan contracts must have essential elements
+bridge:LoanContract rdfs:subClassOf [
+    owl:onProperty bridge:hasBorrower ;
+    owl:minCardinality "1"^^xsd:nonNegativeInteger  # At least one borrower
+] , [
+    owl:onProperty bridge:principalAmount ;
+    owl:cardinality "1"^^xsd:nonNegativeInteger  # Exactly one principal
+] , [
+    owl:onProperty bridge:interestRate ;
+    owl:cardinality "1"^^xsd:nonNegativeInteger  # Exactly one interest rate
+] .
+
+# Collateral assets must have valuations
+bridge:CollateralAsset rdfs:subClassOf [
+    owl:onProperty bridge:hasValuation ;
+    owl:minCardinality "1"^^xsd:nonNegativeInteger  # At least one valuation
+] , [
+    owl:onProperty bridge:valuationDate ;
+    owl:cardinality "1"^^xsd:nonNegativeInteger  # Exactly one valuation date
+] .
+
+# Risk factors must have quantified impact
+arden-ag:AgRiskFactor rdfs:subClassOf [
+    owl:onProperty bridge:mapsToRiskFactor ;
+    owl:minCardinality "1"^^xsd:nonNegativeInteger  # Maps to at least one financial risk
+] , [
+    owl:onProperty bridge:riskProbability ;
+    owl:cardinality "1"^^xsd:nonNegativeInteger  # Exactly one probability
+] .
+
+# ===================================================================
+# VALUE RESTRICTIONS (Business Rules)
+# ===================================================================
+
+# Yield measurements must be within realistic bounds
+bridge:YieldMeasurement rdfs:subClassOf [
+    owl:onProperty qudt:numericValue ;
+    owl:allValuesFrom [
+        owl:onDatatype xsd:decimal ;
+        owl:withRestrictions (
+            [ xsd:minInclusive "0.0"^^xsd:decimal ]
+            [ xsd:maxInclusive "500.0"^^xsd:decimal ]  # Max realistic yield (bushels/acre)
+        )
+    ]
+] .
+
+# Loan-to-value ratios must be between 0 and 1
+bridge:LoanToValueRatio rdfs:subClassOf [
+    owl:onProperty bridge:ratioValue ;
+    owl:allValuesFrom [
+        owl:onDatatype xsd:decimal ;
+        owl:withRestrictions (
+            [ xsd:minInclusive "0.0"^^xsd:decimal ]
+            [ xsd:maxInclusive "1.0"^^xsd:decimal ]
+        )
+    ]
+] .
+
+# Interest rates must be positive percentages
+bridge:InterestRate rdfs:subClassOf [
+    owl:onProperty bridge:rateValue ;
+    owl:allValuesFrom [
+        owl:onDatatype xsd:decimal ;
+        owl:withRestrictions (
+            [ xsd:minInclusive "0.0"^^xsd:decimal ]
+            [ xsd:maxInclusive "50.0"^^xsd:decimal ]  # Max 50% APR
+        )
+    ]
+] .
+
+# Risk probabilities must be between 0 and 1
+bridge:PositiveProbability rdfs:subClassOf [
+    owl:onProperty bridge:probabilityValue ;
+    owl:allValuesFrom [
+        owl:onDatatype xsd:decimal ;
+        owl:withRestrictions (
+            [ xsd:minInclusive "0.0"^^xsd:decimal ]
+            [ xsd:maxInclusive "1.0"^^xsd:decimal ]
+        )
+    ]
+] .
+
+# Monetary amounts must be positive
+bridge:MonetaryValue rdfs:subClassOf [
+    owl:onProperty bridge:amount ;
+    owl:allValuesFrom [
+        owl:onDatatype xsd:decimal ;
+        owl:withRestrictions (
+            [ xsd:minInclusive "0.0"^^xsd:decimal ]
+        )
+    ]
+] .
+
+# ===================================================================
+# COMPLEX CLASS EXPRESSIONS (Business Logic)
+# ===================================================================
+
+# Valid loan contracts must satisfy business rules
+bridge:ValidLoanContract owl:equivalentClass [
+    owl:intersectionOf (
+        bridge:LoanContract
+        [ owl:someValuesFrom bridge:PositiveAmount ; owl:onProperty bridge:principalAmount ]
+        [ owl:someValuesFrom bridge:ValidBorrower ; owl:onProperty bridge:hasBorrower ]
+        [ owl:someValuesFrom bridge:AcceptableCollateral ; owl:onProperty bridge:hasCollateral ]
+        [ owl:someValuesFrom bridge:ReasonableInterestRate ; owl:onProperty bridge:interestRate ]
+    )
+] ;
+    rdfs:label "Valid Loan Contract"@en ;
+    rdfs:comment "Loan contract satisfying all business validation rules"@en .
+
+# Acceptable collateral must meet minimum standards
+bridge:AcceptableCollateral owl:equivalentClass [
+    owl:intersectionOf (
+        bridge:CollateralAsset
+        [ owl:someValuesFrom bridge:RecentValuation ; owl:onProperty bridge:hasValuation ]
+        [ owl:someValuesFrom bridge:AcceptableLTV ; owl:onProperty bridge:loanToValueRatio ]
+        [ owl:someValuesFrom bridge:InsurableAsset ; owl:onProperty rdf:type ]
+    )
+] ;
+    rdfs:label "Acceptable Collateral"@en ;
+    rdfs:comment "Collateral meeting minimum lending standards"@en .
+
+# Securitization eligible assets must meet specific criteria
+bridge:SecuritizationEligible owl:equivalentClass [
+    owl:intersectionOf (
+        bridge:CommodityAsset
+        [ owl:someValuesFrom bridge:LiquidMarket ; owl:onProperty bridge:tradedIn ]
+        [ owl:someValuesFrom bridge:StandardGrade ; owl:onProperty bridge:qualityStandard ]
+        [ owl:someValuesFrom bridge:InsuranceBacked ; owl:onProperty bridge:riskMitigation ]
+    )
+] ;
+    rdfs:label "Securitization Eligible Asset"@en ;
+    rdfs:comment "Commodity asset eligible for financial securitization"@en .
+
+# ===================================================================
+# SUPPORTING CLASSES & PROPERTIES
+# ===================================================================
+
+# Missing class definitions from cross-domain bridge
+bridge:WheatFuturesContract rdfs:subClassOf bridge:FuturesContract ;
+    rdfs:label "Wheat Futures Contract"@en ;
+    rdfs:comment "Futures contract for wheat commodity"@en .
+
+bridge:FuturesContract rdfs:subClassOf arden-fin:DerivativeContract ;
+    rdfs:label "Futures Contract"@en .
+
+bridge:GrainAsset rdfs:subClassOf bridge:CommodityAsset ;
+    rdfs:label "Grain Asset"@en .
+
+bridge:LivestockAsset rdfs:subClassOf bridge:CommodityAsset ;
+    rdfs:label "Livestock Asset"@en .
+
+bridge:ShortTermRisk rdfs:subClassOf arden-ag:AgRiskFactor ;
+    rdfs:label "Short Term Risk"@en .
+
+bridge:LongTermRisk rdfs:subClassOf arden-ag:AgRiskFactor ;
+    rdfs:label "Long Term Risk"@en .
+
+bridge:VolumeQuantityKind rdfs:subClassOf qudt:QuantityKind ;
+    rdfs:label "Volume Quantity Kind"@en .
+
+# New supporting classes for enhanced constraints
+bridge:PositiveAmount rdf:type owl:Class ;
+    rdfs:label "Positive Amount"@en ;
+    rdfs:subClassOf bridge:MonetaryValue .
+
+bridge:ValidBorrower rdf:type owl:Class ;
+    rdfs:label "Valid Borrower"@en ;
+    rdfs:subClassOf arden-fin:Party .
+
+bridge:ReasonableInterestRate rdf:type owl:Class ;
+    rdfs:label "Reasonable Interest Rate"@en ;
+    rdfs:subClassOf bridge:InterestRate .
+
+bridge:RecentValuation rdf:type owl:Class ;
+    rdfs:label "Recent Valuation"@en ;
+    rdfs:subClassOf bridge:MonetaryValue .
+
+bridge:AcceptableLTV rdf:type owl:Class ;
+    rdfs:label "Acceptable Loan-to-Value Ratio"@en ;
+    rdfs:subClassOf bridge:LoanToValueRatio .
+
+bridge:InsurableAsset rdf:type owl:Class ;
+    rdfs:label "Insurable Asset"@en ;
+    rdfs:subClassOf bridge:CollateralAsset .
+
+# Missing supporting classes for enhanced expressions
+bridge:LiquidMarket rdf:type owl:Class ;
+    rdfs:label "Liquid Market"@en ;
+    rdfs:comment "Market with high liquidity and trading volume"@en .
+
+bridge:StandardGrade rdf:type owl:Class ;
+    rdfs:label "Standard Grade"@en ;
+    rdfs:comment "Commodity meeting standard quality specifications"@en .
+
+bridge:InsuranceBacked rdf:type owl:Class ;
+    rdfs:label "Insurance Backed"@en ;
+    rdfs:comment "Asset backed by insurance coverage"@en .
+
+bridge:GrainStorageEligible rdf:type owl:Class ;
+    rdfs:label "Grain Storage Eligible"@en ;
+    rdfs:comment "Commodity eligible for grain storage programs"@en .
+
+bridge:ExportEligible rdf:type owl:Class ;
+    rdfs:label "Export Eligible"@en ;
+    rdfs:comment "Commodity eligible for export programs"@en .
+
+bridge:OilseedProcessingEligible rdf:type owl:Class ;
+    rdfs:label "Oilseed Processing Eligible"@en ;
+    rdfs:comment "Oilseed eligible for processing subsidies"@en .
+
+bridge:YieldImpactFactor rdf:type owl:Class ;
+    rdfs:label "Yield Impact Factor"@en ;
+    rdfs:comment "Factor that impacts crop yield"@en .
+
+bridge:LongTermImpactFactor rdf:type owl:Class ;
+    rdfs:label "Long Term Impact Factor"@en ;
+    rdfs:comment "Factor with long-term impact on operations"@en .
+
+bridge:ConservationMitigated rdf:type owl:Class ;
+    rdfs:label "Conservation Mitigated"@en ;
+    rdfs:comment "Risk mitigated through conservation practices"@en .
+
+# Base classes that need definition
+bridge:LoanContract rdfs:subClassOf arden-fin:Contract ;
+    rdfs:label "Loan Contract"@en ;
+    rdfs:comment "Contract for lending arrangement"@en .
+
+bridge:CollateralAsset rdfs:subClassOf arden-fin:Asset ;
+    rdfs:label "Collateral Asset"@en ;
+    rdfs:comment "Asset used as collateral for loan"@en .
+
+bridge:MonetaryValue rdfs:subClassOf qudt:QuantityValue ;
+    rdfs:label "Monetary Value"@en ;
+    rdfs:comment "Quantity value representing monetary amount"@en .
+
+bridge:InterestRate rdfs:subClassOf qudt:QuantityValue ;
+    rdfs:label "Interest Rate"@en ;
+    rdfs:comment "Rate of interest charged on loan"@en .
+
+bridge:LoanToValueRatio rdfs:subClassOf qudt:QuantityValue ;
+    rdfs:label "Loan To Value Ratio"@en ;
+    rdfs:comment "Ratio of loan amount to collateral value"@en .
+
+bridge:YieldMeasurement rdfs:subClassOf qudt:QuantityValue ;
+    rdfs:label "Yield Measurement"@en ;
+    rdfs:comment "Measurement of crop yield"@en .
+
+# New properties for enhanced functionality
+bridge:standardYieldUnit rdf:type owl:ObjectProperty ,
+                                 owl:FunctionalProperty ;
+    rdfs:label "standard yield unit"@en ;
+    rdfs:domain bridge:CommodityAsset ;
+    rdfs:range qudt:Unit .
+
+bridge:tradedVia rdf:type owl:ObjectProperty ;
+    rdfs:label "traded via"@en ;
+    rdfs:domain bridge:CommodityAsset ;
+    rdfs:range bridge:FuturesContract .
+
+bridge:ratioValue rdf:type owl:DatatypeProperty ,
+                           owl:FunctionalProperty ;
+    rdfs:label "ratio value"@en ;
+    rdfs:domain bridge:LoanToValueRatio ;
+    rdfs:range xsd:decimal .
+
+bridge:rateValue rdf:type owl:DatatypeProperty ,
+                          owl:FunctionalProperty ;
+    rdfs:label "rate value"@en ;
+    rdfs:domain bridge:InterestRate ;
+    rdfs:range xsd:decimal .
+
+bridge:probabilityValue rdf:type owl:DatatypeProperty ,
+                                 owl:FunctionalProperty ;
+    rdfs:label "probability value"@en ;
+    rdfs:domain bridge:PositiveProbability ;
+    rdfs:range xsd:decimal .
+
+bridge:amount rdf:type owl:DatatypeProperty ,
+                       owl:FunctionalProperty ;
+    rdfs:label "amount"@en ;
+    rdfs:domain bridge:MonetaryValue ;
+    rdfs:range xsd:decimal .
+
+# Missing properties referenced in complex expressions
+bridge:tradedIn rdf:type owl:ObjectProperty ;
+    rdfs:label "traded in"@en ;
+    rdfs:domain bridge:CommodityAsset ;
+    rdfs:range bridge:LiquidMarket .
+
+bridge:qualityStandard rdf:type owl:ObjectProperty ;
+    rdfs:label "quality standard"@en ;
+    rdfs:domain bridge:CommodityAsset ;
+    rdfs:range bridge:StandardGrade .
+
+bridge:riskMitigation rdf:type owl:ObjectProperty ;
+    rdfs:label "risk mitigation"@en ;
+    rdfs:domain bridge:CommodityAsset ;
+    rdfs:range bridge:InsuranceBacked .
+
+bridge:hasImpactType rdf:type owl:ObjectProperty ;
+    rdfs:label "has impact type"@en ;
+    rdfs:domain arden-ag:AgRiskFactor .
+
+bridge:riskProbability rdf:type owl:ObjectProperty ;
+    rdfs:label "risk probability"@en ;
+    rdfs:domain arden-ag:AgRiskFactor ;
+    rdfs:range bridge:PositiveProbability .
+
+bridge:mitigationStrategy rdf:type owl:ObjectProperty ;
+    rdfs:label "mitigation strategy"@en ;
+    rdfs:domain arden-ag:AgRiskFactor .
+
+bridge:hasBorrower rdf:type owl:ObjectProperty ;
+    rdfs:label "has borrower"@en ;
+    rdfs:domain bridge:LoanContract ;
+    rdfs:range bridge:ValidBorrower .
+
+bridge:principalAmount rdf:type owl:ObjectProperty ;
+    rdfs:label "principal amount"@en ;
+    rdfs:domain bridge:LoanContract ;
+    rdfs:range bridge:PositiveAmount .
+
+bridge:interestRate rdf:type owl:ObjectProperty ;
+    rdfs:label "interest rate"@en ;
+    rdfs:domain bridge:LoanContract ;
+    rdfs:range bridge:ReasonableInterestRate .
+
+bridge:hasCollateral rdf:type owl:ObjectProperty ;
+    rdfs:label "has collateral"@en ;
+    rdfs:domain bridge:LoanContract ;
+    rdfs:range bridge:AcceptableCollateral .
+
+bridge:hasValuation rdf:type owl:ObjectProperty ;
+    rdfs:label "has valuation"@en ;
+    rdfs:domain bridge:CollateralAsset ;
+    rdfs:range bridge:MonetaryValue .
+
+bridge:valuationDate rdf:type owl:DatatypeProperty ;
+    rdfs:label "valuation date"@en ;
+    rdfs:domain bridge:CollateralAsset ;
+    rdfs:range xsd:date .
+
+bridge:loanToValueRatio rdf:type owl:ObjectProperty ;
+    rdfs:label "loan to value ratio"@en ;
+    rdfs:domain bridge:CollateralAsset ;
+    rdfs:range bridge:AcceptableLTV .
+
+# ===================================================================
+# METADATA & ANNOTATIONS
+# ===================================================================
+
+# Version and provenance information
+bridge:EnhancedBridge rdf:type owl:Class ;
+    rdfs:label "Enhanced Bridge Component"@en ;
+    rdfs:comment "Marker class for v1.2.1 enhanced semantic components"@en ;
+    dct:created "2024-09-24"^^xsd:date ;
+    dct:creator "Claude Code Ontology Enhancement"@en ;
+    dct:description "Production-grade semantic enhancements to basic agriculture-finance bridge"@en .

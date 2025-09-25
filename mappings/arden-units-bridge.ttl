@@ -1,0 +1,236 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+
+@prefix arden: <https://arden.ag/ont/core#> .
+@prefix bridge: <https://arden.ag/ont/bridge#> .
+@prefix qudt: <http://qudt.org/schema/qudt/> .
+@prefix unit: <http://qudt.org/vocab/unit/> .
+
+# ===================================================================
+# Arden Units Bridge: QUDT Integration for Ag-Finance
+# ===================================================================
+#
+# Implements units framework for agriculture-finance bridge:
+# 1. Standard agricultural units (bushels, acres, tonnes, hectares)
+# 2. Financial units (USD, basis points, ratios)
+# 3. Conversion patterns
+# 4. Competency question support
+#
+# Answers: "Convert 150 bushels/acre to metric tonnes/hectare"
+# ===================================================================
+
+<https://arden.ag/ont/bridge/units> a owl:Ontology ;
+    dct:title "Arden Units Bridge: QUDT Integration"@en ;
+    dct:description "Units framework supporting agriculture-finance competency questions with QUDT integration"@en ;
+    dct:created "2024-09-24"^^xsd:date ;
+    owl:versionInfo "v1.2.0" .
+
+# ===================================================================
+# AGRICULTURAL QUANTITY KINDS
+# ===================================================================
+
+bridge:AgYieldQuantityKind rdfs:subClassOf qudt:QuantityKind ;
+    rdfs:label "Agricultural Yield Quantity Kind"@en ;
+    rdfs:comment "Quantity kind for crop yields (mass/area or volume/area)"@en ;
+    qudt:symbol "Y_ag" .
+
+bridge:FarmAreaQuantityKind rdfs:subClassOf qudt:QuantityKind ;
+    rdfs:label "Farm Area Quantity Kind"@en ;
+    rdfs:comment "Quantity kind for agricultural land area"@en ;
+    qudt:symbol "A_farm" .
+
+bridge:CropMassQuantityKind rdfs:subClassOf qudt:QuantityKind ;
+    rdfs:label "Crop Mass Quantity Kind"@en ;
+    rdfs:comment "Quantity kind for harvested crop mass"@en ;
+    qudt:symbol "M_crop" .
+
+bridge:CropVolumeQuantityKind rdfs:subClassOf qudt:QuantityKind ;
+    rdfs:label "Crop Volume Quantity Kind"@en ;
+    rdfs:comment "Quantity kind for harvested crop volume (bushels, etc.)"@en ;
+    qudt:symbol "V_crop" .
+
+# ===================================================================
+# FINANCIAL QUANTITY KINDS
+# ===================================================================
+
+bridge:LoanAmountQuantityKind rdfs:subClassOf qudt:QuantityKind ;
+    rdfs:label "Loan Amount Quantity Kind"@en ;
+    rdfs:comment "Quantity kind for loan principal amounts"@en ;
+    qudt:symbol "L_amt" .
+
+bridge:InterestRateQuantityKind rdfs:subClassOf qudt:QuantityKind ;
+    rdfs:label "Interest Rate Quantity Kind"@en ;
+    rdfs:comment "Quantity kind for interest rates (percentage per period)"@en ;
+    qudt:symbol "R_int" .
+
+bridge:CommodityPriceQuantityKind rdfs:subClassOf qudt:QuantityKind ;
+    rdfs:label "Commodity Price Quantity Kind"@en ;
+    rdfs:comment "Quantity kind for commodity prices (currency/mass or currency/volume)"@en ;
+    qudt:symbol "P_comm" .
+
+# ===================================================================
+# STANDARD AGRICULTURAL UNITS
+# ===================================================================
+
+# US Standard units (bushels, acres)
+bridge:BushelUnit rdfs:subClassOf qudt:Unit ;
+    rdfs:label "Bushel"@en ;
+    qudt:symbol "bu" ;
+    qudt:hasQuantityKind bridge:CropVolumeQuantityKind ;
+    bridge:standardFor "US grain measurement"@en .
+
+bridge:AcreUnit rdfs:subClassOf qudt:Unit ;
+    rdfs:label "Acre"@en ;
+    qudt:symbol "ac" ;
+    qudt:hasQuantityKind bridge:FarmAreaQuantityKind ;
+    bridge:standardFor "US land measurement"@en .
+
+bridge:BushelPerAcreUnit rdfs:subClassOf qudt:Unit ;
+    rdfs:label "Bushel per Acre"@en ;
+    qudt:symbol "bu/ac" ;
+    qudt:hasQuantityKind bridge:AgYieldQuantityKind ;
+    bridge:primaryFor "US crop yield measurement"@en .
+
+# Metric units (tonnes, hectares)
+bridge:MetricTonneUnit rdfs:subClassOf qudt:Unit ;
+    rdfs:label "Metric Tonne"@en ;
+    qudt:symbol "t" ;
+    qudt:hasQuantityKind bridge:CropMassQuantityKind ;
+    bridge:standardFor "International grain mass"@en .
+
+bridge:HectareUnit rdfs:subClassOf qudt:Unit ;
+    rdfs:label "Hectare"@en ;
+    qudt:symbol "ha" ;
+    qudt:hasQuantityKind bridge:FarmAreaQuantityKind ;
+    bridge:standardFor "International land measurement"@en .
+
+bridge:TonnePerHectareUnit rdfs:subClassOf qudt:Unit ;
+    rdfs:label "Tonne per Hectare"@en ;
+    qudt:symbol "t/ha" ;
+    qudt:hasQuantityKind bridge:AgYieldQuantityKind ;
+    bridge:primaryFor "International crop yield measurement"@en .
+
+# ===================================================================
+# CONVERSION PATTERNS
+# ===================================================================
+
+bridge:UnitConversion rdf:type owl:Class ;
+    rdfs:label "Unit Conversion"@en ;
+    rdfs:comment "Represents a conversion between two units of the same quantity kind"@en .
+
+bridge:hasConversionFactor rdf:type owl:DatatypeProperty ;
+    rdfs:label "has conversion factor"@en ;
+    rdfs:comment "Multiplication factor to convert from source unit to target unit"@en ;
+    rdfs:domain bridge:UnitConversion ;
+    rdfs:range xsd:decimal .
+
+bridge:sourceUnit rdf:type owl:ObjectProperty ;
+    rdfs:label "source unit"@en ;
+    rdfs:domain bridge:UnitConversion ;
+    rdfs:range qudt:Unit .
+
+bridge:targetUnit rdf:type owl:ObjectProperty ;
+    rdfs:label "target unit"@en ;
+    rdfs:domain bridge:UnitConversion ;
+    rdfs:range qudt:Unit .
+
+# Key agricultural conversions
+bridge:BushelsAcresToTonnesHectares a bridge:UnitConversion ;
+    rdfs:label "Bushels per Acre to Tonnes per Hectare"@en ;
+    rdfs:comment "Standard conversion for crop yields: bu/ac × 0.0672 = t/ha (for corn)"@en ;
+    bridge:sourceUnit bridge:BushelPerAcreUnit ;
+    bridge:targetUnit bridge:TonnePerHectareUnit ;
+    bridge:hasConversionFactor "0.0672"^^xsd:decimal ;
+    bridge:appliesTo "corn, wheat, soybeans"@en .
+
+bridge:AcresToHectares a bridge:UnitConversion ;
+    rdfs:label "Acres to Hectares"@en ;
+    bridge:sourceUnit bridge:AcreUnit ;
+    bridge:targetUnit bridge:HectareUnit ;
+    bridge:hasConversionFactor "0.404686"^^xsd:decimal .
+
+# ===================================================================
+# COMPETENCY QUESTION SUPPORT
+# ===================================================================
+
+# "Convert 150 bushels/acre to metric tonnes/hectare"
+bridge:YieldConversionExample a bridge:UnitConversion ;
+    rdfs:label "150 bu/ac Conversion Example"@en ;
+    rdfs:comment "Demonstrates: 150 bu/ac × 0.0672 = 10.08 t/ha"@en ;
+    bridge:sourceValue "150"^^xsd:decimal ;
+    bridge:sourceUnit bridge:BushelPerAcreUnit ;
+    bridge:targetValue "10.08"^^xsd:decimal ;
+    bridge:targetUnit bridge:TonnePerHectareUnit ;
+    bridge:competencyQuestion "Convert 150 bushels/acre to metric tonnes/hectare"@en .
+
+# ===================================================================
+# FINANCIAL UNITS INTEGRATION
+# ===================================================================
+
+bridge:USDUnit rdfs:subClassOf qudt:Unit ;
+    rdfs:label "US Dollar"@en ;
+    qudt:symbol "USD" ;
+    qudt:hasQuantityKind bridge:LoanAmountQuantityKind .
+
+bridge:PercentUnit rdfs:subClassOf qudt:Unit ;
+    rdfs:label "Percent"@en ;
+    qudt:symbol "%" ;
+    qudt:hasQuantityKind bridge:InterestRateQuantityKind .
+
+bridge:DollarsPerBushelUnit rdfs:subClassOf qudt:Unit ;
+    rdfs:label "Dollars per Bushel"@en ;
+    qudt:symbol "USD/bu" ;
+    qudt:hasQuantityKind bridge:CommodityPriceQuantityKind ;
+    bridge:usedFor "US grain pricing"@en .
+
+bridge:DollarsPerTonneUnit rdfs:subClassOf qudt:Unit ;
+    rdfs:label "Dollars per Tonne"@en ;
+    qudt:symbol "USD/t" ;
+    qudt:hasQuantityKind bridge:CommodityPriceQuantityKind ;
+    bridge:usedFor "International grain pricing"@en .
+
+# ===================================================================
+# VALIDATION AND CONSTRAINTS
+# ===================================================================
+
+bridge:ValidatedConversion rdf:type owl:Class ;
+    rdfs:label "Validated Conversion"@en ;
+    rdfs:comment "A unit conversion that has been validated against market data"@en ;
+    rdfs:subClassOf bridge:UnitConversion .
+
+bridge:validationDate rdf:type owl:DatatypeProperty ;
+    rdfs:label "validation date"@en ;
+    rdfs:domain bridge:ValidatedConversion ;
+    rdfs:range xsd:date .
+
+bridge:validationSource rdf:type owl:DatatypeProperty ;
+    rdfs:label "validation source"@en ;
+    rdfs:domain bridge:ValidatedConversion ;
+    rdfs:range xsd:string .
+
+# Mark key conversions as validated
+bridge:BushelsAcresToTonnesHectares a bridge:ValidatedConversion ;
+    bridge:validationDate "2024-09-24"^^xsd:date ;
+    bridge:validationSource "USDA NASS conversion standards" .
+
+# ===================================================================
+# INTEGRATION PATTERNS
+# ===================================================================
+
+# Link units to bridge concepts
+bridge:hasStandardUnit rdf:type owl:ObjectProperty ;
+    rdfs:label "has standard unit"@en ;
+    rdfs:comment "Links a concept to its standard measurement unit"@en .
+
+# Agricultural production uses these units
+bridge:CropYield bridge:hasStandardUnit bridge:BushelPerAcreUnit .
+bridge:FarmSize bridge:hasStandardUnit bridge:AcreUnit .
+bridge:CommodityInventory bridge:hasStandardUnit bridge:BushelUnit .
+
+# Financial concepts use these units
+bridge:LoanPrincipal bridge:hasStandardUnit bridge:USDUnit .
+bridge:InterestRate bridge:hasStandardUnit bridge:PercentUnit .
+bridge:CommodityPrice bridge:hasStandardUnit bridge:DollarsPerBushelUnit .

@@ -1,0 +1,991 @@
+<?xml version="1.0"?>
+<rdf:RDF xmlns="https://cropontology.org/rdf/"
+     xml:base="https://cropontology.org/rdf/"
+     xmlns:owl="http://www.w3.org/2002/07/owl#"
+     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+     xmlns:xml="http://www.w3.org/XML/1998/namespace"
+     xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+     xmlns:rdf1="https://cropontology.org/rdf/"
+     xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+     xmlns:skos="http://www.w3.org/2004/02/skos/core#">
+    <owl:Ontology rdf:about="https://cropontology.org/rdf/"/>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Annotation properties
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- http://www.w3.org/2004/02/skos/core#definition -->
+
+    <owl:AnnotationProperty rdf:about="http://www.w3.org/2004/02/skos/core#definition"/>
+    
+
+
+    <!-- https://cropontology.org/rdf/acronym -->
+
+    <owl:AnnotationProperty rdf:about="https://cropontology.org/rdf/acronym"/>
+    
+
+
+    <!-- https://cropontology.org/rdf/attribute -->
+
+    <owl:AnnotationProperty rdf:about="https://cropontology.org/rdf/attribute"/>
+    
+
+
+    <!-- https://cropontology.org/rdf/entity -->
+
+    <owl:AnnotationProperty rdf:about="https://cropontology.org/rdf/entity"/>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Object Properties
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- https://cropontology.org/rdf/method_of -->
+
+    <owl:ObjectProperty rdf:about="https://cropontology.org/rdf/method_of">
+        <rdfs:label>method_of</rdfs:label>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- https://cropontology.org/rdf/scale_of -->
+
+    <owl:ObjectProperty rdf:about="https://cropontology.org/rdf/scale_of">
+        <rdfs:label>scale_of</rdfs:label>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Classes
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- https://cropontology.org/rdf/Abiotic_stress -->
+
+    <owl:Class rdf:about="https://cropontology.org/rdf/Abiotic_stress">
+        <rdfs:subClassOf rdf:resource="https://cropontology.org/rdf/Trait"/>
+    </owl:Class>
+    
+
+
+    <!-- https://cropontology.org/rdf/Agronomic -->
+
+    <owl:Class rdf:about="https://cropontology.org/rdf/Agronomic">
+        <rdfs:subClassOf rdf:resource="https://cropontology.org/rdf/Trait"/>
+    </owl:Class>
+    
+
+
+    <!-- https://cropontology.org/rdf/Biochemical -->
+
+    <owl:Class rdf:about="https://cropontology.org/rdf/Biochemical">
+        <rdfs:subClassOf rdf:resource="https://cropontology.org/rdf/Trait"/>
+    </owl:Class>
+    
+
+
+    <!-- https://cropontology.org/rdf/Biotic_stress -->
+
+    <owl:Class rdf:about="https://cropontology.org/rdf/Biotic_stress">
+        <rdfs:subClassOf rdf:resource="https://cropontology.org/rdf/Trait"/>
+    </owl:Class>
+    
+
+
+    <!-- https://cropontology.org/rdf/Computation -->
+
+    <owl:Class rdf:about="https://cropontology.org/rdf/Computation">
+        <rdfs:subClassOf rdf:resource="https://cropontology.org/rdf/Method"/>
+    </owl:Class>
+    
+
+
+    <!-- https://cropontology.org/rdf/Counting -->
+
+    <owl:Class rdf:about="https://cropontology.org/rdf/Counting">
+        <rdfs:subClassOf rdf:resource="https://cropontology.org/rdf/Method"/>
+    </owl:Class>
+    
+
+
+    <!-- https://cropontology.org/rdf/Date -->
+
+    <owl:Class rdf:about="https://cropontology.org/rdf/Date">
+        <rdfs:subClassOf rdf:resource="https://cropontology.org/rdf/Scale"/>
+    </owl:Class>
+    
+
+
+    <!-- https://cropontology.org/rdf/Duration -->
+
+    <owl:Class rdf:about="https://cropontology.org/rdf/Duration">
+        <rdfs:subClassOf rdf:resource="https://cropontology.org/rdf/Scale"/>
+    </owl:Class>
+    
+
+
+    <!-- https://cropontology.org/rdf/Estimation -->
+
+    <owl:Class rdf:about="https://cropontology.org/rdf/Estimation">
+        <rdfs:subClassOf rdf:resource="https://cropontology.org/rdf/Method"/>
+    </owl:Class>
+    
+
+
+    <!-- https://cropontology.org/rdf/Measurement -->
+
+    <owl:Class rdf:about="https://cropontology.org/rdf/Measurement">
+        <rdfs:subClassOf rdf:resource="https://cropontology.org/rdf/Method"/>
+    </owl:Class>
+    
+
+
+    <!-- https://cropontology.org/rdf/Method -->
+
+    <owl:Class rdf:about="https://cropontology.org/rdf/Method"/>
+    
+
+
+    <!-- https://cropontology.org/rdf/Morphological -->
+
+    <owl:Class rdf:about="https://cropontology.org/rdf/Morphological">
+        <rdfs:subClassOf rdf:resource="https://cropontology.org/rdf/Trait"/>
+    </owl:Class>
+    
+
+
+    <!-- https://cropontology.org/rdf/Nominal -->
+
+    <owl:Class rdf:about="https://cropontology.org/rdf/Nominal">
+        <rdfs:subClassOf rdf:resource="https://cropontology.org/rdf/Scale"/>
+    </owl:Class>
+    
+
+
+    <!-- https://cropontology.org/rdf/Numerical -->
+
+    <owl:Class rdf:about="https://cropontology.org/rdf/Numerical">
+        <rdfs:subClassOf rdf:resource="https://cropontology.org/rdf/Scale"/>
+    </owl:Class>
+    
+
+
+    <!-- https://cropontology.org/rdf/Ordinal -->
+
+    <owl:Class rdf:about="https://cropontology.org/rdf/Ordinal">
+        <rdfs:subClassOf rdf:resource="https://cropontology.org/rdf/Scale"/>
+    </owl:Class>
+    
+
+
+    <!-- https://cropontology.org/rdf/Phenological -->
+
+    <owl:Class rdf:about="https://cropontology.org/rdf/Phenological">
+        <rdfs:subClassOf rdf:resource="https://cropontology.org/rdf/Trait"/>
+    </owl:Class>
+    
+
+
+    <!-- https://cropontology.org/rdf/Scale -->
+
+    <owl:Class rdf:about="https://cropontology.org/rdf/Scale"/>
+    
+
+
+    <!-- https://cropontology.org/rdf/Trait -->
+
+    <owl:Class rdf:about="https://cropontology.org/rdf/Trait"/>
+    
+
+
+    <!-- https://cropontology.org/rdf/CO_336:0000000 -->
+
+    <owl:Class rdf:about="https://cropontology.org/rdf/CO_336:0000000">
+        <rdfs:subClassOf rdf:resource="https://cropontology.org/rdf/Phenological"/>
+        <rdfs:label xml:lang="en">Flowering time</rdfs:label>
+        <skos:definition xml:lang="en">Anthesis or flowering time is the period during which a flower is fully open and functional. Pollination and fertilization occur during this period.</skos:definition>
+        <acronym xml:lang="en">FlwT</acronym>
+        <attribute>Flowering time</attribute>
+        <entity>Plant</entity>
+    </owl:Class>
+    
+
+
+    <!-- https://cropontology.org/rdf/CO_336:0000001 -->
+
+    <owl:Class rdf:about="https://cropontology.org/rdf/CO_336:0000001">
+        <rdfs:subClassOf rdf:resource="https://cropontology.org/rdf/Counting"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="https://cropontology.org/rdf/method_of"/>
+                <owl:someValuesFrom rdf:resource="https://cropontology.org/rdf/CO_336:0000000"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:label xml:lang="en">Days to 50% flowering count</rdfs:label>
+        <skos:definition xml:lang="en">Count the number of days after sowing until 50% of the plants have one or more flowers</skos:definition>
+    </owl:Class>
+    
+
+
+    <!-- https://cropontology.org/rdf/CO_336:0000009 -->
+
+    <owl:Class rdf:about="https://cropontology.org/rdf/CO_336:0000009">
+        <rdfs:subClassOf rdf:resource="https://cropontology.org/rdf/Biotic_stress"/>
+        <rdfs:label xml:lang="en">Soybean Mosaic Virus</rdfs:label>
+        <skos:definition xml:lang="en">Stunting of plants and crinkled and mottling of leaves</skos:definition>
+        <acronym xml:lang="en">SMV</acronym>
+        <attribute>Soybean Mosaic Virus</attribute>
+        <entity>Leaf</entity>
+    </owl:Class>
+    
+
+
+    <!-- https://cropontology.org/rdf/CO_336:0000010 -->
+
+    <owl:Class rdf:about="https://cropontology.org/rdf/CO_336:0000010">
+        <rdfs:subClassOf rdf:resource="https://cropontology.org/rdf/Estimation"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="https://cropontology.org/rdf/method_of"/>
+                <owl:someValuesFrom rdf:resource="https://cropontology.org/rdf/CO_336:0000009"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:label xml:lang="en">SMV assessment</rdfs:label>
+        <skos:definition xml:lang="en">Visual assessment of 1-5 affected plants / plot</skos:definition>
+    </owl:Class>
+    
+
+
+    <!-- https://cropontology.org/rdf/CO_336:0000011 -->
+
+    <owl:Class rdf:about="https://cropontology.org/rdf/CO_336:0000011">
+        <rdfs:subClassOf rdf:resource="https://cropontology.org/rdf/Ordinal"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="https://cropontology.org/rdf/scale_of"/>
+                <owl:someValuesFrom rdf:resource="https://cropontology.org/rdf/CO_336:0000010"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:label xml:lang="en">1-5 infection score</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- https://cropontology.org/rdf/CO_336:0000012 -->
+
+    <owl:Class rdf:about="https://cropontology.org/rdf/CO_336:0000012">
+        <rdfs:subClassOf rdf:resource="https://cropontology.org/rdf/Biotic_stress"/>
+        <rdfs:label xml:lang="en">Frogeye leafspot</rdfs:label>
+        <skos:definition xml:lang="en">Tan or brown, elliptical lesions with brown purple boarder on plant parts caused by Cercospora Sojina</skos:definition>
+        <acronym xml:lang="en">FROGEYE</acronym>
+        <attribute>Frogeye leafspot</attribute>
+        <entity>Plant</entity>
+    </owl:Class>
+    
+
+
+    <!-- https://cropontology.org/rdf/CO_336:0000013 -->
+
+    <owl:Class rdf:about="https://cropontology.org/rdf/CO_336:0000013">
+        <rdfs:subClassOf rdf:resource="https://cropontology.org/rdf/Estimation"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="https://cropontology.org/rdf/method_of"/>
+                <owl:someValuesFrom rdf:resource="https://cropontology.org/rdf/CO_336:0000012"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:label xml:lang="en">Frog eye assessment</rdfs:label>
+        <skos:definition xml:lang="en">Visual assessment of 1-5 affected leaf area with frog eye</skos:definition>
+    </owl:Class>
+    
+
+
+    <!-- https://cropontology.org/rdf/CO_336:0000014 -->
+
+    <owl:Class rdf:about="https://cropontology.org/rdf/CO_336:0000014">
+        <rdfs:subClassOf rdf:resource="https://cropontology.org/rdf/Ordinal"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="https://cropontology.org/rdf/scale_of"/>
+                <owl:someValuesFrom rdf:resource="https://cropontology.org/rdf/CO_336:0000013"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:label xml:lang="en">1-5 infection score</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- https://cropontology.org/rdf/CO_336:0000015 -->
+
+    <owl:Class rdf:about="https://cropontology.org/rdf/CO_336:0000015">
+        <rdfs:subClassOf rdf:resource="https://cropontology.org/rdf/Agronomic"/>
+        <rdfs:label xml:lang="en">Nodulation</rdfs:label>
+        <skos:definition xml:lang="en">Root nodule formation due to interaction with microorganisms.</skos:definition>
+        <acronym xml:lang="en">NODULE</acronym>
+        <attribute>Nodulation</attribute>
+        <entity>Root</entity>
+    </owl:Class>
+    
+
+
+    <!-- https://cropontology.org/rdf/CO_336:0000016 -->
+
+    <owl:Class rdf:about="https://cropontology.org/rdf/CO_336:0000016">
+        <rdfs:subClassOf rdf:resource="https://cropontology.org/rdf/Estimation"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="https://cropontology.org/rdf/method_of"/>
+                <owl:someValuesFrom rdf:resource="https://cropontology.org/rdf/CO_336:0000015"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:label xml:lang="en">Nodulation proportion observation</rdfs:label>
+        <skos:definition xml:lang="en">Visual assessment of the proportion of nodules</skos:definition>
+    </owl:Class>
+    
+
+
+    <!-- https://cropontology.org/rdf/CO_336:0000017 -->
+
+    <owl:Class rdf:about="https://cropontology.org/rdf/CO_336:0000017">
+        <rdfs:subClassOf rdf:resource="https://cropontology.org/rdf/Ordinal"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="https://cropontology.org/rdf/scale_of"/>
+                <owl:someValuesFrom rdf:resource="https://cropontology.org/rdf/CO_336:0000016"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:label xml:lang="en">1 to 5 percentage scale</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- https://cropontology.org/rdf/CO_336:0000018 -->
+
+    <owl:Class rdf:about="https://cropontology.org/rdf/CO_336:0000018">
+        <rdfs:subClassOf rdf:resource="https://cropontology.org/rdf/Biotic_stress"/>
+        <rdfs:label xml:lang="en">Root knot nematode</rdfs:label>
+        <skos:definition xml:lang="en">Large galls or knots on the root system caused by Meloidogyne Spp</skos:definition>
+        <acronym xml:lang="en">ROOTKNOT</acronym>
+        <attribute>Reaction to Root knot nematode</attribute>
+        <entity>Root</entity>
+    </owl:Class>
+    
+
+
+    <!-- https://cropontology.org/rdf/CO_336:0000019 -->
+
+    <owl:Class rdf:about="https://cropontology.org/rdf/CO_336:0000019">
+        <rdfs:subClassOf rdf:resource="https://cropontology.org/rdf/Estimation"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="https://cropontology.org/rdf/method_of"/>
+                <owl:someValuesFrom rdf:resource="https://cropontology.org/rdf/CO_336:0000018"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:label xml:lang="en">Root knot assessment</rdfs:label>
+        <skos:definition xml:lang="en">Visual assessment of 1-5 of nematode knots</skos:definition>
+    </owl:Class>
+    
+
+
+    <!-- https://cropontology.org/rdf/CO_336:0000020 -->
+
+    <owl:Class rdf:about="https://cropontology.org/rdf/CO_336:0000020">
+        <rdfs:subClassOf rdf:resource="https://cropontology.org/rdf/Ordinal"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="https://cropontology.org/rdf/scale_of"/>
+                <owl:someValuesFrom rdf:resource="https://cropontology.org/rdf/CO_336:0000019"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:label xml:lang="en">1-5 infection score</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- https://cropontology.org/rdf/CO_336:0000021 -->
+
+    <owl:Class rdf:about="https://cropontology.org/rdf/CO_336:0000021">
+        <rdfs:subClassOf rdf:resource="https://cropontology.org/rdf/Phenological"/>
+        <rdfs:label xml:lang="en">Maturity time</rdfs:label>
+        <skos:definition xml:lang="en">Time when pods have changed to final color.</skos:definition>
+        <acronym xml:lang="en">MatTime</acronym>
+        <attribute>Maturity time</attribute>
+        <entity>Plant</entity>
+    </owl:Class>
+    
+
+
+    <!-- https://cropontology.org/rdf/CO_336:0000022 -->
+
+    <owl:Class rdf:about="https://cropontology.org/rdf/CO_336:0000022">
+        <rdfs:subClassOf rdf:resource="https://cropontology.org/rdf/Counting"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="https://cropontology.org/rdf/method_of"/>
+                <owl:someValuesFrom rdf:resource="https://cropontology.org/rdf/CO_336:0000021"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:label xml:lang="en">Days to maturity count</rdfs:label>
+        <skos:definition xml:lang="en">Determine the number of days elapsed between sowing and when the pods have reached maturity</skos:definition>
+    </owl:Class>
+    
+
+
+    <!-- https://cropontology.org/rdf/CO_336:0000023 -->
+
+    <owl:Class rdf:about="https://cropontology.org/rdf/CO_336:0000023">
+        <rdfs:subClassOf rdf:resource="https://cropontology.org/rdf/Numerical"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="https://cropontology.org/rdf/scale_of"/>
+                <owl:someValuesFrom rdf:resource="https://cropontology.org/rdf/CO_336:0000022"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:label xml:lang="en">day</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- https://cropontology.org/rdf/CO_336:0000024 -->
+
+    <owl:Class rdf:about="https://cropontology.org/rdf/CO_336:0000024">
+        <rdfs:subClassOf rdf:resource="https://cropontology.org/rdf/Morphological"/>
+        <rdfs:label xml:lang="en">Height of lowest pods</rdfs:label>
+        <skos:definition xml:lang="en">Height from soil surface to first pod</skos:definition>
+        <acronym xml:lang="en">HLP</acronym>
+        <attribute>Height of lowest pods</attribute>
+        <entity>Plant</entity>
+    </owl:Class>
+    
+
+
+    <!-- https://cropontology.org/rdf/CO_336:0000025 -->
+
+    <owl:Class rdf:about="https://cropontology.org/rdf/CO_336:0000025">
+        <rdfs:subClassOf rdf:resource="https://cropontology.org/rdf/Measurement"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="https://cropontology.org/rdf/method_of"/>
+                <owl:someValuesFrom rdf:resource="https://cropontology.org/rdf/CO_336:0000024"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:label xml:lang="en">Stalk height measurement</rdfs:label>
+        <skos:definition xml:lang="en">Length of stem</skos:definition>
+    </owl:Class>
+    
+
+
+    <!-- https://cropontology.org/rdf/CO_336:0000026 -->
+
+    <owl:Class rdf:about="https://cropontology.org/rdf/CO_336:0000026">
+        <rdfs:subClassOf rdf:resource="https://cropontology.org/rdf/Numerical"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="https://cropontology.org/rdf/scale_of"/>
+                <owl:someValuesFrom rdf:resource="https://cropontology.org/rdf/CO_336:0000025"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:label xml:lang="en">cm</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- https://cropontology.org/rdf/CO_336:0000030 -->
+
+    <owl:Class rdf:about="https://cropontology.org/rdf/CO_336:0000030">
+        <rdfs:subClassOf rdf:resource="https://cropontology.org/rdf/Agronomic"/>
+        <rdfs:label xml:lang="en">Lodging</rdfs:label>
+        <skos:definition xml:lang="en">Tendency of plant to lodge</skos:definition>
+        <acronym xml:lang="en">LODGING</acronym>
+        <attribute>Lodging</attribute>
+        <entity>Plant</entity>
+    </owl:Class>
+    
+
+
+    <!-- https://cropontology.org/rdf/CO_336:0000031 -->
+
+    <owl:Class rdf:about="https://cropontology.org/rdf/CO_336:0000031">
+        <rdfs:subClassOf rdf:resource="https://cropontology.org/rdf/Estimation"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="https://cropontology.org/rdf/method_of"/>
+                <owl:someValuesFrom rdf:resource="https://cropontology.org/rdf/CO_336:0000030"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:label xml:lang="en">Lodging estimation</rdfs:label>
+        <skos:definition xml:lang="en">Estimate the proportion of plants lodged i.e., protrated on the ground</skos:definition>
+    </owl:Class>
+    
+
+
+    <!-- https://cropontology.org/rdf/CO_336:0000032 -->
+
+    <owl:Class rdf:about="https://cropontology.org/rdf/CO_336:0000032">
+        <rdfs:subClassOf rdf:resource="https://cropontology.org/rdf/Ordinal"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="https://cropontology.org/rdf/scale_of"/>
+                <owl:someValuesFrom rdf:resource="https://cropontology.org/rdf/CO_336:0000031"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:label xml:lang="en">1 to 5 percentage scale</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- https://cropontology.org/rdf/CO_336:0000033 -->
+
+    <owl:Class rdf:about="https://cropontology.org/rdf/CO_336:0000033">
+        <rdfs:subClassOf rdf:resource="https://cropontology.org/rdf/Agronomic"/>
+        <rdfs:label xml:lang="en">Plants Harvested</rdfs:label>
+        <skos:definition xml:lang="en">The number of plants harvested contributing to the yield</skos:definition>
+        <acronym xml:lang="en">PTHARV</acronym>
+        <attribute>Harvested number</attribute>
+        <entity>Plant</entity>
+    </owl:Class>
+    
+
+
+    <!-- https://cropontology.org/rdf/CO_336:0000034 -->
+
+    <owl:Class rdf:about="https://cropontology.org/rdf/CO_336:0000034">
+        <rdfs:subClassOf rdf:resource="https://cropontology.org/rdf/Counting"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="https://cropontology.org/rdf/method_of"/>
+                <owl:someValuesFrom rdf:resource="https://cropontology.org/rdf/CO_336:0000033"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:label xml:lang="en">Number of plants harvested in the net plot, excluding the borders</rdfs:label>
+        <skos:definition xml:lang="en">Number of plants harvested in the net plot, excluding the borders</skos:definition>
+    </owl:Class>
+    
+
+
+    <!-- https://cropontology.org/rdf/CO_336:0000035 -->
+
+    <owl:Class rdf:about="https://cropontology.org/rdf/CO_336:0000035">
+        <rdfs:subClassOf rdf:resource="https://cropontology.org/rdf/Numerical"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="https://cropontology.org/rdf/scale_of"/>
+                <owl:someValuesFrom rdf:resource="https://cropontology.org/rdf/CO_336:0000034"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:label xml:lang="en">Plant</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- https://cropontology.org/rdf/CO_336:0000036 -->
+
+    <owl:Class rdf:about="https://cropontology.org/rdf/CO_336:0000036">
+        <rdfs:subClassOf rdf:resource="https://cropontology.org/rdf/Agronomic"/>
+        <rdfs:label xml:lang="en">Seed yield</rdfs:label>
+        <skos:definition xml:lang="en">Yield of a soybean field in terms of seed weight per unit area at a specified moisture content.</skos:definition>
+        <acronym xml:lang="en">SdYld</acronym>
+        <attribute>Yield</attribute>
+        <entity>Seed</entity>
+    </owl:Class>
+    
+
+
+    <!-- https://cropontology.org/rdf/CO_336:0000039 -->
+
+    <owl:Class rdf:about="https://cropontology.org/rdf/CO_336:0000039">
+        <rdfs:subClassOf rdf:resource="https://cropontology.org/rdf/Agronomic"/>
+        <rdfs:label xml:lang="en">Fodder Yield</rdfs:label>
+        <skos:definition xml:lang="en">Weight of harvested fodder i.e., haulm, stover per unit of area</skos:definition>
+        <acronym xml:lang="en">FODDERWT</acronym>
+        <attribute>Yield</attribute>
+        <entity>Fodder</entity>
+    </owl:Class>
+    
+
+
+    <!-- https://cropontology.org/rdf/CO_336:0000040 -->
+
+    <owl:Class rdf:about="https://cropontology.org/rdf/CO_336:0000040">
+        <rdfs:subClassOf rdf:resource="https://cropontology.org/rdf/Measurement"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="https://cropontology.org/rdf/method_of"/>
+                <owl:someValuesFrom rdf:resource="https://cropontology.org/rdf/CO_336:0000039"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:label xml:lang="en">Weighing of fodder per plot</rdfs:label>
+        <skos:definition xml:lang="en">Measure the dry weight of stover, haulm harvested after threshing plants harvested from the plot excluing the borders.</skos:definition>
+    </owl:Class>
+    
+
+
+    <!-- https://cropontology.org/rdf/CO_336:0000041 -->
+
+    <owl:Class rdf:about="https://cropontology.org/rdf/CO_336:0000041">
+        <rdfs:subClassOf rdf:resource="https://cropontology.org/rdf/Numerical"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="https://cropontology.org/rdf/scale_of"/>
+                <owl:someValuesFrom rdf:resource="https://cropontology.org/rdf/CO_336:0000040"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:label xml:lang="en">g/plot</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- https://cropontology.org/rdf/CO_336:0000042 -->
+
+    <owl:Class rdf:about="https://cropontology.org/rdf/CO_336:0000042">
+        <rdfs:subClassOf rdf:resource="https://cropontology.org/rdf/Agronomic"/>
+        <rdfs:label xml:lang="en">Early shattering</rdfs:label>
+        <skos:definition xml:lang="en">Proportion of open pods at harvest</skos:definition>
+        <acronym xml:lang="en">SHATEARLY</acronym>
+        <attribute>Shattering</attribute>
+        <entity>Pod</entity>
+    </owl:Class>
+    
+
+
+    <!-- https://cropontology.org/rdf/CO_336:0000043 -->
+
+    <owl:Class rdf:about="https://cropontology.org/rdf/CO_336:0000043">
+        <rdfs:subClassOf rdf:resource="https://cropontology.org/rdf/Estimation"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="https://cropontology.org/rdf/method_of"/>
+                <owl:someValuesFrom rdf:resource="https://cropontology.org/rdf/CO_336:0000042"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="https://cropontology.org/rdf/method_of"/>
+                <owl:someValuesFrom rdf:resource="https://cropontology.org/rdf/CO_336:0000248"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:label xml:lang="en">Early pod shattering estimation</rdfs:label>
+        <skos:definition xml:lang="en">Estimate the proportion of open pods at harvest by shattering the pods left on the 1m at both ends of the plot after the net yield plot was harvested</skos:definition>
+    </owl:Class>
+    
+
+
+    <!-- https://cropontology.org/rdf/CO_336:0000044 -->
+
+    <owl:Class rdf:about="https://cropontology.org/rdf/CO_336:0000044">
+        <rdfs:subClassOf rdf:resource="https://cropontology.org/rdf/Ordinal"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="https://cropontology.org/rdf/scale_of"/>
+                <owl:someValuesFrom rdf:resource="https://cropontology.org/rdf/CO_336:0000043"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:label xml:lang="en">1 to 5 percentage scale</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- https://cropontology.org/rdf/CO_336:0000048 -->
+
+    <owl:Class rdf:about="https://cropontology.org/rdf/CO_336:0000048">
+        <rdfs:subClassOf rdf:resource="https://cropontology.org/rdf/Biochemical"/>
+        <rdfs:label xml:lang="en">Seed oil content</rdfs:label>
+        <skos:definition xml:lang="en">Oil content of soybean seed</skos:definition>
+        <acronym xml:lang="en">OIL</acronym>
+        <attribute>Oil content</attribute>
+        <entity>Seed</entity>
+    </owl:Class>
+    
+
+
+    <!-- https://cropontology.org/rdf/CO_336:0000049 -->
+
+    <owl:Class rdf:about="https://cropontology.org/rdf/CO_336:0000049">
+        <rdfs:subClassOf rdf:resource="https://cropontology.org/rdf/Computation"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="https://cropontology.org/rdf/method_of"/>
+                <owl:someValuesFrom rdf:resource="https://cropontology.org/rdf/CO_336:0000048"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:label xml:lang="en">Seed oil content measurement in the lab</rdfs:label>
+        <skos:definition xml:lang="en">Weigh the amount of extracted oil from seed after harvest and divide by the seed dry weight</skos:definition>
+    </owl:Class>
+    
+
+
+    <!-- https://cropontology.org/rdf/CO_336:0000050 -->
+
+    <owl:Class rdf:about="https://cropontology.org/rdf/CO_336:0000050">
+        <rdfs:subClassOf rdf:resource="https://cropontology.org/rdf/Numerical"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="https://cropontology.org/rdf/scale_of"/>
+                <owl:someValuesFrom rdf:resource="https://cropontology.org/rdf/CO_336:0000049"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:label xml:lang="en">Percentage</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- https://cropontology.org/rdf/CO_336:0000051 -->
+
+    <owl:Class rdf:about="https://cropontology.org/rdf/CO_336:0000051">
+        <rdfs:subClassOf rdf:resource="https://cropontology.org/rdf/Biochemical"/>
+        <rdfs:label xml:lang="en">Seed protein content</rdfs:label>
+        <skos:definition xml:lang="en">Protein content of seed</skos:definition>
+        <acronym xml:lang="en">PROTEIN</acronym>
+        <attribute>Protein content</attribute>
+        <entity>Seed</entity>
+    </owl:Class>
+    
+
+
+    <!-- https://cropontology.org/rdf/CO_336:0000052 -->
+
+    <owl:Class rdf:about="https://cropontology.org/rdf/CO_336:0000052">
+        <rdfs:subClassOf rdf:resource="https://cropontology.org/rdf/Computation"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="https://cropontology.org/rdf/method_of"/>
+                <owl:someValuesFrom rdf:resource="https://cropontology.org/rdf/CO_336:0000051"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:label xml:lang="en">Seed protein content measurement</rdfs:label>
+        <skos:definition xml:lang="en">After harvest, measure the protein content of the seed on a dry weight basis</skos:definition>
+    </owl:Class>
+    
+
+
+    <!-- https://cropontology.org/rdf/CO_336:0000053 -->
+
+    <owl:Class rdf:about="https://cropontology.org/rdf/CO_336:0000053">
+        <rdfs:subClassOf rdf:resource="https://cropontology.org/rdf/Numerical"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="https://cropontology.org/rdf/scale_of"/>
+                <owl:someValuesFrom rdf:resource="https://cropontology.org/rdf/CO_336:0000052"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:label xml:lang="en">Percentage</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- https://cropontology.org/rdf/CO_336:0000054 -->
+
+    <owl:Class rdf:about="https://cropontology.org/rdf/CO_336:0000054">
+        <rdfs:subClassOf rdf:resource="https://cropontology.org/rdf/Biotic_stress"/>
+        <rdfs:label xml:lang="en">Reaction to Aphis glycines</rdfs:label>
+        <skos:definition xml:lang="en">The reaction of the plant or plant part to damage caused by Aphis glycines feeding.</skos:definition>
+        <acronym xml:lang="en">APHID</acronym>
+        <attribute>Reaction to Aphis glycines</attribute>
+        <entity>Plant</entity>
+    </owl:Class>
+    
+
+
+    <!-- https://cropontology.org/rdf/CO_336:0000060 -->
+
+    <owl:Class rdf:about="https://cropontology.org/rdf/CO_336:0000060">
+        <rdfs:subClassOf rdf:resource="https://cropontology.org/rdf/Phenological"/>
+        <rdfs:label xml:lang="en">Reproductive period</rdfs:label>
+        <skos:definition xml:lang="en">Time between the beginning of flowering (R1) and full maturity (R8)</skos:definition>
+        <acronym xml:lang="en">REPROD</acronym>
+        <attribute>Reproductive time</attribute>
+        <entity>Plant</entity>
+    </owl:Class>
+    
+
+
+    <!-- https://cropontology.org/rdf/CO_336:0000061 -->
+
+    <owl:Class rdf:about="https://cropontology.org/rdf/CO_336:0000061">
+        <rdfs:subClassOf rdf:resource="https://cropontology.org/rdf/Counting"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="https://cropontology.org/rdf/method_of"/>
+                <owl:someValuesFrom rdf:resource="https://cropontology.org/rdf/CO_336:0000060"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:label xml:lang="en">Reproductive period duration measurement</rdfs:label>
+        <skos:definition xml:lang="en">Count number of days from beginning of bloom (R1) to full maturity(R8)</skos:definition>
+    </owl:Class>
+    
+
+
+    <!-- https://cropontology.org/rdf/CO_336:0000062 -->
+
+    <owl:Class rdf:about="https://cropontology.org/rdf/CO_336:0000062">
+        <rdfs:subClassOf rdf:resource="https://cropontology.org/rdf/Duration"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="https://cropontology.org/rdf/scale_of"/>
+                <owl:someValuesFrom rdf:resource="https://cropontology.org/rdf/CO_336:0000061"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:label xml:lang="en">day</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- https://cropontology.org/rdf/CO_336:0000063 -->
+
+    <owl:Class rdf:about="https://cropontology.org/rdf/CO_336:0000063">
+        <rdfs:subClassOf rdf:resource="https://cropontology.org/rdf/Morphological"/>
+        <rdfs:label xml:lang="en">Flower color</rdfs:label>
+        <skos:definition xml:lang="en">Color of the flower petals</skos:definition>
+        <acronym xml:lang="en">FLWRCOLOR</acronym>
+        <attribute>Color</attribute>
+        <entity>Flower</entity>
+    </owl:Class>
+    
+
+
+    <!-- https://cropontology.org/rdf/CO_336:0000064 -->
+
+    <owl:Class rdf:about="https://cropontology.org/rdf/CO_336:0000064">
+        <rdfs:subClassOf rdf:resource="https://cropontology.org/rdf/Estimation"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="https://cropontology.org/rdf/method_of"/>
+                <owl:someValuesFrom rdf:resource="https://cropontology.org/rdf/CO_336:0000063"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:label xml:lang="en">Flower color observation</rdfs:label>
+        <skos:definition xml:lang="en">At flowering, observe the color of flower</skos:definition>
+    </owl:Class>
+    
+
+
+    <!-- https://cropontology.org/rdf/CO_336:0000065 -->
+
+    <owl:Class rdf:about="https://cropontology.org/rdf/CO_336:0000065">
+        <rdfs:subClassOf rdf:resource="https://cropontology.org/rdf/Nominal"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="https://cropontology.org/rdf/scale_of"/>
+                <owl:someValuesFrom rdf:resource="https://cropontology.org/rdf/CO_336:0000064"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:label xml:lang="en">1 to 9 color scale</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- https://cropontology.org/rdf/CO_336:0000069 -->
+
+    <owl:Class rdf:about="https://cropontology.org/rdf/CO_336:0000069">
+        <rdfs:subClassOf rdf:resource="https://cropontology.org/rdf/Phenological"/>
+        <rdfs:label xml:lang="en">Twining date</rdfs:label>
+        <skos:definition xml:lang="en">Time when soybean twines</skos:definition>
+        <acronym xml:lang="en">TWINNING</acronym>
+        <attribute>Twinning time</attribute>
+        <entity>Plant</entity>
+    </owl:Class>
+    
+
+
+    <!-- https://cropontology.org/rdf/CO_336:0000070 -->
+
+    <owl:Class rdf:about="https://cropontology.org/rdf/CO_336:0000070">
+        <rdfs:subClassOf rdf:resource="https://cropontology.org/rdf/Estimation"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="https://cropontology.org/rdf/method_of"/>
+                <owl:someValuesFrom rdf:resource="https://cropontology.org/rdf/CO_336:0000069"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:label xml:lang="en">Twinning date observation</rdfs:label>
+        <skos:definition xml:lang="en">Take note of the date when 50% of plants are twining</skos:definition>
+    </owl:Class>
+    
+
+
+    <!-- https://cropontology.org/rdf/CO_336:0000071 -->
+
+    <owl:Class rdf:about="https://cropontology.org/rdf/CO_336:0000071">
+        <rdfs:subClassOf rdf:resource="https://cropontology.org/rdf/Date"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="https://cropontology.org/rdf/scale_of"/>
+                <owl:someValuesFrom rdf:resource="https://cropontology.org/rdf/CO_336:0000070"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:label xml:lang="en">mmdd</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- https://cropontology.org/rdf/CO_336:0000072 -->
+
+    <owl:Class rdf:about="https://cropontology.org/rdf/CO_336:0000072">
+        <rdfs:subClassOf rdf:resource="https://cropontology.org/rdf/Abiotic_stress"/>
+        <rdfs:label xml:lang="en">Flooding tolerance</rdfs:label>
+        <skos:definition xml:lang="en">Response of plant to inundation by water of all or part of the plant</skos:definition>
+        <acronym xml:lang="en">FLOODING</acronym>
+        <attribute>Flooding tolerance</attribute>
+        <entity>Plant</entity>
+    </owl:Class>
+    
+
+
+    <!-- https://cropontology.org/rdf/CO_336:0000073 -->
+
+    <owl:Class rdf:about="https://cropontology.org/rdf/CO_336:0000073">
+        <rdfs:subClassOf rdf:resource="https://cropontology.org/rdf/Estimation"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="https://cropontology.org/rdf/method_of"/>
+                <owl:someValuesFrom rdf:resource="https://cropontology.org/rdf/CO_336:0000072"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:label xml:lang="en">Flooding reaction of plants assessment</rdfs:label>
+        <skos:definition xml:lang="en">Appearance of plants in response to flooding</skos:definition>
+    </owl:Class>
+    
+
+
+    <!-- https://cropontology.org/rdf/CO_336:0000248 -->
+
+    <owl:Class rdf:about="https://cropontology.org/rdf/CO_336:0000248">
+        <rdfs:subClassOf rdf:resource="https://cropontology.org/rdf/Agronomic"/>
+        <rdfs:label xml:lang="en">Pod shattering</rdfs:label>
+        <skos:definition xml:lang="en">Proportion of open pods</skos:definition>
+        <acronym xml:lang="en">PodShat</acronym>
+        <attribute>Shattering</attribute>
+        <entity>Pod</entity>
+    </owl:Class>
+</rdf:RDF>
+
+
+
+<!-- Generated by the OWL API (version 4.5.29) https://github.com/owlcs/owlapi -->
+

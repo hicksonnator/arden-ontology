@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<catalog xmlns="urn:oasis:names:tc:entity:xmlns:xml:catalog" prefer="public">
+  <!-- Map Arden core ontology imports to local files -->
+  <uri name="https://arden.ag/ont/core" uri="ontology/arden-core.ttl"/>
+  <uri name="https://arden.ag/ont/ag" uri="ontology/arden-ag.ttl"/>
+  <uri name="https://arden.ag/ont/fin" uri="ontology/arden-fin.ttl"/>
+  <uri name="https://arden.ag/ont/geo" uri="ontology/arden-geo.ttl"/>
+  <uri name="https://arden.ag/ont/crops" uri="ontology/arden-crops.ttl"/>
+  <uri name="https://arden.ag/ont/equipment" uri="ontology/arden-equipment.ttl"/>
+  <uri name="https://arden.ag/ont/markets" uri="ontology/arden-markets.ttl"/>
+  <uri name="https://arden.ag/ont/measure" uri="ontology/arden-measure.ttl"/>
+  <uri name="https://arden.ag/ont/socio" uri="ontology/arden-socio.ttl"/>
+  <uri name="https://arden.ag/ont/app" uri="ontology/arden-app.ttl"/>
+  <uri name="https://arden.ag/ont/integration" uri="ontology/arden-integration.ttl"/>
+  <uri name="https://arden.ag/ont/regulatory" uri="ontology/arden-regulatory.ttl"/>
+
+  <!-- Map external ontology imports to local files -->
+  <uri name="http://www.w3.org/2006/time#" uri="externals/time.rdf"/>
+  <uri name="http://www.w3.org/2006/time" uri="externals/time.rdf"/>
+  <uri name="http://www.w3.org/2004/02/skos/core#" uri="externals/skos.rdf"/>
+  <uri name="http://www.w3.org/2004/02/skos/core" uri="externals/skos.rdf"/>
+  <uri name="http://www.w3.org/ns/sosa/" uri="externals/sosa.ttl"/>
+  <uri name="http://www.w3.org/ns/sosa" uri="externals/sosa.ttl"/>
+  <uri name="http://www.opengis.net/ont/geosparql#" uri="externals/geosparql.rdf"/>
+  <uri name="http://www.opengis.net/ont/geosparql" uri="externals/geosparql.rdf"/>
+  <uri name="http://www.w3.org/ns/prov#" uri="externals/prov.ttl"/>
+  <uri name="http://www.w3.org/ns/prov" uri="externals/prov.ttl"/>
+  <uri name="http://www.w3.org/ns/dcat#" uri="externals/dcat.ttl"/>
+  <uri name="http://www.w3.org/ns/dcat" uri="externals/dcat.ttl"/>
+  <uri name="http://purl.org/linked-data/cube#" uri="externals/qb.ttl"/>
+  <uri name="http://purl.org/linked-data/cube" uri="externals/qb.ttl"/>
+  <uri name="http://qudt.org/schema/qudt/" uri="externals/qudt-schema.ttl"/>
+  <uri name="http://qudt.org/schema/qudt" uri="externals/qudt-schema.ttl"/>
+  <uri name="http://qudt.org/vocab/unit/" uri="externals/qudt-units.ttl"/>
+  <uri name="http://qudt.org/vocab/unit" uri="externals/qudt-units.ttl"/>
+  <uri name="http://qudt.org/2.1/vocab/unit/" uri="externals/qudt-units.ttl"/>
+  <uri name="http://qudt.org/2.1/vocab/unit" uri="externals/qudt-units.ttl"/>
+</catalog>
