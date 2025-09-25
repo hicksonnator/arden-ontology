@@ -1,0 +1,17 @@
+{
+  "version": "v1.2.2",
+  "release_date": "2025-09-25",
+  "build_timestamp": "20250925-141918",
+  "sha256": "2a240efc6c4767a67290c9f061dbb4cde2194dd20e6f7b947a241395baab48c3",
+  "download_url": "https://github.com/hicksonnator/arden-ontology/releases/download/v1.2.2/arden-ontology-production-v1.2.2-20250925-141918.tar.gz",
+  "file_size_mb": 0.23,
+  "total_terms": 1268,
+  "key_features": [
+    "Yahoo Finance market data integration",
+    "External ontology preprocessing pipeline",
+    "1,268 validated terms (Classes: 461, Properties: 580, Individuals: 227)",
+    "Robust build process with complex OWL construct sanitization"
+  ],
+  "validation_status": "PASSED",
+  "min_harvester_version": "1.2.0"
+}
