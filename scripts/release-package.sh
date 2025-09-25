@@ -71,7 +71,7 @@ fi
 # Copy the build
 if [ -f "$ENHANCED_BUILD_FILE" ]; then
     cp "$ENHANCED_BUILD_FILE" ontology/arden-enhanced-complete.ttl
-    TERM_COUNT=$(grep -c 'rdf:type.*owl:Class\|rdf:type.*owl:ObjectProperty\|rdf:type.*owl:DatatypeProperty' "$ENHANCED_BUILD_FILE")
+    TERM_COUNT=$(grep -c "rdf:type owl:Class\|rdf:type owl:ObjectProperty\|rdf:type owl:DatatypeProperty\|rdf:type owl:AnnotationProperty\|rdf:type owl:NamedIndividual" "$ENHANCED_BUILD_FILE")
     echo "✅ Enhanced ontology included ($TERM_COUNT terms) - $VERSION with Market Data"
 else
     echo "❌ Failed to build enhanced ontology"
