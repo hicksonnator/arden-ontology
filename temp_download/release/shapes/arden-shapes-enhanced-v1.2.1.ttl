@@ -1,0 +1,285 @@
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix arden: <https://arden.ag/ont/core#> .
+@prefix arden-fin: <https://arden.ag/ont/fin#> .
+@prefix arden-ag: <https://arden.ag/ont/ag#> .
+@prefix sosa: <http://www.w3.org/ns/sosa/> .
+@prefix qudt: <http://qudt.org/schema/qudt/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# ==================================================
+# ENHANCED SHACL VALIDATION FOR ARDEN v1.2.1+
+# ==================================================
+
+# 1. TEMPORAL-FINANCIAL ALIGNMENT TESTS
+
+# Harvest-to-payment timing validation
+arden:HarvestPaymentAlignment a sh:NodeShape ;
+  sh:targetClass arden-ag:YieldObservation ;
+
+  sh:sparql [
+    sh:message "Harvest date should occur before related loan payment due date" ;
+    sh:select """
+      SELECT $this
+      WHERE {
+        $this sosa:hasFeatureOfInterest ?parcel ;
+              sosa:resultTime ?harvestDate .
+        ?operation arden:hasParcel ?parcel ;
+                   arden:hasLoan ?loan .
+        ?loan arden-fin:nextPaymentDue ?paymentDate .
+        # Allow 30-day grace period for harvest-to-payment
+        FILTER (?harvestDate > (?paymentDate - "P30D"^^xsd:duration))
+      }
+    """
+  ] .
+
+# Planting season consistency
+arden:PlantingSeasonConsistency a sh:NodeShape ;
+  sh:targetClass arden-ag:PlantingEvent ;
+
+  sh:sparql [
+    sh:message "Planting date outside typical season for crop type and region" ;
+    sh:select """
+      SELECT $this
+      WHERE {
+        $this arden-ag:plantsCrop ?crop ;
+              arden:eventDate ?plantingDate ;
+              arden:locatedInCounty ?county .
+        BIND(MONTH(?plantingDate) AS ?month)
+
+        # Corn: March-June in most US regions
+        FILTER (
+          (?crop = <https://arden.ag/ont/ag#MaizeCrop> && (?month < 3 || ?month > 6)) ||
+          (?crop = <https://arden.ag/ont/ag#SoybeanCrop> && (?month < 4 || ?month > 7)) ||
+          (?crop = <https://arden.ag/ont/ag#WheatCrop> && (?month < 3 || ?month > 5))
+        )
+      }
+    """
+  ] .
+
+# 2. QUANTITATIVE REASONABLENESS TESTS
+
+# Yield reasonableness by county and crop
+arden:YieldReasonableness a sh:NodeShape ;
+  sh:targetClass arden-ag:YieldObservation ;
+
+  sh:sparql [
+    sh:message "Reported yield significantly outside county historical range" ;
+    sh:select """
+      SELECT $this
+      WHERE {
+        $this sosa:hasResult ?yieldValue ;
+              sosa:hasFeatureOfInterest ?parcel .
+        ?parcel arden:locatedInCounty ?county ;
+                arden-ag:predominantCrop ?crop .
+        ?yieldValue qudt:numericValue ?yield .
+
+        # Example bounds - would be populated from USDA NASS data
+        # Corn: 50-300 bushels/acre, Soybeans: 20-80 bushels/acre
+        FILTER (
+          (?crop = <https://arden.ag/ont/ag#MaizeCrop> && (?yield < 50 || ?yield > 300)) ||
+          (?crop = <https://arden.ag/ont/ag#SoybeanCrop> && (?yield < 20 || ?yield > 80))
+        )
+      }
+    """
+  ] .
+
+# Loan-to-value ratio validation
+arden:LoanToValueValidation a sh:NodeShape ;
+  sh:targetClass arden-fin:AgriculturalLoan ;
+
+  sh:sparql [
+    sh:message "Loan-to-value ratio exceeds typical agricultural lending limits" ;
+    sh:select """
+      SELECT $this
+      WHERE {
+        $this arden-fin:loanAmount ?loanAmount ;
+              arden-fin:collateralValue ?collateralValue .
+        BIND(?loanAmount / ?collateralValue AS ?ltv)
+
+        # Typical agricultural LTV limits: 85% for land, 75% for equipment
+        FILTER (?ltv > 0.85)
+      }
+    """
+  ] .
+
+# 3. CROSS-DOMAIN CONSISTENCY TESTS
+
+# Insurance claim-weather event correlation
+arden:WeatherClaimCorrelation a sh:NodeShape ;
+  sh:targetClass arden-fin:InsuranceClaim ;
+
+  sh:sparql [
+    sh:message "Drought claim without corresponding precipitation deficit in county" ;
+    sh:select """
+      SELECT $this
+      WHERE {
+        $this arden-fin:claimType arden-fin:DroughtClaim ;
+              arden:locatedInCounty ?county ;
+              arden:eventDate ?claimDate .
+
+        # Check if there's a precipitation observation showing drought conditions
+        FILTER NOT EXISTS {
+          ?precip a arden-ag:PrecipitationObservation ;
+                  arden:locatedInCounty ?county ;
+                  sosa:resultTime ?precipDate ;
+                  sosa:hasResult/qudt:numericValue ?rainfall .
+          FILTER (
+            ?precipDate >= (?claimDate - "P60D"^^xsd:duration) &&
+            ?precipDate <= ?claimDate &&
+            ?rainfall < 2.0  # Less than 2 inches in 60 days indicates drought
+          )
+        }
+      }
+    """
+  ] .
+
+# Organic certification-input consistency
+arden:OrganicInputConsistency a sh:NodeShape ;
+  sh:targetClass arden-ag:InputUseObservation ;
+
+  sh:sparql [
+    sh:message "Synthetic input use on organic-certified parcel" ;
+    sh:select """
+      SELECT $this
+      WHERE {
+        $this sosa:hasFeatureOfInterest ?parcel ;
+              arden-ag:inputType ?input .
+        ?parcel arden-ag:hasCertification arden-ag:OrganicCertification .
+
+        # List of synthetic inputs prohibited in organic farming
+        ?input a arden-ag:SyntheticFertilizer .
+        # OR ?input a arden-ag:SyntheticPesticide .
+      }
+    """
+  ] .
+
+# 4. FINANCIAL RISK AGGREGATION TESTS
+
+# Multiple risk factor warning
+arden:MultipleRiskFactors a sh:NodeShape ;
+  sh:targetClass arden:FarmOperation ;
+
+  sh:sparql [
+    sh:message "Farm operation has multiple concurrent high-risk factors" ;
+    sh:select """
+      SELECT $this
+      WHERE {
+        $this arden:hasLoan ?loan ;
+              arden:hasParcel ?parcel .
+
+        # Count risk factors
+        {
+          SELECT $this (COUNT(DISTINCT ?riskType) AS ?riskCount)
+          WHERE {
+            $this arden:hasLoan ?loan ;
+                  arden:hasParcel ?parcel .
+
+            # High debt-to-income ratio
+            { ?loan arden-fin:debtToIncomeRatio ?dti . FILTER (?dti > 0.4) BIND("high-dti" AS ?riskType) }
+            UNION
+            # Recent insurance claims
+            { ?claim arden-fin:referencesPolicy/arden-fin:coversParcel ?parcel ;
+                     arden:eventDate ?claimDate .
+              FILTER (?claimDate > (NOW() - "P365D"^^xsd:duration))
+              BIND("recent-claim" AS ?riskType) }
+            UNION
+            # Low yield area
+            { ?yieldObs sosa:hasFeatureOfInterest ?parcel ;
+                        sosa:hasResult/qudt:numericValue ?yield .
+              FILTER (?yield < 100)  # Below-average yield
+              BIND("low-yield" AS ?riskType) }
+          }
+          GROUP BY $this
+        }
+
+        FILTER (?riskCount >= 2)
+      }
+    """
+  ] .
+
+# 5. COMPLIANCE WORKFLOW TESTS
+
+# Conservation compliance timeline
+arden:ConservationComplianceTimeline a sh:NodeShape ;
+  sh:targetClass arden-ag:ConservationPractice ;
+
+  sh:sparql [
+    sh:message "Conservation practice implementation deadline conflicts with crop calendar" ;
+    sh:select """
+      SELECT $this
+      WHERE {
+        $this arden:implementationDeadline ?deadline ;
+              sosa:hasFeatureOfInterest ?parcel .
+        ?parcel arden-ag:plannedPlanting ?planting .
+        ?planting arden:eventDate ?plantingDate .
+
+        # Conservation work should be completed before planting
+        FILTER (?deadline > ?plantingDate)
+      }
+    """
+  ] .
+
+# Program eligibility cross-check
+arden:ProgramEligibilityCrossCheck a sh:NodeShape ;
+  sh:targetClass arden:FarmOperation ;
+
+  sh:sparql [
+    sh:message "Farm operation enrolled in conflicting government programs" ;
+    sh:select """
+      SELECT $this
+      WHERE {
+        $this arden:enrolledInProgram ?program1, ?program2 .
+
+        # Check for known program conflicts
+        FILTER (
+          (?program1 = <https://example.org/CRP> && ?program2 = <https://example.org/CropInsurance>) ||
+          (?program1 = <https://example.org/OrganicProgram> && ?program2 = <https://example.org/ConventionalSubsidy>)
+        )
+        FILTER (?program1 != ?program2)
+      }
+    """
+  ] .
+
+# 6. DATA COMPLETENESS VALIDATION
+
+# Minimum data completeness for loan underwriting
+arden:LoanUnderwritingCompleteness a sh:NodeShape ;
+  sh:targetClass arden-fin:AgriculturalLoan ;
+
+  sh:sparql [
+    sh:message "Insufficient data for agricultural loan underwriting" ;
+    sh:select """
+      SELECT $this
+      WHERE {
+        $this arden-fin:borrower ?borrower .
+
+        # Count required data elements
+        {
+          SELECT $this (COUNT(DISTINCT ?element) AS ?dataCount)
+          WHERE {
+            $this arden-fin:borrower ?borrower .
+
+            # Credit score
+            { ?borrower arden-fin:creditScore ?score . BIND("credit" AS ?element) }
+            UNION
+            # Income verification
+            { ?borrower arden-fin:annualIncome ?income . BIND("income" AS ?element) }
+            UNION
+            # Collateral appraisal
+            { $this arden-fin:collateralValue ?value . BIND("collateral" AS ?element) }
+            UNION
+            # Debt service history
+            { ?borrower arden-fin:paymentHistory ?history . BIND("payment-history" AS ?element) }
+            UNION
+            # Farm operation details
+            { ?operation arden:hasLoan $this ;
+                         arden:hasParcel ?parcel . BIND("operation" AS ?element) }
+          }
+          GROUP BY $this
+        }
+
+        # Require at least 4 of 5 key elements
+        FILTER (?dataCount < 4)
+      }
+    """
+  ] .

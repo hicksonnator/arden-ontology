@@ -1,0 +1,325 @@
+@prefix : <https://arden.ag/ont/core#> .
+@prefix arden: <https://arden.ag/ont/core#> .
+@prefix arden-fin: <https://arden.ag/ont/fin#> .
+@prefix arden-ag: <https://arden.ag/ont/ag#> .
+@prefix arden-labor: <https://arden.ag/ont/labor#> .
+@prefix arden-tax: <https://arden.ag/ont/tax#> .
+@prefix arden-risk: <https://arden.ag/ont/risk#> .
+@prefix bridge: <https://arden.ag/ont/bridge#> .
+@prefix fibo: <https://spec.edmcouncil.org/fibo/ontology/> .
+@prefix agro: <http://purl.obolibrary.org/obo/> .
+@prefix qudt: <http://qudt.org/schema/qudt/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+
+# ==================================================
+# ARDEN KILLER COMPETENCY QUESTION BRIDGE MAPPINGS
+# ==================================================
+
+# LABOR & TAX COMPLIANCE DOMAIN
+
+# Family Farm Child Labor Bridge
+arden-labor:FarmFamilyEmployee a owl:Class ;
+    rdfs:subClassOf fibo:Employee ;
+    rdfs:label "Farm Family Employee"@en ;
+    rdfs:comment "Employee who is a family member of the farm owner, subject to special tax treatment"@en .
+
+bridge:childOfFarmOwner a owl:ObjectProperty ;
+    rdfs:domain arden-labor:FarmFamilyEmployee ;
+    rdfs:range arden:FarmOwner ;
+    rdfs:label "child of farm owner"@en .
+
+bridge:under18TaxExemption a owl:Class ;
+    rdfs:subClassOf arden-tax:TaxExemption ;
+    rdfs:label "Under 18 Tax Exemption"@en ;
+    rdfs:comment "Tax withholding exemption for children under 18 working on family farms"@en .
+
+# Seasonal Worker Tax Compliance Bridge
+arden-labor:SeasonalFarmWorker a owl:Class ;
+    rdfs:subClassOf fibo:Employee ;
+    rdfs:label "Seasonal Farm Worker"@en ;
+    rdfs:comment "Temporary agricultural employee subject to seasonal tax thresholds"@en .
+
+bridge:seasonalTaxThreshold a owl:DatatypeProperty ;
+    rdfs:domain arden-labor:SeasonalFarmWorker ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "seasonal tax threshold"@en ;
+    rdfs:comment "Annual wage threshold triggering tax reporting requirements ($600 for 1099)"@en .
+
+# In-Kind Payment Bridge
+arden-labor:InKindPayment a owl:Class ;
+    rdfs:subClassOf fibo:Payment ;
+    rdfs:label "In-Kind Payment"@en ;
+    rdfs:comment "Payment made in commodities rather than cash"@en .
+
+bridge:commodityPaymentValuation a owl:ObjectProperty ;
+    rdfs:domain arden-labor:InKindPayment ;
+    rdfs:range bridge:CommodityAsset ;
+    rdfs:label "commodity payment valuation"@en .
+
+# LOANS & COLLATERAL DYNAMICS
+
+# Futures Contract → Collateral Value Bridge
+bridge:futuresBasedCollateral a owl:Class ;
+    rdfs:subClassOf arden-fin:CollateralAsset ;
+    owl:equivalentClass [
+        owl:intersectionOf (
+            arden-fin:CollateralAsset
+            [ owl:someValuesFrom bridge:CommodityAsset ; owl:onProperty bridge:securedByCommodity ]
+        )
+    ] ;
+    rdfs:label "Futures-Based Collateral"@en .
+
+bridge:futuresContractReference a owl:ObjectProperty ;
+    rdfs:domain bridge:futuresBasedCollateral ;
+    rdfs:range arden-fin:FuturesContract ;
+    rdfs:label "futures contract reference"@en .
+
+bridge:collateralVolatilityRisk a owl:DatatypeProperty ;
+    rdfs:domain bridge:futuresBasedCollateral ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "collateral volatility risk"@en ;
+    rdfs:comment "Risk factor (0.0-1.0) based on commodity price volatility"@en .
+
+# Yield Impact → Debt Service Bridge
+bridge:yieldBasedCashFlow a owl:Class ;
+    rdfs:subClassOf arden-fin:CashFlow ;
+    owl:equivalentClass [
+        owl:intersectionOf (
+            arden-fin:CashFlow
+            [ owl:someValuesFrom arden-ag:YieldObservation ; owl:onProperty bridge:derivedFromYield ]
+        )
+    ] .
+
+bridge:debtServiceCoverageRatio a owl:DatatypeProperty ;
+    rdfs:domain arden-fin:AgriculturalLoan ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "debt service coverage ratio"@en ;
+    rdfs:comment "Ratio of net operating income to total debt service (should be >1.2)"@en .
+
+bridge:yieldSensitivityFactor a owl:DatatypeProperty ;
+    rdfs:domain arden-fin:AgriculturalLoan ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "yield sensitivity factor"@en ;
+    rdfs:comment "Percentage change in debt service coverage per 1% yield change"@en .
+
+# Land Value → Credit Line Bridge
+bridge:landValueCreditTrigger a owl:Class ;
+    rdfs:subClassOf arden-fin:CreditTrigger ;
+    rdfs:label "Land Value Credit Trigger"@en ;
+    rdfs:comment "Credit line adjustment trigger based on land value thresholds"@en .
+
+bridge:landValueThreshold a owl:DatatypeProperty ;
+    rdfs:domain bridge:landValueCreditTrigger ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "land value threshold"@en ;
+    rdfs:comment "Dollar per acre threshold triggering credit line review"@en .
+
+# RISK & INSURANCE BRIDGES
+
+# Federal Insurance Eligibility Bridge
+bridge:federalInsuranceEligibleCrop a owl:Class ;
+    rdfs:subClassOf bridge:CommodityAsset ;
+    owl:equivalentClass [
+        owl:intersectionOf (
+            bridge:CommodityAsset
+            [ owl:hasValue true ; owl:onProperty bridge:federalInsuranceEligible ]
+        )
+    ] .
+
+bridge:federalInsuranceEligible a owl:DatatypeProperty ;
+    rdfs:domain bridge:CommodityAsset ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "federal insurance eligible"@en ;
+    rdfs:comment "Whether crop qualifies for USDA federal crop insurance subsidies"@en .
+
+bridge:subsidyImpactOnDebtService a owl:DatatypeProperty ;
+    rdfs:domain arden-fin:CropInsurancePolicy ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "subsidy impact on debt service"@en ;
+    rdfs:comment "Dollar amount by which insurance subsidies improve debt service capacity"@en .
+
+# Soil Erosion Risk → Collateral Bridge
+arden-risk:SoilErosionRisk a owl:Class ;
+    rdfs:subClassOf arden:RiskFactor ;
+    rdfs:label "Soil Erosion Risk"@en .
+
+bridge:erosionRiskLevel a owl:DatatypeProperty ;
+    rdfs:domain arden:SoilType ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Erosion risk level: low, moderate, high, severe"@en .
+
+bridge:erosionBasedRiskAdjustment a owl:DatatypeProperty ;
+    rdfs:domain arden-fin:AgriculturalLoan ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "erosion-based risk adjustment"@en ;
+    rdfs:comment "Loan rate adjustment (basis points) for soil erosion risk"@en .
+
+# Irrigation Capacity → Production Risk Bridge
+bridge:irrigationCapacityRisk a owl:Class ;
+    rdfs:subClassOf arden:ProductionRisk ;
+    rdfs:label "Irrigation Capacity Risk"@en .
+
+bridge:irrigationCapacityReduction a owl:DatatypeProperty ;
+    rdfs:domain bridge:irrigationCapacityRisk ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "irrigation capacity reduction"@en ;
+    rdfs:comment "Percentage reduction in irrigation capacity due to drought/restrictions"@en .
+
+bridge:droughtExposureAmount a owl:DatatypeProperty ;
+    rdfs:domain arden:FarmOperation ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "drought exposure amount"@en ;
+    rdfs:comment "Dollar amount at risk from irrigation capacity reduction"@en .
+
+# TAX & INCENTIVES BRIDGES
+
+# Farmer Mac ACRE Act Bridge
+bridge:farmerMacEligibleMortgage a owl:Class ;
+    rdfs:subClassOf arden-fin:FarmlandMortgage ;
+    owl:equivalentClass [
+        owl:intersectionOf (
+            arden-fin:FarmlandMortgage
+            [ owl:hasValue true ; owl:onProperty bridge:farmerMacEligible ]
+        )
+    ] .
+
+bridge:farmerMacEligible a owl:DatatypeProperty ;
+    rdfs:domain arden-fin:FarmlandMortgage ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "Farmer Mac eligible"@en .
+
+arden-tax:ACREActTreatment a owl:Class ;
+    rdfs:subClassOf fibo:TaxTreatment ;
+    rdfs:label "ACRE Act Tax Treatment"@en ;
+    rdfs:comment "Agricultural Credit Enhancement Act tax benefits"@en .
+
+bridge:acreActQualified a owl:DatatypeProperty ;
+    rdfs:domain arden-fin:FarmlandMortgage ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "ACRE Act qualified"@en .
+
+# Agricultural Equipment Depreciation Bridge
+bridge:agriculturalDepreciableAsset a owl:Class ;
+    rdfs:subClassOf fibo:Asset ;
+    owl:equivalentClass [
+        owl:intersectionOf (
+            arden:AgriculturalEquipment
+            [ owl:someValuesFrom arden-tax:DepreciationSchedule ; owl:onProperty bridge:depreciationSchedule ]
+        )
+    ] .
+
+bridge:irsDepreciationPeriod a owl:DatatypeProperty ;
+    rdfs:domain arden:AgriculturalEquipment ;
+    rdfs:range xsd:integer ;
+    rdfs:label "IRS depreciation period"@en ;
+    rdfs:comment "IRS-mandated depreciation period in years for equipment type"@en .
+
+bridge:section179Eligible a owl:DatatypeProperty ;
+    rdfs:domain arden:AgriculturalEquipment ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "Section 179 eligible"@en ;
+    rdfs:comment "Whether equipment qualifies for Section 179 immediate expensing"@en .
+
+# Conservation Practice Deduction Bridge
+bridge:conservationPracticeDeduction a owl:Class ;
+    rdfs:subClassOf fibo:TaxDeduction ;
+    owl:equivalentClass [
+        owl:intersectionOf (
+            fibo:TaxDeduction
+            [ owl:someValuesFrom arden-ag:ConservationPractice ; owl:onProperty bridge:deductionFor ]
+        )
+    ] .
+
+bridge:usdaCostShareProgram a owl:ObjectProperty ;
+    rdfs:domain arden-ag:ConservationPractice ;
+    rdfs:range arden:GovernmentProgram ;
+    rdfs:label "USDA cost-share program"@en .
+
+bridge:deductibleExpenseAmount a owl:DatatypeProperty ;
+    rdfs:domain bridge:conservationPracticeDeduction ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "deductible expense amount"@en .
+
+# CROSS-CUTTING REGULATORY BRIDGES
+
+# Program Conflict Detection
+bridge:regulatoryProgramConflict a owl:Class ;
+    rdfs:subClassOf arden:ComplianceIssue ;
+    rdfs:label "Regulatory Program Conflict"@en .
+
+bridge:conflictsWith a owl:ObjectProperty ;
+    rdfs:domain arden:GovernmentProgram ;
+    rdfs:range arden:GovernmentProgram ;
+    rdfs:label "conflicts with"@en ;
+    owl:propertyDisjointWith rdfs:subClassOf .  # Programs that conflict cannot be subclasses
+
+# Multi-Domain Data Integration
+bridge:crossDomainDataPoint a owl:Class ;
+    rdfs:label "Cross-Domain Data Point"@en ;
+    rdfs:comment "Data element required for killer competency question reasoning"@en .
+
+bridge:requiredForKillerQuestion a owl:ObjectProperty ;
+    rdfs:domain bridge:crossDomainDataPoint ;
+    rdfs:range arden:CompetencyQuestion ;
+    rdfs:label "required for killer question"@en .
+
+# SPECIFIC KILLER QUESTION MAPPINGS
+
+# KQ1: Family child labor
+bridge:familyChildLaborScenario a arden:CompetencyQuestion ;
+    rdfs:label "Family Child Labor Tax Scenario" ;
+    bridge:requiresDataElements (
+        arden-labor:FarmFamilyEmployee
+        bridge:under18TaxExemption
+        arden:FamilyFarm
+    ) .
+
+# KQ4: Wheat futures collateral
+bridge:wheatFuturesCollateralScenario a arden:CompetencyQuestion ;
+    rdfs:label "Wheat Futures Collateral Scenario" ;
+    bridge:requiresDataElements (
+        bridge:futuresBasedCollateral
+        arden-fin:FuturesContract
+        arden-ag:WheatGrain
+    ) .
+
+# KQ7: Federal crop insurance
+bridge:federalInsuranceEligibilityScenario a arden:CompetencyQuestion ;
+    rdfs:label "Federal Crop Insurance Eligibility Scenario" ;
+    bridge:requiresDataElements (
+        bridge:federalInsuranceEligibleCrop
+        arden-fin:CropInsurancePolicy
+        bridge:subsidyImpactOnDebtService
+    ) .
+
+# PROPERTY CHARACTERISTICS FOR ENHANCED REASONING
+
+bridge:derivedFromYield rdf:type owl:ObjectProperty , owl:FunctionalProperty ;
+    rdfs:domain bridge:yieldBasedCashFlow ;
+    rdfs:range arden-ag:YieldObservation .
+
+bridge:securedByCommodity rdf:type owl:ObjectProperty ;
+    rdfs:domain arden-fin:CollateralAsset ;
+    rdfs:range bridge:CommodityAsset .
+
+bridge:depreciationSchedule rdf:type owl:ObjectProperty , owl:FunctionalProperty ;
+    rdfs:domain arden:AgriculturalEquipment ;
+    rdfs:range arden-tax:DepreciationSchedule .
+
+bridge:deductionFor rdf:type owl:ObjectProperty ;
+    rdfs:domain fibo:TaxDeduction ;
+    rdfs:range arden-ag:ConservationPractice .
+
+# DISJOINTNESS CONSTRAINTS FOR DATA QUALITY
+
+# Tax exemptions are disjoint from tax obligations
+arden-tax:TaxExemption owl:disjointWith arden-tax:TaxObligation .
+
+# Federal and private insurance programs are disjoint
+bridge:FederalInsuranceProgram owl:disjointWith bridge:PrivateInsuranceProgram .
+
+# Family employees and external employees are disjoint
+arden-labor:FarmFamilyEmployee owl:disjointWith arden-labor:ExternalFarmEmployee .

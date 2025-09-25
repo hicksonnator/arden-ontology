@@ -1,0 +1,310 @@
+@prefix : <https://arden.ag/ont/evidence#> .
+@prefix arden: <https://arden.ag/ont/core#> .
+@prefix arden-evidence: <https://arden.ag/ont/evidence#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix qudt: <http://qudt.org/schema/qudt/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# ==================================================
+# ARDEN EVIDENCE CHAIN TRACKING SYSTEM v1.3.0
+# ==================================================
+
+<https://arden.ag/ont/evidence#> a owl:Ontology ;
+    rdfs:label "Arden Evidence Chain Tracking Ontology"@en ;
+    rdfs:comment "Provides evidence chain tracking for critical agricultural finance decisions"@en ;
+    owl:versionInfo "1.3.0" ;
+    dct:created "2024-09-24"^^xsd:date .
+
+# CORE EVIDENCE CLASSES
+
+arden-evidence:Evidence a owl:Class ;
+    rdfs:label "Evidence"@en ;
+    rdfs:comment "A piece of information that supports or contradicts a claim or decision"@en ;
+    rdfs:subClassOf prov:Entity .
+
+arden-evidence:DocumentEvidence a owl:Class ;
+    rdfs:label "Document Evidence"@en ;
+    rdfs:comment "Evidence derived from official documents"@en ;
+    rdfs:subClassOf arden-evidence:Evidence .
+
+arden-evidence:DataEvidence a owl:Class ;
+    rdfs:label "Data Evidence"@en ;
+    rdfs:comment "Evidence derived from structured data sources"@en ;
+    rdfs:subClassOf arden-evidence:Evidence .
+
+arden-evidence:ExpertEvidence a owl:Class ;
+    rdfs:label "Expert Evidence"@en ;
+    rdfs:comment "Evidence provided by domain experts or advisors"@en ;
+    rdfs:subClassOf arden-evidence:Evidence .
+
+arden-evidence:RegulatoryEvidence a owl:Class ;
+    rdfs:label "Regulatory Evidence"@en ;
+    rdfs:comment "Evidence from official regulatory sources (USDA, IRS, etc.)"@en ;
+    rdfs:subClassOf arden-evidence:DocumentEvidence .
+
+arden-evidence:MarketEvidence a owl:Class ;
+    rdfs:label "Market Evidence"@en ;
+    rdfs:comment "Evidence from commodity markets, futures, pricing data"@en ;
+    rdfs:subClassOf arden-evidence:DataEvidence .
+
+# EVIDENCE AUTHORITY LEVELS
+
+arden-evidence:EvidenceAuthority a owl:Class ;
+    rdfs:label "Evidence Authority"@en ;
+    rdfs:comment "Classification of evidence source authority and reliability"@en .
+
+arden-evidence:GovernmentAuthority a arden-evidence:EvidenceAuthority ;
+    rdfs:label "Government Authority"@en ;
+    rdfs:comment "Official government sources (USDA, IRS, FSA, RMA)"@en .
+
+arden-evidence:IndustryAuthority a arden-evidence:EvidenceAuthority ;
+    rdfs:label "Industry Authority"@en ;
+    rdfs:comment "Recognized industry organizations (CME, Farm Credit, etc.)"@en .
+
+arden-evidence:AcademicAuthority a arden-evidence:EvidenceAuthority ;
+    rdfs:label "Academic Authority"@en ;
+    rdfs:comment "University extension services and research institutions"@en .
+
+arden-evidence:CommercialAuthority a arden-evidence:EvidenceAuthority ;
+    rdfs:label "Commercial Authority"@en ;
+    rdfs:comment "Commercial data providers and agricultural service companies"@en .
+
+# EVIDENCE PROPERTIES
+
+arden-evidence:confidence a owl:DatatypeProperty ;
+    rdfs:label "confidence"@en ;
+    rdfs:comment "Confidence level in the evidence (0.0-1.0)"@en ;
+    rdfs:domain arden-evidence:Evidence ;
+    rdfs:range xsd:decimal ;
+    rdfs:subPropertyOf qudt:numericValue .
+
+arden-evidence:authority a owl:ObjectProperty ;
+    rdfs:label "authority"@en ;
+    rdfs:comment "Authority level of the evidence source"@en ;
+    rdfs:domain arden-evidence:Evidence ;
+    rdfs:range arden-evidence:EvidenceAuthority .
+
+arden-evidence:sourceURL a owl:DatatypeProperty ;
+    rdfs:label "source URL"@en ;
+    rdfs:comment "Original URL or document reference for the evidence"@en ;
+    rdfs:domain arden-evidence:Evidence ;
+    rdfs:range xsd:anyURI .
+
+arden-evidence:textSpan a owl:DatatypeProperty ;
+    rdfs:label "text span"@en ;
+    rdfs:comment "Specific text excerpt that constitutes the evidence"@en ;
+    rdfs:domain arden-evidence:Evidence ;
+    rdfs:range xsd:string .
+
+arden-evidence:extractedOn a owl:DatatypeProperty ;
+    rdfs:label "extracted on"@en ;
+    rdfs:comment "Timestamp when evidence was extracted from source"@en ;
+    rdfs:domain arden-evidence:Evidence ;
+    rdfs:range xsd:dateTime .
+
+arden-evidence:validUntil a owl:DatatypeProperty ;
+    rdfs:label "valid until"@en ;
+    rdfs:comment "Expiration date of the evidence (for time-sensitive data)"@en ;
+    rdfs:domain arden-evidence:Evidence ;
+    rdfs:range xsd:dateTime .
+
+# EVIDENCE RELATIONSHIPS
+
+arden-evidence:supports a owl:ObjectProperty ;
+    rdfs:label "supports"@en ;
+    rdfs:comment "Evidence supports a particular claim or decision"@en ;
+    rdfs:domain arden-evidence:Evidence .
+
+arden-evidence:contradicts a owl:ObjectProperty ;
+    rdfs:label "contradicts"@en ;
+    rdfs:comment "Evidence contradicts a particular claim or decision"@en ;
+    rdfs:domain arden-evidence:Evidence ;
+    owl:propertyDisjointWith arden-evidence:supports .
+
+arden-evidence:corroborates a owl:ObjectProperty ;
+    rdfs:label "corroborates"@en ;
+    rdfs:comment "Evidence corroborates other evidence"@en ;
+    rdfs:domain arden-evidence:Evidence ;
+    rdfs:range arden-evidence:Evidence ;
+    owl:propertyChainAxiom ( arden-evidence:supports arden-evidence:supports ) .
+
+arden-evidence:derivedFrom a owl:ObjectProperty ;
+    rdfs:label "derived from"@en ;
+    rdfs:comment "Evidence derived from another piece of evidence"@en ;
+    rdfs:domain arden-evidence:Evidence ;
+    rdfs:range arden-evidence:Evidence ;
+    rdfs:subPropertyOf prov:wasDerivedFrom .
+
+# KILLER QUESTION SPECIFIC EVIDENCE CLASSES
+
+# KQ1: Family farm labor tax evidence
+arden-evidence:IRSLaborTaxEvidence a owl:Class ;
+    rdfs:label "IRS Labor Tax Evidence"@en ;
+    rdfs:comment "Evidence from IRS publications regarding farm family labor tax exemptions"@en ;
+    rdfs:subClassOf arden-evidence:RegulatoryEvidence .
+
+# KQ2: H-2A worker compliance evidence
+arden-evidence:DOLComplianceEvidence a owl:Class ;
+    rdfs:label "DOL Compliance Evidence"@en ;
+    rdfs:comment "Evidence from Department of Labor H-2A program requirements"@en ;
+    rdfs:subClassOf arden-evidence:RegulatoryEvidence .
+
+# KQ3: Commodity futures evidence
+arden-evidence:CommodityPriceEvidence a owl:Class ;
+    rdfs:label "Commodity Price Evidence"@en ;
+    rdfs:comment "Real-time commodity price evidence from exchanges"@en ;
+    rdfs:subClassOf arden-evidence:MarketEvidence .
+
+# KQ4: Cash flow projection evidence
+arden-evidence:CashFlowEvidence a owl:Class ;
+    rdfs:label "Cash Flow Evidence"@en ;
+    rdfs:comment "Evidence supporting cash flow projections and loan capacity"@en ;
+    rdfs:subClassOf arden-evidence:DataEvidence .
+
+# EVIDENCE CHAIN TRACKING
+
+arden-evidence:EvidenceChain a owl:Class ;
+    rdfs:label "Evidence Chain"@en ;
+    rdfs:comment "A connected sequence of evidence supporting a decision or recommendation"@en .
+
+arden-evidence:hasEvidenceChain a owl:ObjectProperty ;
+    rdfs:label "has evidence chain"@en ;
+    rdfs:comment "Links a decision or claim to its supporting evidence chain"@en ;
+    rdfs:range arden-evidence:EvidenceChain .
+
+arden-evidence:chainStrength a owl:DatatypeProperty ;
+    rdfs:label "chain strength"@en ;
+    rdfs:comment "Overall strength of evidence chain (weakest link principle)"@en ;
+    rdfs:domain arden-evidence:EvidenceChain ;
+    rdfs:range xsd:decimal .
+
+arden-evidence:chainCompleteness a owl:DatatypeProperty ;
+    rdfs:label "chain completeness"@en ;
+    rdfs:comment "Completeness of evidence chain (0.0-1.0)"@en ;
+    rdfs:domain arden-evidence:EvidenceChain ;
+    rdfs:range xsd:decimal .
+
+# EVIDENCE QUALITY METRICS
+
+arden-evidence:EvidenceQuality a owl:Class ;
+    rdfs:label "Evidence Quality"@en ;
+    rdfs:comment "Quality assessment for evidence"@en .
+
+arden-evidence:hasQuality a owl:ObjectProperty ;
+    rdfs:label "has quality"@en ;
+    rdfs:domain arden-evidence:Evidence ;
+    rdfs:range arden-evidence:EvidenceQuality .
+
+arden-evidence:recency a owl:DatatypeProperty ;
+    rdfs:label "recency"@en ;
+    rdfs:comment "How recent the evidence is (1.0 = current, 0.0 = very old)"@en ;
+    rdfs:domain arden-evidence:EvidenceQuality ;
+    rdfs:range xsd:decimal .
+
+arden-evidence:relevance a owl:DatatypeProperty ;
+    rdfs:label "relevance"@en ;
+    rdfs:comment "How relevant the evidence is to the question (0.0-1.0)"@en ;
+    rdfs:domain arden-evidence:EvidenceQuality ;
+    rdfs:range xsd:decimal .
+
+arden-evidence:specificity a owl:DatatypeProperty ;
+    rdfs:label "specificity"@en ;
+    rdfs:comment "How specific the evidence is to the context (0.0-1.0)"@en ;
+    rdfs:domain arden-evidence:EvidenceQuality ;
+    rdfs:range xsd:decimal .
+
+# EVIDENCE SOURCE TRACKING
+
+arden-evidence:EvidenceSource a owl:Class ;
+    rdfs:label "Evidence Source"@en ;
+    rdfs:comment "Source of evidence (document, database, expert, etc.)"@en ;
+    rdfs:subClassOf prov:Agent .
+
+arden-evidence:GovernmentSource a owl:Class ;
+    rdfs:label "Government Source"@en ;
+    rdfs:subClassOf arden-evidence:EvidenceSource ;
+    rdfs:subClassOf foaf:Organization .
+
+arden-evidence:MarketDataSource a owl:Class ;
+    rdfs:label "Market Data Source"@en ;
+    rdfs:subClassOf arden-evidence:EvidenceSource ;
+    rdfs:subClassOf foaf:Organization .
+
+arden-evidence:ExpertSource a owl:Class ;
+    rdfs:label "Expert Source"@en ;
+    rdfs:subClassOf arden-evidence:EvidenceSource ;
+    rdfs:subClassOf foaf:Person .
+
+arden-evidence:wasGeneratedBy a owl:ObjectProperty ;
+    rdfs:label "was generated by"@en ;
+    rdfs:domain arden-evidence:Evidence ;
+    rdfs:range arden-evidence:EvidenceSource ;
+    rdfs:subPropertyOf prov:wasGeneratedBy .
+
+# SPECIFIC SOURCE INSTANCES
+
+arden-evidence:USDA a arden-evidence:GovernmentSource ;
+    rdfs:label "United States Department of Agriculture" ;
+    foaf:homepage <https://www.usda.gov/> ;
+    arden-evidence:authority arden-evidence:GovernmentAuthority .
+
+arden-evidence:IRS a arden-evidence:GovernmentSource ;
+    rdfs:label "Internal Revenue Service" ;
+    foaf:homepage <https://www.irs.gov/> ;
+    arden-evidence:authority arden-evidence:GovernmentAuthority .
+
+arden-evidence:CME a arden-evidence:MarketDataSource ;
+    rdfs:label "Chicago Mercantile Exchange" ;
+    foaf:homepage <https://www.cmegroup.com/> ;
+    arden-evidence:authority arden-evidence:IndustryAuthority .
+
+arden-evidence:YahooFinance a arden-evidence:MarketDataSource ;
+    rdfs:label "Yahoo Finance" ;
+    foaf:homepage <https://finance.yahoo.com/> ;
+    arden-evidence:authority arden-evidence:CommercialAuthority .
+
+# EVIDENCE VALIDATION RULES
+
+# High-confidence evidence must have strong authority
+[ owl:equivalentClass [
+    owl:intersectionOf (
+        arden-evidence:Evidence
+        [ owl:hasValue arden-evidence:GovernmentAuthority ; owl:onProperty arden-evidence:authority ]
+    )
+] ;
+  rdfs:subClassOf [
+    owl:allValuesFrom [ owl:intersectionOf ( xsd:decimal [ owl:minInclusive "0.8"^^xsd:decimal ] ) ] ;
+    owl:onProperty arden-evidence:confidence
+] ] .
+
+# Recent evidence is preferred for time-sensitive decisions
+arden-evidence:TimelyEvidence a owl:Class ;
+    rdfs:label "Timely Evidence"@en ;
+    owl:equivalentClass [
+        owl:intersectionOf (
+            arden-evidence:Evidence
+            [ owl:someValuesFrom [
+                owl:intersectionOf (
+                    xsd:dateTime
+                    [ owl:minInclusive "2024-01-01T00:00:00Z"^^xsd:dateTime ]
+                )
+            ] ; owl:onProperty arden-evidence:extractedOn ]
+        )
+    ] .
+
+# PROPERTY CHARACTERISTICS
+
+arden-evidence:confidence rdf:type owl:FunctionalProperty .
+arden-evidence:authority rdf:type owl:FunctionalProperty .
+arden-evidence:extractedOn rdf:type owl:FunctionalProperty .
+arden-evidence:chainStrength rdf:type owl:FunctionalProperty .
+
+# DISJOINTNESS CONSTRAINTS
+
+arden-evidence:supports owl:disjointWith arden-evidence:contradicts .
+arden-evidence:GovernmentAuthority owl:disjointWith arden-evidence:CommercialAuthority .
+arden-evidence:DocumentEvidence owl:disjointWith arden-evidence:DataEvidence .

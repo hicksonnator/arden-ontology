@@ -1,0 +1,159 @@
+@prefix : <https://arden.ag/data/> .
+@prefix arden: <https://arden.ag/ont/core#> .
+@prefix arden-ag: <https://arden.ag/ont/ag#> .
+@prefix arden-crops: <https://arden.ag/ont/crops#> .
+@prefix sosa: <http://www.w3.org/ns/sosa/> .
+@prefix qudt: <http://qudt.org/schema/qudt/> .
+@prefix unit: <http://qudt.org/vocab/unit/> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix dcat: <http://www.w3.org/ns/dcat#> .
+
+# DCAT Dataset Metadata
+<https://arden.ag/datasets/nass-yield-2023> a dcat:Dataset ;
+  dct:title "USDA NASS Corn Yield (Iowa, 2023)"@en ;
+  dct:description "County-level 2023 corn yields, modeled as SOSA/QUDT observations."@en ;
+  dct:publisher "USDA NASS" ;
+  dct:source <https://quickstats.nass.usda.gov/> ;
+  dct:issued "2024-01-15"^^xsd:date ;
+  dct:spatial "Iowa, USA" ;
+  dct:temporal [
+    dct:startDate "2023-01-01"^^xsd:date ;
+    dct:endDate "2023-12-31"^^xsd:date
+  ] ;
+  dct:license <https://creativecommons.org/publicdomain/zero/1.0/> ;
+  dcat:keyword "agriculture", "corn", "yield", "iowa", "nass" ;
+  dcat:theme <http://publications.europa.eu/resource/authority/data-theme/AGRI> .
+
+# NASS 2023 Corn Yield Data (Iowa Counties)
+# Source: USDA NASS QuickStats - Public Domain
+# Commodity: CORN, Statistic: YIELD, Unit: BU / ACRE
+
+# Counties
+:fips_19153 a skos:Concept ;
+  skos:notation "19153" ;
+  skos:prefLabel "Polk County, IA"@en ;
+  skos:altLabel "POLK"@en .
+
+:fips_19169 a skos:Concept ;
+  skos:notation "19169" ;
+  skos:prefLabel "Story County, IA"@en ;
+  skos:altLabel "STORY"@en .
+
+:fips_19113 a skos:Concept ;
+  skos:notation "19113" ;
+  skos:prefLabel "Linn County, IA"@en ;
+  skos:altLabel "LINN"@en .
+
+:fips_19103 a skos:Concept ;
+  skos:notation "19103" ;
+  skos:prefLabel "Johnson County, IA"@en ;
+  skos:altLabel "JOHNSON"@en .
+
+# Crop Reference
+:crop_corn a arden-crops:CommercialCrop ;
+  skos:prefLabel "Corn"@en ;
+  skos:notation "CORN" ;
+  arden-crops:nassCropCode "CORN" ;
+  skos:closeMatch <http://aims.fao.org/aos/agrovoc/c_1972> .
+
+# NASS Data Source
+:nass_quickstats a <http://www.w3.org/ns/dcat#Dataset> ;
+  dct:title "USDA NASS QuickStats API"@en ;
+  dct:source <https://quickstats.nass.usda.gov/> ;
+  dct:publisher "USDA National Agricultural Statistics Service"@en .
+
+# Corn Yield Observations - Polk County, IA (19153)
+:yield_polk_2023 a arden-ag:YieldObservation ;
+  sosa:hasFeatureOfInterest :county_area_19153 ;
+  sosa:observedProperty :crop_corn ;
+  sosa:resultTime "2023-12-31T00:00:00Z"^^xsd:dateTime ;
+  sosa:hasResult [
+    a qudt:QuantityValue ;
+    qudt:numericValue "201.0"^^xsd:decimal ;
+    qudt:unit unit:BushelPerAcre
+  ] ;
+  arden:sourceSystemId "NASS_19153_CORN_2023" ;
+  dct:source :nass_quickstats .
+
+# Corn Yield Observations - Story County, IA (19169)
+:yield_story_2023 a arden-ag:YieldObservation ;
+  sosa:hasFeatureOfInterest :county_area_19169 ;
+  sosa:observedProperty :crop_corn ;
+  sosa:resultTime "2023-12-31T00:00:00Z"^^xsd:dateTime ;
+  sosa:hasResult [
+    a qudt:QuantityValue ;
+    qudt:numericValue "198.5"^^xsd:decimal ;
+    qudt:unit unit:BushelPerAcre
+  ] ;
+  arden:sourceSystemId "NASS_19169_CORN_2023" ;
+  dct:source :nass_quickstats .
+
+# Corn Yield Observations - Linn County, IA (19113)
+:yield_linn_2023 a arden-ag:YieldObservation ;
+  sosa:hasFeatureOfInterest :county_area_19113 ;
+  sosa:observedProperty :crop_corn ;
+  sosa:resultTime "2023-12-31T00:00:00Z"^^xsd:dateTime ;
+  sosa:hasResult [
+    a qudt:QuantityValue ;
+    qudt:numericValue "195.2"^^xsd:decimal ;
+    qudt:unit unit:BushelPerAcre
+  ] ;
+  arden:sourceSystemId "NASS_19113_CORN_2023" ;
+  dct:source :nass_quickstats .
+
+# Corn Yield Observations - Johnson County, IA (19103)
+:yield_johnson_2023 a arden-ag:YieldObservation ;
+  sosa:hasFeatureOfInterest :county_area_19103 ;
+  sosa:observedProperty :crop_corn ;
+  sosa:resultTime "2023-12-31T00:00:00Z"^^xsd:dateTime ;
+  sosa:hasResult [
+    a qudt:QuantityValue ;
+    qudt:numericValue "203.8"^^xsd:decimal ;
+    qudt:unit unit:BushelPerAcre
+  ] ;
+  arden:sourceSystemId "NASS_19103_CORN_2023" ;
+  dct:source :nass_quickstats .
+
+# County Agricultural Areas (representative parcels)
+:county_area_19153 a arden:FarmParcel ;
+  arden:locatedInCounty :fips_19153 ;
+  rdfs:label "Polk County Agricultural Area"@en .
+
+:county_area_19169 a arden:FarmParcel ;
+  arden:locatedInCounty :fips_19169 ;
+  rdfs:label "Story County Agricultural Area"@en .
+
+:county_area_19113 a arden:FarmParcel ;
+  arden:locatedInCounty :fips_19113 ;
+  rdfs:label "Linn County Agricultural Area"@en .
+
+:county_area_19103 a arden:FarmParcel ;
+  arden:locatedInCounty :fips_19103 ;
+  rdfs:label "Johnson County Agricultural Area"@en .
+
+# Historical Context (2022 for comparison)
+:yield_polk_2022 a arden-ag:YieldObservation ;
+  sosa:hasFeatureOfInterest :county_area_19153 ;
+  sosa:observedProperty :crop_corn ;
+  sosa:resultTime "2022-12-31T00:00:00Z"^^xsd:dateTime ;
+  sosa:hasResult [
+    a qudt:QuantityValue ;
+    qudt:numericValue "189.3"^^xsd:decimal ;
+    qudt:unit unit:BushelPerAcre
+  ] ;
+  arden:sourceSystemId "NASS_19153_CORN_2022" ;
+  dct:source :nass_quickstats .
+
+:yield_story_2022 a arden-ag:YieldObservation ;
+  sosa:hasFeatureOfInterest :county_area_19169 ;
+  sosa:observedProperty :crop_corn ;
+  sosa:resultTime "2022-12-31T00:00:00Z"^^xsd:dateTime ;
+  sosa:hasResult [
+    a qudt:QuantityValue ;
+    qudt:numericValue "185.7"^^xsd:decimal ;
+    qudt:unit unit:BushelPerAcre
+  ] ;
+  arden:sourceSystemId "NASS_19169_CORN_2022" ;
+  dct:source :nass_quickstats .

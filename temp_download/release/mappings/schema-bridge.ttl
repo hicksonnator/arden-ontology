@@ -1,0 +1,13 @@
+@prefix arden: <https://arden.ag/ont/core#> .
+@prefix arden-ag: <https://arden.ag/ont/ag#> .
+@prefix arden-fin: <https://arden.ag/ont/fin#> .
+@prefix schema: <https://schema.org/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+
+# Use cautious mappings; prefer skos:exactMatch/closeMatch over owl:equivalentClass unless identical.
+arden:FarmOperation rdfs:subClassOf schema:Organization .
+arden-ag:YieldObservation rdfs:subClassOf schema:Observation .
+arden-fin:AgriculturalLoan rdfs:subClassOf schema:LoanOrCredit .
+
+# Placeholder code-lists are handled in codes-bridge.ttl

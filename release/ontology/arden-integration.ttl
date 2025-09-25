@@ -14,13 +14,16 @@
 <https://arden.ag/ont/integration>
   a owl:Ontology ;
   rdfs:label "Arden Integration"@en ;
-  rdfs:comment "Patterns for integrating external data sources and APIs"@en ;
-  owl:versionInfo "v1.0" ;
+  rdfs:comment "Patterns for integrating external data sources and APIs, including real-time market data"@en ;
+  owl:versionInfo "v1.2.1" ;
   owl:imports <https://arden.ag/ont/core> ,
+              <https://arden.ag/ont/markets> ,
+              <https://arden.ag/ont/bridge/markets> ,
               <http://www.w3.org/ns/dcat#> ,
               <http://purl.org/dc/terms/> ,
               <http://www.w3.org/ns/prov-o-20130430> ,
-              <http://rdfs.org/ns/void#> .
+              <http://rdfs.org/ns/void#> ,
+              <http://www.w3.org/ns/sosa/> .
 
 ### Anchor Classes (production-tight minimal set)
 arden-int:ExternalDataset a owl:Class ;
@@ -37,10 +40,35 @@ arden-int:IngestionRun a owl:Class ;
   rdfs:label "Ingestion Run"@en ;
   rdfs:comment "Execution of data import process with provenance tracking"@en .
 
+# Data Source Classifications
+arden-int:ExternalDataSource a owl:Class ;
+  rdfs:label "External Data Source"@en ;
+  rdfs:comment "External source of agricultural or market data"@en .
+
+arden-int:GovernmentDataSource a owl:Class ;
+  rdfs:subClassOf arden-int:ExternalDataSource ;
+  rdfs:label "Government Data Source"@en ;
+  rdfs:comment "Government agency providing agricultural or economic data"@en .
+
+arden-int:CommercialDataSource a owl:Class ;
+  rdfs:subClassOf arden-int:ExternalDataSource ;
+  rdfs:label "Commercial Data Source"@en ;
+  rdfs:comment "Commercial data vendor or service provider"@en .
+
+arden-int:ExchangeDataSource a owl:Class ;
+  rdfs:subClassOf arden-int:ExternalDataSource ;
+  rdfs:label "Exchange Data Source"@en ;
+  rdfs:comment "Financial or commodity exchange providing market data"@en .
+
 arden-int:WeatherDataSource a owl:Class ;
   rdfs:subClassOf arden-int:ExternalDataSource ;
   rdfs:label "Weather Data Source"@en ;
   rdfs:comment "Weather and climate data service"@en .
+
+arden-int:MarketDataSource a owl:Class ;
+  rdfs:subClassOf arden-int:ExternalDataSource ;
+  rdfs:label "Market Data Source"@en ;
+  rdfs:comment "Provider of financial market and commodity pricing data"@en .
 
 ### Specific Data Sources (for integration planning)
 arden-int:USDA_NASS a owl:Class ;
@@ -63,6 +91,21 @@ arden-int:DTN_Market a owl:Class ;
   rdfs:label "DTN Market Data"@en ;
   rdfs:comment "DTN commodity pricing and weather services"@en .
 
+arden-int:YahooFinance a owl:Class ;
+  rdfs:subClassOf arden-int:CommercialDataSource ;
+  rdfs:label "Yahoo Finance API"@en ;
+  rdfs:comment "Yahoo Finance market data service for commodity futures and equities"@en .
+
+arden-int:BloombergAPI a owl:Class ;
+  rdfs:subClassOf arden-int:CommercialDataSource ;
+  rdfs:label "Bloomberg API"@en ;
+  rdfs:comment "Bloomberg Terminal and API market data service"@en .
+
+arden-int:CME_DataMine a owl:Class ;
+  rdfs:subClassOf arden-int:ExchangeDataSource ;
+  rdfs:label "CME DataMine"@en ;
+  rdfs:comment "Chicago Mercantile Exchange historical and real-time data"@en .
+
 ### Data Integration Patterns
 arden-int:DataFeed a owl:Class ;
   rdfs:label "Data Feed"@en ;
@@ -81,6 +124,32 @@ arden-int:StreamingFeed a owl:Class ;
 arden-int:APIEndpoint a owl:Class ;
   rdfs:label "API Endpoint"@en ;
   rdfs:comment "REST/GraphQL endpoint for data access"@en .
+
+### Market Data Integration Patterns
+arden-int:MarketDataFeed a owl:Class ;
+  rdfs:subClassOf arden-int:StreamingFeed ;
+  rdfs:label "Market Data Feed"@en ;
+  rdfs:comment "Real-time or near-real-time market pricing data stream"@en .
+
+arden-int:OHLCVFeed a owl:Class ;
+  rdfs:subClassOf arden-int:MarketDataFeed ;
+  rdfs:label "OHLCV Data Feed"@en ;
+  rdfs:comment "Daily Open, High, Low, Close, Volume market data feed"@en .
+
+arden-int:MarketSnapshotFeed a owl:Class ;
+  rdfs:subClassOf arden-int:MarketDataFeed ;
+  rdfs:label "Market Snapshot Feed"@en ;
+  rdfs:comment "Current market state snapshot data feed"@en .
+
+arden-int:CorporateActionsFeed a owl:Class ;
+  rdfs:subClassOf arden-int:BatchImport ;
+  rdfs:label "Corporate Actions Feed"@en ;
+  rdfs:comment "Dividend, split, and other corporate action data feed"@en .
+
+arden-int:YahooFinanceHarvester a owl:Class ;
+  rdfs:subClassOf arden-int:DataIngestionJob ;
+  rdfs:label "Yahoo Finance Harvester"@en ;
+  rdfs:comment "Scheduled job for harvesting Yahoo Finance market data"@en .
 
 ### Data Mapping & Transformation
 arden-int:DataMapping a owl:Class ;
@@ -263,3 +332,77 @@ arden-int:cacheHitRate a owl:DatatypeProperty ;
   rdfs:range xsd:decimal ;
   rdfs:label "cache hit rate"@en ;
   rdfs:comment "Percentage of requests served from cache"@en .
+
+### Market Data Integration Properties
+arden-int:symbolUniverse a owl:ObjectProperty ;
+  rdfs:domain arden-int:MarketDataFeed ;
+  rdfs:range arden-int:SymbolList ;
+  rdfs:label "symbol universe"@en ;
+  rdfs:comment "Set of market symbols covered by data feed"@en .
+
+arden-int:marketDataFrequency a owl:DatatypeProperty ;
+  rdfs:domain arden-int:MarketDataFeed ;
+  rdfs:range xsd:duration ;
+  rdfs:label "market data frequency"@en ;
+  rdfs:comment "How frequently market data is updated (e.g., PT1M for 1 minute)"@en .
+
+arden-int:backfillPeriod a owl:DatatypeProperty ;
+  rdfs:domain arden-int:MarketDataFeed ;
+  rdfs:range xsd:duration ;
+  rdfs:label "backfill period"@en ;
+  rdfs:comment "Historical data period to backfill (e.g., P10Y for 10 years)"@en .
+
+arden-int:priceValidationEnabled a owl:DatatypeProperty ;
+  rdfs:domain arden-int:MarketDataFeed ;
+  rdfs:range xsd:boolean ;
+  rdfs:label "price validation enabled"@en ;
+  rdfs:comment "Whether to perform price reasonableness validation on ingested data"@en .
+
+arden-int:corporateActionsEnabled a owl:DatatypeProperty ;
+  rdfs:domain arden-int:MarketDataFeed ;
+  rdfs:range xsd:boolean ;
+  rdfs:label "corporate actions enabled"@en ;
+  rdfs:comment "Whether to ingest corporate actions (dividends, splits, etc.)"@en .
+
+arden-int:yahooSymbolFormat a owl:DatatypeProperty ;
+  rdfs:domain arden-int:YahooFinanceHarvester ;
+  rdfs:range xsd:string ;
+  rdfs:label "Yahoo symbol format"@en ;
+  rdfs:comment "Symbol format used by Yahoo Finance (e.g., 'ZC=F' for futures)"@en .
+
+### Market Data Quality and Validation
+arden-int:SymbolList a owl:Class ;
+  rdfs:label "Symbol List"@en ;
+  rdfs:comment "Configured list of market symbols for data harvesting"@en .
+
+arden-int:MarketDataValidationRule a owl:Class ;
+  rdfs:label "Market Data Validation Rule"@en ;
+  rdfs:comment "Rule for validating incoming market data quality"@en .
+
+arden-int:PriceReasonablenessCheck a owl:Class ;
+  rdfs:subClassOf arden-int:MarketDataValidationRule ;
+  rdfs:label "Price Reasonableness Check"@en ;
+  rdfs:comment "Validation rule checking if prices fall within expected ranges"@en .
+
+arden-int:VolumeConsistencyCheck a owl:Class ;
+  rdfs:subClassOf arden-int:MarketDataValidationRule ;
+  rdfs:label "Volume Consistency Check"@en ;
+  rdfs:comment "Validation rule checking trading volume consistency"@en .
+
+arden-int:symbolGroup a owl:DatatypeProperty ;
+  rdfs:domain arden-int:SymbolList ;
+  rdfs:range xsd:string ;
+  rdfs:label "symbol group"@en ;
+  rdfs:comment "Group category for symbols (futures, equities, forex, etc.)"@en .
+
+arden-int:minPrice a owl:DatatypeProperty ;
+  rdfs:domain arden-int:PriceReasonablenessCheck ;
+  rdfs:range xsd:decimal ;
+  rdfs:label "minimum price"@en ;
+  rdfs:comment "Minimum reasonable price for validation"@en .
+
+arden-int:maxPrice a owl:DatatypeProperty ;
+  rdfs:domain arden-int:PriceReasonablenessCheck ;
+  rdfs:range xsd:decimal ;
+  rdfs:label "maximum price"@en ;
+  rdfs:comment "Maximum reasonable price for validation"@en .

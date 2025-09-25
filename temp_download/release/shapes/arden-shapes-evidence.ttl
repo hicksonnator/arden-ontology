@@ -1,0 +1,399 @@
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix arden: <https://arden.ag/ont/core#> .
+@prefix arden-evidence: <https://arden.ag/ont/evidence#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# ==================================================
+# EVIDENCE CHAIN SHACL VALIDATION FOR ARDEN v1.3.0
+# ==================================================
+
+# EVIDENCE MANDATORY PROPERTIES
+
+arden-evidence:EvidenceMandatoryProperties a sh:NodeShape ;
+    sh:targetClass arden-evidence:Evidence ;
+    rdfs:label "Evidence Mandatory Properties Validation" ;
+
+    # Every evidence must have confidence score
+    sh:property [
+        sh:path arden-evidence:confidence ;
+        sh:datatype xsd:decimal ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 1.0 ;
+        sh:message "Evidence must have confidence score between 0.0 and 1.0"
+    ] ;
+
+    # Every evidence must have authority level
+    sh:property [
+        sh:path arden-evidence:authority ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:class arden-evidence:EvidenceAuthority ;
+        sh:message "Evidence must specify authority level"
+    ] ;
+
+    # Every evidence must have source
+    sh:property [
+        sh:path arden-evidence:wasGeneratedBy ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:class arden-evidence:EvidenceSource ;
+        sh:message "Evidence must have identifiable source"
+    ] ;
+
+    # Every evidence must have extraction timestamp
+    sh:property [
+        sh:path arden-evidence:extractedOn ;
+        sh:datatype xsd:dateTime ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Evidence must have extraction timestamp"
+    ] .
+
+# HIGH-STAKES DECISION EVIDENCE REQUIREMENTS
+
+arden-evidence:HighStakesEvidenceRequirements a sh:NodeShape ;
+    sh:targetClass arden:HighStakesDecision ;
+    rdfs:label "High Stakes Decision Evidence Requirements" ;
+
+    # High-stakes decisions require evidence chain
+    sh:property [
+        sh:path arden-evidence:hasEvidenceChain ;
+        sh:minCount 1 ;
+        sh:class arden-evidence:EvidenceChain ;
+        sh:message "High-stakes decision must have evidence chain"
+    ] ;
+
+    # Evidence chain must meet minimum strength threshold
+    sh:sparql [
+        sh:message "Evidence chain too weak for high-stakes decision" ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this arden-evidence:hasEvidenceChain ?chain .
+                ?chain arden-evidence:chainStrength ?strength .
+                FILTER (?strength < 0.7)  # Minimum 70% strength for high-stakes
+            }
+        """
+    ] ;
+
+    # Must have at least 2 independent evidence sources
+    sh:sparql [
+        sh:message "High-stakes decision requires multiple independent evidence sources" ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this arden-evidence:hasEvidenceChain ?chain .
+
+                {
+                    SELECT ?chain (COUNT(DISTINCT ?source) AS ?sourceCount)
+                    WHERE {
+                        ?chain arden-evidence:includes ?evidence .
+                        ?evidence arden-evidence:wasGeneratedBy ?source .
+                    }
+                    GROUP BY ?chain
+                }
+
+                FILTER (?sourceCount < 2)
+            }
+        """
+    ] .
+
+# KILLER QUESTION EVIDENCE VALIDATION
+
+# KQ1: Family farm labor tax decisions require IRS evidence
+arden-evidence:FamilyLaborTaxEvidenceRequirement a sh:NodeShape ;
+    sh:targetClass arden:FamilyLaborTaxDecision ;
+    rdfs:label "KQ1: Family Labor Tax Evidence Requirement" ;
+
+    sh:sparql [
+        sh:message "Family labor tax decision requires IRS regulatory evidence" ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this arden-evidence:hasEvidenceChain ?chain .
+
+                # Must include IRS evidence
+                FILTER NOT EXISTS {
+                    ?chain arden-evidence:includes ?evidence .
+                    ?evidence a arden-evidence:IRSLaborTaxEvidence ;
+                              arden-evidence:wasGeneratedBy arden-evidence:IRS .
+                }
+            }
+        """
+    ] ;
+
+    # Must have recent evidence (within 2 years for tax rules)
+    sh:sparql [
+        sh:message "Family labor tax evidence is outdated" ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this arden-evidence:hasEvidenceChain ?chain .
+                ?chain arden-evidence:includes ?evidence .
+                ?evidence a arden-evidence:IRSLaborTaxEvidence ;
+                          arden-evidence:extractedOn ?timestamp .
+
+                FILTER (?timestamp < (NOW() - "P730D"^^xsd:duration))  # 2 years
+            }
+        """
+    ] .
+
+# KQ2: H-2A worker decisions require DOL compliance evidence
+arden-evidence:H2AWorkerComplianceEvidenceRequirement a sh:NodeShape ;
+    sh:targetClass arden:H2AWorkerDecision ;
+    rdfs:label "KQ2: H-2A Worker Compliance Evidence Requirement" ;
+
+    sh:sparql [
+        sh:message "H-2A worker decision requires current DOL compliance evidence" ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this arden-evidence:hasEvidenceChain ?chain .
+
+                # Must include DOL evidence
+                FILTER NOT EXISTS {
+                    ?chain arden-evidence:includes ?evidence .
+                    ?evidence a arden-evidence:DOLComplianceEvidence ;
+                              arden-evidence:confidence ?conf .
+                    FILTER (?conf >= 0.8)  # High confidence required for compliance
+                }
+            }
+        """
+    ] .
+
+# KQ3: Grain futures collateral decisions require real-time market evidence
+arden-evidence:GrainFuturesCollateralEvidenceRequirement a sh:NodeShape ;
+    sh:targetClass arden:GrainCollateralDecision ;
+    rdfs:label "KQ3: Grain Futures Collateral Evidence Requirement" ;
+
+    sh:sparql [
+        sh:message "Grain collateral decision requires current market price evidence" ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this arden-evidence:hasEvidenceChain ?chain .
+
+                # Must include recent commodity price evidence
+                FILTER NOT EXISTS {
+                    ?chain arden-evidence:includes ?evidence .
+                    ?evidence a arden-evidence:CommodityPriceEvidence ;
+                              arden-evidence:extractedOn ?timestamp .
+                    FILTER (?timestamp > (NOW() - "PT24H"^^xsd:duration))  # Within 24 hours
+                }
+            }
+        """
+    ] ;
+
+    # Price evidence must be from recognized exchange
+    sh:sparql [
+        sh:message "Commodity price evidence must be from recognized exchange" ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this arden-evidence:hasEvidenceChain ?chain .
+                ?chain arden-evidence:includes ?evidence .
+                ?evidence a arden-evidence:CommodityPriceEvidence ;
+                          arden-evidence:wasGeneratedBy ?source .
+
+                FILTER (?source NOT IN (arden-evidence:CME, arden-evidence:YahooFinance))
+            }
+        """
+    ] .
+
+# KQ4: Operating loan capacity decisions require cash flow evidence
+arden-evidence:OperatingLoanCapacityEvidenceRequirement a sh:NodeShape ;
+    sh:targetClass arden:LoanCapacityDecision ;
+    rdfs:label "KQ4: Operating Loan Capacity Evidence Requirement" ;
+
+    sh:sparql [
+        sh:message "Loan capacity decision requires comprehensive cash flow evidence" ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this arden-evidence:hasEvidenceChain ?chain .
+
+                # Count required evidence types
+                {
+                    SELECT ?chain (COUNT(DISTINCT ?evidenceType) AS ?typeCount)
+                    WHERE {
+                        ?chain arden-evidence:includes ?evidence .
+
+                        # Yield evidence
+                        { ?evidence a arden-evidence:YieldEvidence . BIND("yield" AS ?evidenceType) }
+                        UNION
+                        # Input cost evidence
+                        { ?evidence a arden-evidence:InputCostEvidence . BIND("input-cost" AS ?evidenceType) }
+                        UNION
+                        # Market price evidence
+                        { ?evidence a arden-evidence:CommodityPriceEvidence . BIND("price" AS ?evidenceType) }
+                        UNION
+                        # Historical cash flow evidence
+                        { ?evidence a arden-evidence:CashFlowEvidence . BIND("cash-flow" AS ?evidenceType) }
+                    }
+                    GROUP BY ?chain
+                }
+
+                # Require at least 3 of 4 evidence types
+                FILTER (?typeCount < 3)
+            }
+        """
+    ] .
+
+# EVIDENCE QUALITY VALIDATION
+
+arden-evidence:EvidenceQualityValidation a sh:NodeShape ;
+    sh:targetClass arden-evidence:Evidence ;
+    rdfs:label "Evidence Quality Validation" ;
+
+    # Government evidence should have high confidence
+    sh:sparql [
+        sh:message "Government evidence has unexpectedly low confidence score" ;
+        sh:severity sh:Warning ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this arden-evidence:authority arden-evidence:GovernmentAuthority ;
+                      arden-evidence:confidence ?conf .
+                FILTER (?conf < 0.8)
+            }
+        """
+    ] ;
+
+    # Commercial evidence should not exceed confidence limits
+    sh:sparql [
+        sh:message "Commercial evidence confidence score too high - verify source quality" ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this arden-evidence:authority arden-evidence:CommercialAuthority ;
+                      arden-evidence:confidence ?conf .
+                FILTER (?conf > 0.9)
+            }
+        """
+    ] ;
+
+    # Evidence older than 5 years should be flagged
+    sh:sparql [
+        sh:message "Evidence is very old - consider updating" ;
+        sh:severity sh:Warning ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this arden-evidence:extractedOn ?timestamp .
+                FILTER (?timestamp < (NOW() - "P1825D"^^xsd:duration))  # 5 years
+            }
+        """
+    ] .
+
+# EVIDENCE CHAIN COMPLETENESS VALIDATION
+
+arden-evidence:EvidenceChainCompleteness a sh:NodeShape ;
+    sh:targetClass arden-evidence:EvidenceChain ;
+    rdfs:label "Evidence Chain Completeness Validation" ;
+
+    # Evidence chain must have minimum completeness score
+    sh:property [
+        sh:path arden-evidence:chainCompleteness ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.6 ;  # Minimum 60% completeness
+        sh:message "Evidence chain completeness below minimum threshold (60%)"
+    ] ;
+
+    # Evidence chain must not have contradictory evidence without resolution
+    sh:sparql [
+        sh:message "Evidence chain contains unresolved contradictory evidence" ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this arden-evidence:includes ?evidence1, ?evidence2 .
+                ?evidence1 arden-evidence:supports ?claim .
+                ?evidence2 arden-evidence:contradicts ?claim .
+
+                # No resolution evidence found
+                FILTER NOT EXISTS {
+                    $this arden-evidence:includes ?resolution .
+                    ?resolution arden-evidence:resolves ?evidence1, ?evidence2 .
+                }
+            }
+        """
+    ] ;
+
+    # Evidence chain strength must be calculated correctly (weakest link)
+    sh:sparql [
+        sh:message "Evidence chain strength calculation inconsistent" ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this arden-evidence:chainStrength ?chainStrength ;
+                      arden-evidence:includes ?evidence .
+
+                {
+                    SELECT ?this (MIN(?conf) AS ?minConfidence)
+                    WHERE {
+                        $this arden-evidence:includes ?evidence .
+                        ?evidence arden-evidence:confidence ?conf .
+                    }
+                    GROUP BY $this
+                }
+
+                # Chain strength should equal minimum evidence confidence
+                FILTER (ABS(?chainStrength - ?minConfidence) > 0.01)
+            }
+        """
+    ] .
+
+# REAL-TIME EVIDENCE VALIDATION
+
+arden-evidence:RealTimeEvidenceValidation a sh:NodeShape ;
+    sh:targetClass arden-evidence:MarketEvidence ;
+    rdfs:label "Real-Time Market Evidence Validation" ;
+
+    # Market evidence must be recent
+    sh:property [
+        sh:path arden-evidence:extractedOn ;
+        sh:sparql [
+            sh:select """
+                SELECT $this
+                WHERE {
+                    $this arden-evidence:extractedOn ?timestamp .
+                    FILTER (?timestamp < (NOW() - "PT4H"^^xsd:duration))  # Max 4 hours old
+                }
+            """ ;
+            sh:message "Market evidence is stale (>4 hours old)"
+        ]
+    ] ;
+
+    # Market evidence must have valid until timestamp
+    sh:property [
+        sh:path arden-evidence:validUntil ;
+        sh:minCount 1 ;
+        sh:datatype xsd:dateTime ;
+        sh:message "Market evidence must specify validity period"
+    ] .
+
+# TEXT SPAN EVIDENCE VALIDATION
+
+arden-evidence:TextSpanEvidenceValidation a sh:NodeShape ;
+    sh:targetClass arden-evidence:DocumentEvidence ;
+    rdfs:label "Text Span Evidence Validation" ;
+
+    # Document evidence should have text span
+    sh:property [
+        sh:path arden-evidence:textSpan ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 10 ;  # Minimum meaningful text length
+        sh:message "Document evidence must include relevant text span (min 10 characters)"
+    ] ;
+
+    # Source URL should be valid
+    sh:property [
+        sh:path arden-evidence:sourceURL ;
+        sh:minCount 1 ;
+        sh:datatype xsd:anyURI ;
+        sh:pattern "^https?://" ;
+        sh:message "Document evidence must have valid HTTP/HTTPS source URL"
+    ] .

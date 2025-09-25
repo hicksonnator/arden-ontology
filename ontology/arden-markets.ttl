@@ -19,7 +19,7 @@
     rdfs:comment "Market data vocabulary for agricultural financial instruments, commodities, and real-time pricing integration"@en ;
     dct:created "2025-09-25"^^xsd:date ;
     dct:modified "2025-09-25"^^xsd:date ;
-    owl:versionInfo "1.2.1" ;
+    owl:versionInfo "1.2.2" ;
     owl:imports <https://arden.ag/ont/core> ,
                 <https://arden.ag/ont/fin> ,
                 <https://arden.ag/ont/crops> ,

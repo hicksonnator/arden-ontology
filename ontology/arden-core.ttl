@@ -8,7 +8,7 @@
   a owl:Ontology ;
   rdfs:label "Arden Core"@en ;
   rdfs:comment "Core entities and relations across ag/finance/geo."@en ;
-  owl:versionInfo "v1.1" .
+  owl:versionInfo "v1.2.2" .
 
 ### Core classes
 arden:FarmOperation a owl:Class ;

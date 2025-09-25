@@ -1,0 +1,352 @@
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+
+@prefix arden: <https://arden.ag/ont/core#> .
+@prefix arden-geo: <https://arden.ag/ont/geo#> .
+@prefix usda-soil: <https://arden.ag/ont/soil/usda#> .
+
+# ===================================================================
+# SHACL Shapes for Soil Data Validation
+# ===================================================================
+#
+# Validates farm parcel soil classifications, soil property measurements,
+# and USDA Soil Taxonomy concept scheme compliance.
+#
+# L1: Permissive (warnings)
+# L2: Production-ready (errors)
+# L3: Enterprise-strict (blocking)
+#
+# Created: 2024-09-19 for Arden v1.2.0
+# ===================================================================
+
+<https://arden.ag/ont/shapes/soil> a owl:Ontology ;
+    rdfs:label "Arden Soil Validation Shapes"@en ;
+    rdfs:comment "SHACL shapes for validating soil classification and property data."@en .
+
+# ===================================================================
+# FARM PARCEL SOIL REQUIREMENTS
+# ===================================================================
+
+arden:FarmParcelSoilShape a sh:NodeShape ;
+    sh:targetClass arden:FarmParcel ;
+    rdfs:label "Farm Parcel Soil Shape"@en ;
+
+    # L2: Farm parcel must have soil information
+    sh:property [
+        sh:path arden-geo:hasSoil ;
+        sh:minCount 1 ;
+        sh:class arden-geo:Soil ;
+        sh:severity sh:Violation ;
+        sh:message "Farm parcel must have at least one soil classification"@en
+    ] .
+
+# ===================================================================
+# SOIL CLASSIFICATION SHAPES
+# ===================================================================
+
+arden:SoilShape a sh:NodeShape ;
+    sh:targetClass arden-geo:Soil ;
+    rdfs:label "Soil Shape"@en ;
+
+    # L2: Soil must have USDA taxonomy classification
+    sh:property [
+        sh:path arden-geo:hasSoilClassification ;
+        sh:minCount 1 ;
+        sh:severity sh:Violation ;
+        sh:message "Soil must have USDA Soil Taxonomy classification"@en
+    ] ;
+
+    # L2: Soil classification must be from USDA taxonomy scheme
+    sh:property [
+        sh:path arden-geo:hasSoilClassification ;
+        sh:qualifiedValueShape [
+            sh:property [
+                sh:path skos:inScheme ;
+                sh:hasValue usda-soil:SoilTaxonomy
+            ]
+        ] ;
+        sh:qualifiedMinCount 1 ;
+        sh:severity sh:Violation ;
+        sh:message "Soil classification must be from USDA Soil Taxonomy scheme"@en
+    ] .
+
+# Validate soil classification is one of the 12 orders
+arden:SoilOrderShape a sh:NodeShape ;
+    sh:targetClass arden-geo:Soil ;
+    rdfs:label "Soil Order Shape"@en ;
+
+    # L2: Soil classification should be one of the 12 USDA orders
+    sh:property [
+        sh:path arden-geo:hasSoilClassification ;
+        sh:in (
+            usda-soil:Alfisols
+            usda-soil:Andisols
+            usda-soil:Aridisols
+            usda-soil:Entisols
+            usda-soil:Gelisols
+            usda-soil:Histosols
+            usda-soil:Inceptisols
+            usda-soil:Mollisols
+            usda-soil:Oxisols
+            usda-soil:Spodosols
+            usda-soil:Ultisols
+            usda-soil:Vertisols
+        ) ;
+        sh:severity sh:Warning ;
+        sh:message "Soil classification should be one of the 12 USDA soil orders"@en
+    ] .
+
+# ===================================================================
+# SOIL PROPERTY VALIDATION
+# ===================================================================
+
+arden:SoilPropertyShape a sh:NodeShape ;
+    sh:targetClass arden-geo:Soil ;
+    rdfs:label "Soil Property Shape"@en ;
+
+    # L2: Soil pH must be between 0 and 14
+    sh:property [
+        sh:path arden-geo:hasSoilPH ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 14.0 ;
+        sh:severity sh:Violation ;
+        sh:message "Soil pH must be between 0.0 and 14.0"@en
+    ] ;
+
+    # L2: Organic matter content must be between 0 and 20%
+    sh:property [
+        sh:path arden-geo:hasOrganicMatterContent ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 20.0 ;
+        sh:severity sh:Violation ;
+        sh:message "Organic matter content must be between 0% and 20%"@en
+    ] ;
+
+    # L1: Soil should have texture classification
+    sh:property [
+        sh:path arden-geo:hasSoilTexture ;
+        sh:maxCount 1 ;
+        sh:class arden-geo:SoilTexture ;
+        sh:severity sh:Warning ;
+        sh:message "Soil should have texture classification"@en
+    ] ;
+
+    # L1: Soil should have drainage classification
+    sh:property [
+        sh:path arden-geo:hasDrainageClass ;
+        sh:maxCount 1 ;
+        sh:class arden-geo:DrainageClass ;
+        sh:severity sh:Warning ;
+        sh:message "Soil should have drainage classification"@en
+    ] .
+
+# ===================================================================
+# SOIL TEXTURE VALIDATION
+# ===================================================================
+
+arden:SoilTextureShape a sh:NodeShape ;
+    sh:targetClass arden-geo:SoilTexture ;
+    rdfs:label "Soil Texture Shape"@en ;
+
+    # L2: Soil texture must have label
+    sh:property [
+        sh:path rdfs:label ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string ;
+        sh:severity sh:Violation ;
+        sh:message "Soil texture must have label"@en
+    ] .
+
+# Validate common soil textures
+arden:CommonSoilTextureShape a sh:NodeShape ;
+    sh:targetNode arden-geo:SoilTexture ;
+    rdfs:label "Common Soil Texture Shape"@en ;
+
+    # L1: Should use standard texture classes
+    sh:in (
+        arden-geo:SandyLoam
+        arden-geo:SiltLoam
+        arden-geo:ClayLoam
+        arden-geo:Loam
+        arden-geo:Sand
+        arden-geo:Silt
+        arden-geo:Clay
+        arden-geo:SandyClay
+        arden-geo:SiltyClay
+        arden-geo:SandyClayLoam
+        arden-geo:SiltyClayLoam
+    ) ;
+    sh:severity sh:Info ;
+    sh:message "Consider using standard USDA soil texture classes"@en .
+
+# ===================================================================
+# DRAINAGE CLASS VALIDATION
+# ===================================================================
+
+arden:DrainageClassShape a sh:NodeShape ;
+    sh:targetClass arden-geo:DrainageClass ;
+    rdfs:label "Drainage Class Shape"@en ;
+
+    # L2: Drainage class must have label
+    sh:property [
+        sh:path rdfs:label ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string ;
+        sh:severity sh:Violation ;
+        sh:message "Drainage class must have label"@en
+    ] .
+
+# Validate standard drainage classes
+arden:StandardDrainageShape a sh:NodeShape ;
+    sh:targetNode arden-geo:DrainageClass ;
+    rdfs:label "Standard Drainage Shape"@en ;
+
+    # L1: Should use standard drainage classes
+    sh:in (
+        arden-geo:WellDrained
+        arden-geo:ModeratelyWellDrained
+        arden-geo:SomewhatPoorlyDrained
+        arden-geo:PoorlyDrained
+        arden-geo:VeryPoorlyDrained
+        arden-geo:ExcessivelyDrained
+    ) ;
+    sh:severity sh:Info ;
+    sh:message "Consider using standard USDA drainage classes"@en .
+
+# ===================================================================
+# SOIL MEASUREMENT VALIDATION
+# ===================================================================
+
+arden:SoilMeasurementShape a sh:NodeShape ;
+    sh:targetClass arden-geo:SoilMeasurement ;
+    rdfs:label "Soil Measurement Shape"@en ;
+
+    # L2: Must specify what soil property is measured
+    sh:property [
+        sh:path arden-geo:measuresSoilProperty ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:severity sh:Violation ;
+        sh:message "Soil measurement must specify the soil property being measured"@en
+    ] ;
+
+    # L2: Must have numeric value
+    sh:property [
+        sh:path arden:hasValue ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:decimal ;
+        sh:severity sh:Violation ;
+        sh:message "Soil measurement must have numeric value"@en
+    ] ;
+
+    # L2: Must have unit of measure
+    sh:property [
+        sh:path arden:hasUnit ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:severity sh:Violation ;
+        sh:message "Soil measurement must specify unit of measure"@en
+    ] ;
+
+    # L1: Should have measurement date
+    sh:property [
+        sh:path arden:hasMeasurementDate ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:date ;
+        sh:severity sh:Warning ;
+        sh:message "Soil measurement should have measurement date"@en
+    ] .
+
+# ===================================================================
+# SOIL CHEMISTRY VALIDATION
+# ===================================================================
+
+arden:SoilChemistryShape a sh:NodeShape ;
+    sh:targetClass arden-geo:SoilChemistryMeasurement ;
+    rdfs:label "Soil Chemistry Shape"@en ;
+
+    # Nutrient levels should be non-negative
+    sh:property [
+        sh:path arden:hasValue ;
+        sh:minInclusive 0.0 ;
+        sh:severity sh:Warning ;
+        sh:message "Soil nutrient levels should be non-negative"@en
+    ] .
+
+# Specific chemistry validations
+arden:PhosphorusLevelShape a sh:NodeShape ;
+    sh:targetClass arden-geo:SoilMeasurement ;
+    sh:condition [
+        sh:property [
+            sh:path arden-geo:measuresSoilProperty ;
+            sh:hasValue arden-geo:PhosphorusLevel
+        ]
+    ] ;
+    rdfs:label "Phosphorus Level Shape"@en ;
+
+    # L1: Phosphorus typically measured in ppm, reasonable range
+    sh:property [
+        sh:path arden:hasValue ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 200.0 ;
+        sh:severity sh:Warning ;
+        sh:message "Phosphorus level appears unusually high (>200 ppm)"@en
+    ] .
+
+arden:PotassiumLevelShape a sh:NodeShape ;
+    sh:targetClass arden-geo:SoilMeasurement ;
+    sh:condition [
+        sh:property [
+            sh:path arden-geo:measuresSoilProperty ;
+            sh:hasValue arden-geo:PotassiumLevel
+        ]
+    ] ;
+    rdfs:label "Potassium Level Shape"@en ;
+
+    # L1: Potassium typically measured in ppm, reasonable range
+    sh:property [
+        sh:path arden:hasValue ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 500.0 ;
+        sh:severity sh:Warning ;
+        sh:message "Potassium level appears unusually high (>500 ppm)"@en
+    ] .
+
+# ===================================================================
+# SPATIAL SOIL VALIDATION
+# ===================================================================
+
+arden:SpatialSoilShape a sh:NodeShape ;
+    sh:targetClass arden:FarmParcel ;
+    rdfs:label "Spatial Soil Shape"@en ;
+
+    # L1: Large parcels should have multiple soil samples
+    sh:sparql [
+        sh:select """
+            SELECT $this ?area
+            WHERE {
+                $this arden-geo:hasArea ?area ;
+                      arden-geo:hasSoil ?soil .
+                FILTER (?area > 100.0)  # acres
+                {
+                    SELECT $this (COUNT(?soil) AS ?soilCount)
+                    WHERE {
+                        $this arden-geo:hasSoil ?soil .
+                    }
+                    GROUP BY $this
+                    HAVING (?soilCount < 2)
+                }
+            }
+        """ ;
+        sh:severity sh:Info ;
+        sh:message "Large parcels (>100 acres) should have multiple soil samples"@en
+    ] .

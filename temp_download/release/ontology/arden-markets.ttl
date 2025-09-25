@@ -1,0 +1,530 @@
+@prefix arden-markets: <https://arden.ag/ont/markets#> .
+@prefix arden: <https://arden.ag/ont/core#> .
+@prefix arden-fin: <https://arden.ag/ont/fin#> .
+@prefix arden-crops: <https://arden.ag/ont/crops#> .
+@prefix fibo: <https://spec.edmcouncil.org/fibo/ontology/> .
+@prefix sosa: <http://www.w3.org/ns/sosa/> .
+@prefix time: <http://www.w3.org/2006/time#> .
+@prefix qudt: <http://qudt.org/schema/qudt/> .
+@prefix unit: <http://qudt.org/vocab/unit/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+
+<https://arden.ag/ont/markets> a owl:Ontology ;
+    rdfs:label "Arden Markets Ontology"@en ;
+    rdfs:comment "Market data vocabulary for agricultural financial instruments, commodities, and real-time pricing integration"@en ;
+    dct:created "2025-09-25"^^xsd:date ;
+    dct:modified "2025-09-25"^^xsd:date ;
+    owl:versionInfo "1.2.1" ;
+    owl:imports <https://arden.ag/ont/core> ,
+                <https://arden.ag/ont/fin> ,
+                <https://arden.ag/ont/crops> ,
+                <http://www.w3.org/ns/sosa/> ,
+                <http://www.w3.org/2006/time> ,
+                <http://qudt.org/schema/qudt> .
+
+# =============================================================================
+# MARKET INSTRUMENTS HIERARCHY
+# =============================================================================
+
+arden-markets:MarketInstrument a owl:Class ;
+    rdfs:subClassOf arden-fin:FinancialAsset ;
+    rdfs:label "Market Instrument"@en ;
+    rdfs:comment "Tradeable financial instrument with market pricing and liquidity"@en .
+
+# Instrument Classifications
+arden-markets:Future a owl:Class ;
+    rdfs:subClassOf arden-markets:MarketInstrument ;
+    rdfs:label "Future Contract"@en ;
+    rdfs:comment "Standardized contract to buy/sell commodity or financial asset at future date"@en .
+
+arden-markets:CommodityFuture a owl:Class ;
+    rdfs:subClassOf arden-markets:Future ;
+    rdfs:label "Commodity Future"@en ;
+    rdfs:comment "Futures contract for agricultural, energy, or metals commodities"@en .
+
+arden-markets:ForexPair a owl:Class ;
+    rdfs:subClassOf arden-markets:MarketInstrument ;
+    rdfs:label "Foreign Exchange Pair"@en ;
+    rdfs:comment "Currency exchange rate between two currencies"@en .
+
+arden-markets:Index a owl:Class ;
+    rdfs:subClassOf arden-markets:MarketInstrument ;
+    rdfs:label "Market Index"@en ;
+    rdfs:comment "Statistical measure of changes in portfolio of representative stocks or bonds"@en .
+
+arden-markets:Equity a owl:Class ;
+    rdfs:subClassOf arden-markets:MarketInstrument ;
+    rdfs:label "Equity Security"@en ;
+    rdfs:comment "Stock or share representing ownership interest in corporation"@en .
+
+arden-markets:ETF a owl:Class ;
+    rdfs:subClassOf arden-markets:MarketInstrument ;
+    rdfs:label "Exchange-Traded Fund"@en ;
+    rdfs:comment "Investment fund traded on stock exchanges like individual stocks"@en .
+
+arden-markets:RateInstrument a owl:Class ;
+    rdfs:subClassOf arden-markets:MarketInstrument ;
+    rdfs:label "Interest Rate Instrument"@en ;
+    rdfs:comment "Financial instrument whose value is tied to interest rates"@en .
+
+# Agricultural Commodity Futures (Specific Types)
+arden-markets:CornFuture a owl:Class ;
+    rdfs:subClassOf arden-markets:CommodityFuture ;
+    rdfs:label "Corn Future Contract"@en ;
+    rdfs:comment "Standardized futures contract for corn commodity trading"@en .
+
+arden-markets:SoybeanFuture a owl:Class ;
+    rdfs:subClassOf arden-markets:CommodityFuture ;
+    rdfs:label "Soybean Future Contract"@en ;
+    rdfs:comment "Standardized futures contract for soybean commodity trading"@en .
+
+arden-markets:WheatFuture a owl:Class ;
+    rdfs:subClassOf arden-markets:CommodityFuture ;
+    rdfs:label "Wheat Future Contract"@en ;
+    rdfs:comment "Standardized futures contract for wheat commodity trading"@en .
+
+arden-markets:CottonFuture a owl:Class ;
+    rdfs:subClassOf arden-markets:CommodityFuture ;
+    rdfs:label "Cotton Future Contract"@en ;
+    rdfs:comment "Standardized futures contract for cotton commodity trading"@en .
+
+arden-markets:LivestockFuture a owl:Class ;
+    rdfs:subClassOf arden-markets:CommodityFuture ;
+    rdfs:label "Livestock Future Contract"@en ;
+    rdfs:comment "Standardized futures contract for livestock commodity trading"@en .
+
+# =============================================================================
+# MARKET EXCHANGES AND VENUES
+# =============================================================================
+
+arden-markets:MarketExchange a owl:Class ;
+    rdfs:subClassOf arden:Organization ;
+    rdfs:label "Market Exchange"@en ;
+    rdfs:comment "Organized trading venue for financial instruments"@en .
+
+# Major Exchanges
+arden-markets:CBOT a arden-markets:MarketExchange ;
+    rdfs:label "Chicago Board of Trade"@en ;
+    rdfs:comment "Primary exchange for agricultural commodity futures"@en ;
+    arden-markets:exchangeCode "CBOT" .
+
+arden-markets:CME a arden-markets:MarketExchange ;
+    rdfs:label "Chicago Mercantile Exchange"@en ;
+    rdfs:comment "Exchange for livestock and financial futures"@en ;
+    arden-markets:exchangeCode "CME" .
+
+arden-markets:NYSE a arden-markets:MarketExchange ;
+    rdfs:label "New York Stock Exchange"@en ;
+    rdfs:comment "Primary U.S. stock exchange"@en ;
+    arden-markets:exchangeCode "NYSE" .
+
+arden-markets:NASDAQ a arden-markets:MarketExchange ;
+    rdfs:label "NASDAQ Stock Market"@en ;
+    rdfs:comment "Electronic stock exchange"@en ;
+    arden-markets:exchangeCode "NASDAQ" .
+
+# =============================================================================
+# SYMBOL MANAGEMENT
+# =============================================================================
+
+arden-markets:MarketSymbol a owl:Class ;
+    rdfs:subClassOf arden:Identifier ;
+    rdfs:label "Market Symbol"@en ;
+    rdfs:comment "Trading symbol identifier for market instrument"@en .
+
+# Symbol Properties
+arden-markets:hasCanonicalSymbol a owl:ObjectProperty ;
+    rdfs:domain arden-markets:MarketInstrument ;
+    rdfs:range arden-markets:MarketSymbol ;
+    rdfs:label "has canonical symbol"@en ;
+    rdfs:comment "Primary trading symbol used for instrument identification"@en .
+
+arden-markets:hasAlias a owl:ObjectProperty ;
+    rdfs:domain arden-markets:MarketInstrument ;
+    rdfs:range arden-markets:MarketSymbol ;
+    rdfs:label "has alias symbol"@en ;
+    rdfs:comment "Alternative trading symbol for same instrument"@en .
+
+arden-markets:symbolValue a owl:DatatypeProperty ;
+    rdfs:domain arden-markets:MarketSymbol ;
+    rdfs:range xsd:string ;
+    rdfs:label "symbol value"@en ;
+    rdfs:comment "Text representation of trading symbol"@en .
+
+# Instrument Status Properties
+arden-markets:isActive a owl:DatatypeProperty ;
+    rdfs:domain arden-markets:MarketInstrument ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "is active"@en ;
+    rdfs:comment "Whether instrument is currently actively traded"@en .
+
+arden-markets:delistedDate a owl:DatatypeProperty ;
+    rdfs:domain arden-markets:MarketInstrument ;
+    rdfs:range xsd:date ;
+    rdfs:label "delisted date"@en ;
+    rdfs:comment "Date instrument was removed from active trading"@en .
+
+arden-markets:listedDate a owl:DatatypeProperty ;
+    rdfs:domain arden-markets:MarketInstrument ;
+    rdfs:range xsd:date ;
+    rdfs:label "listed date"@en ;
+    rdfs:comment "Date instrument began active trading"@en .
+
+# Exchange Relationship
+arden-markets:tradedOn a owl:ObjectProperty ;
+    rdfs:domain arden-markets:MarketInstrument ;
+    rdfs:range arden-markets:MarketExchange ;
+    rdfs:label "traded on"@en ;
+    rdfs:comment "Exchange where instrument is actively traded"@en .
+
+arden-markets:exchangeCode a owl:DatatypeProperty ;
+    rdfs:domain arden-markets:MarketExchange ;
+    rdfs:range xsd:string ;
+    rdfs:label "exchange code"@en ;
+    rdfs:comment "Standard code identifying trading exchange"@en .
+
+# =============================================================================
+# MARKET DATA OBSERVATIONS
+# =============================================================================
+
+arden-markets:MarketDataObservation a owl:Class ;
+    rdfs:subClassOf sosa:Observation ;
+    rdfs:label "Market Data Observation"@en ;
+    rdfs:comment "Time-series observation of market instrument pricing or trading activity"@en .
+
+arden-markets:OHLCVObservation a owl:Class ;
+    rdfs:subClassOf arden-markets:MarketDataObservation ;
+    rdfs:label "OHLCV Observation"@en ;
+    rdfs:comment "Daily Open, High, Low, Close, Volume market data observation"@en .
+
+arden-markets:SnapshotObservation a owl:Class ;
+    rdfs:subClassOf arden-markets:MarketDataObservation ;
+    rdfs:label "Market Snapshot Observation"@en ;
+    rdfs:comment "Real-time snapshot of current market conditions for instrument"@en .
+
+# OHLCV Data Properties
+arden-markets:openPrice a owl:DatatypeProperty ;
+    rdfs:subPropertyOf sosa:hasSimpleResult ;
+    rdfs:domain arden-markets:OHLCVObservation ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "open price"@en ;
+    rdfs:comment "Opening price at start of trading session"@en .
+
+arden-markets:highPrice a owl:DatatypeProperty ;
+    rdfs:subPropertyOf sosa:hasSimpleResult ;
+    rdfs:domain arden-markets:OHLCVObservation ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "high price"@en ;
+    rdfs:comment "Highest price during trading session"@en .
+
+arden-markets:lowPrice a owl:DatatypeProperty ;
+    rdfs:subPropertyOf sosa:hasSimpleResult ;
+    rdfs:domain arden-markets:OHLCVObservation ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "low price"@en ;
+    rdfs:comment "Lowest price during trading session"@en .
+
+arden-markets:closePrice a owl:DatatypeProperty ;
+    rdfs:subPropertyOf sosa:hasSimpleResult ;
+    rdfs:domain arden-markets:OHLCVObservation ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "close price"@en ;
+    rdfs:comment "Final price at end of trading session"@en .
+
+arden-markets:adjustedClosePrice a owl:DatatypeProperty ;
+    rdfs:subPropertyOf sosa:hasSimpleResult ;
+    rdfs:domain arden-markets:OHLCVObservation ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "adjusted close price"@en ;
+    rdfs:comment "Close price adjusted for dividends, splits, and other corporate actions"@en .
+
+arden-markets:volume a owl:DatatypeProperty ;
+    rdfs:subPropertyOf sosa:hasSimpleResult ;
+    rdfs:domain arden-markets:OHLCVObservation ;
+    rdfs:range xsd:integer ;
+    rdfs:label "trading volume"@en ;
+    rdfs:comment "Number of shares or contracts traded during session"@en .
+
+# Snapshot Data Properties
+arden-markets:lastPrice a owl:DatatypeProperty ;
+    rdfs:subPropertyOf sosa:hasSimpleResult ;
+    rdfs:domain arden-markets:SnapshotObservation ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "last price"@en ;
+    rdfs:comment "Most recent transaction price"@en .
+
+arden-markets:bidPrice a owl:DatatypeProperty ;
+    rdfs:subPropertyOf sosa:hasSimpleResult ;
+    rdfs:domain arden-markets:SnapshotObservation ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "bid price"@en ;
+    rdfs:comment "Highest price buyers willing to pay"@en .
+
+arden-markets:askPrice a owl:DatatypeProperty ;
+    rdfs:subPropertyOf sosa:hasSimpleResult ;
+    rdfs:domain arden-markets:SnapshotObservation ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "ask price"@en ;
+    rdfs:comment "Lowest price sellers willing to accept"@en .
+
+arden-markets:previousClose a owl:DatatypeProperty ;
+    rdfs:subPropertyOf sosa:hasSimpleResult ;
+    rdfs:domain arden-markets:SnapshotObservation ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "previous close"@en ;
+    rdfs:comment "Closing price from previous trading session"@en .
+
+arden-markets:dayHigh a owl:DatatypeProperty ;
+    rdfs:subPropertyOf sosa:hasSimpleResult ;
+    rdfs:domain arden-markets:SnapshotObservation ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "day high"@en ;
+    rdfs:comment "Highest price reached during current trading day"@en .
+
+arden-markets:dayLow a owl:DatatypeProperty ;
+    rdfs:subPropertyOf sosa:hasSimpleResult ;
+    rdfs:domain arden-markets:SnapshotObservation ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "day low"@en ;
+    rdfs:comment "Lowest price reached during current trading day"@en .
+
+# Market State and Metadata
+arden-markets:marketState a owl:DatatypeProperty ;
+    rdfs:domain arden-markets:SnapshotObservation ;
+    rdfs:range xsd:string ;
+    rdfs:label "market state"@en ;
+    rdfs:comment "Current trading state (OPEN, CLOSED, PRE_MARKET, POST_MARKET)"@en .
+
+arden-markets:currency a owl:DatatypeProperty ;
+    rdfs:domain arden-markets:MarketDataObservation ;
+    rdfs:range xsd:string ;
+    rdfs:label "currency"@en ;
+    rdfs:comment "Currency denomination of price data"@en .
+
+# Extended Market Metrics
+arden-markets:fiftyTwoWeekHigh a owl:DatatypeProperty ;
+    rdfs:domain arden-markets:SnapshotObservation ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "52-week high"@en ;
+    rdfs:comment "Highest price over past 52 weeks"@en .
+
+arden-markets:fiftyTwoWeekLow a owl:DatatypeProperty ;
+    rdfs:domain arden-markets:SnapshotObservation ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "52-week low"@en ;
+    rdfs:comment "Lowest price over past 52 weeks"@en .
+
+arden-markets:trailingPE a owl:DatatypeProperty ;
+    rdfs:domain arden-markets:SnapshotObservation ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "trailing P/E ratio"@en ;
+    rdfs:comment "Price-to-earnings ratio based on trailing 12-month earnings"@en .
+
+arden-markets:beta a owl:DatatypeProperty ;
+    rdfs:domain arden-markets:SnapshotObservation ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "beta coefficient"@en ;
+    rdfs:comment "Measure of systematic risk relative to market"@en .
+
+arden-markets:dividendYield a owl:DatatypeProperty ;
+    rdfs:domain arden-markets:SnapshotObservation ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "dividend yield"@en ;
+    rdfs:comment "Annual dividend rate as percentage of current stock price"@en .
+
+# Trading Day Property
+arden-markets:tradingDate a owl:DatatypeProperty ;
+    rdfs:domain arden-markets:OHLCVObservation ;
+    rdfs:range xsd:date ;
+    rdfs:label "trading date"@en ;
+    rdfs:comment "Calendar date for which OHLCV data applies"@en .
+
+# Data Source Tracking
+arden-markets:dataSource a owl:DatatypeProperty ;
+    rdfs:domain arden-markets:MarketDataObservation ;
+    rdfs:range xsd:string ;
+    rdfs:label "data source"@en ;
+    rdfs:comment "Provider of market data (yahoo, bloomberg, etc.)"@en .
+
+# =============================================================================
+# CORPORATE ACTIONS
+# =============================================================================
+
+arden-markets:CorporateAction a owl:Class ;
+    rdfs:subClassOf arden:Event ;
+    rdfs:label "Corporate Action"@en ;
+    rdfs:comment "Corporate event affecting instrument pricing or shareholder rights"@en .
+
+arden-markets:Dividend a owl:Class ;
+    rdfs:subClassOf arden-markets:CorporateAction ;
+    rdfs:label "Dividend Payment"@en ;
+    rdfs:comment "Cash or stock distribution to shareholders"@en .
+
+arden-markets:StockSplit a owl:Class ;
+    rdfs:subClassOf arden-markets:CorporateAction ;
+    rdfs:label "Stock Split"@en ;
+    rdfs:comment "Increase in number of shares with proportional decrease in price"@en .
+
+arden-markets:SpinOff a owl:Class ;
+    rdfs:subClassOf arden-markets:CorporateAction ;
+    rdfs:label "Corporate Spin-off"@en ;
+    rdfs:comment "Distribution of subsidiary shares to existing shareholders"@en .
+
+# Corporate Action Properties
+arden-markets:affectsInstrument a owl:ObjectProperty ;
+    rdfs:domain arden-markets:CorporateAction ;
+    rdfs:range arden-markets:MarketInstrument ;
+    rdfs:label "affects instrument"@en ;
+    rdfs:comment "Market instrument impacted by corporate action"@en .
+
+arden-markets:exDate a owl:DatatypeProperty ;
+    rdfs:domain arden-markets:CorporateAction ;
+    rdfs:range xsd:date ;
+    rdfs:label "ex-dividend date"@en ;
+    rdfs:comment "Date after which buyers are not entitled to upcoming dividend"@en .
+
+arden-markets:recordDate a owl:DatatypeProperty ;
+    rdfs:domain arden-markets:CorporateAction ;
+    rdfs:range xsd:date ;
+    rdfs:label "record date"@en ;
+    rdfs:comment "Date determining which shareholders receive dividend"@en .
+
+arden-markets:payDate a owl:DatatypeProperty ;
+    rdfs:domain arden-markets:Dividend ;
+    rdfs:range xsd:date ;
+    rdfs:label "payment date"@en ;
+    rdfs:comment "Date dividend payment is distributed to shareholders"@en .
+
+arden-markets:dividendAmount a owl:DatatypeProperty ;
+    rdfs:domain arden-markets:Dividend ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "dividend amount"@en ;
+    rdfs:comment "Cash amount per share distributed as dividend"@en .
+
+arden-markets:splitRatio a owl:DatatypeProperty ;
+    rdfs:domain arden-markets:StockSplit ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "split ratio"@en ;
+    rdfs:comment "Ratio of new shares to old shares (e.g., 2.0 for 2-for-1 split)"@en .
+
+# =============================================================================
+# DATA RELATIONSHIPS AND CONNECTIONS
+# =============================================================================
+
+# Connect market data to instruments
+arden-markets:observesInstrument a owl:ObjectProperty ;
+    rdfs:subPropertyOf sosa:hasFeatureOfInterest ;
+    rdfs:domain arden-markets:MarketDataObservation ;
+    rdfs:range arden-markets:MarketInstrument ;
+    rdfs:label "observes instrument"@en ;
+    rdfs:comment "Market instrument that is subject of price observation"@en .
+
+# Agricultural commodity relationships
+arden-markets:representsCommodity a owl:ObjectProperty ;
+    rdfs:domain arden-markets:CommodityFuture ;
+    rdfs:range arden-crops:Crop ;
+    rdfs:label "represents commodity"@en ;
+    rdfs:comment "Agricultural commodity underlying futures contract"@en .
+
+# Market impact relationships
+arden-markets:affectsCollateralValue a owl:ObjectProperty ;
+    rdfs:domain arden-markets:MarketDataObservation ;
+    rdfs:range arden-fin:CollateralAsset ;
+    rdfs:label "affects collateral value"@en ;
+    rdfs:comment "Market price changes that impact loan collateral valuation"@en .
+
+arden-markets:drivesCashFlowProjection a owl:ObjectProperty ;
+    rdfs:domain arden-markets:MarketDataObservation ;
+    rdfs:range arden-fin:CashFlowProjection ;
+    rdfs:label "drives cash flow projection"@en ;
+    rdfs:comment "Market prices used in agricultural revenue projections"@en .
+
+# =============================================================================
+# INDIVIDUAL COMMODITY FUTURE INSTANCES
+# =============================================================================
+
+# Major Agricultural Futures (Yahoo Finance Symbols)
+arden-markets:ZC a arden-markets:CornFuture ;
+    rdfs:label "CBOT Corn Futures (ZC=F)"@en ;
+    arden-markets:hasCanonicalSymbol [
+        a arden-markets:MarketSymbol ;
+        arden-markets:symbolValue "ZC=F"
+    ] ;
+    arden-markets:tradedOn arden-markets:CBOT ;
+    arden-markets:representsCommodity arden-crops:Corn ;
+    arden-markets:isActive true .
+
+arden-markets:ZS a arden-markets:SoybeanFuture ;
+    rdfs:label "CBOT Soybean Futures (ZS=F)"@en ;
+    arden-markets:hasCanonicalSymbol [
+        a arden-markets:MarketSymbol ;
+        arden-markets:symbolValue "ZS=F"
+    ] ;
+    arden-markets:tradedOn arden-markets:CBOT ;
+    arden-markets:representsCommodity arden-crops:Soybean ;
+    arden-markets:isActive true .
+
+arden-markets:ZW a arden-markets:WheatFuture ;
+    rdfs:label "CBOT Wheat Futures (ZW=F)"@en ;
+    arden-markets:hasCanonicalSymbol [
+        a arden-markets:MarketSymbol ;
+        arden-markets:symbolValue "ZW=F"
+    ] ;
+    arden-markets:tradedOn arden-markets:CBOT ;
+    arden-markets:representsCommodity arden-crops:Wheat ;
+    arden-markets:isActive true .
+
+arden-markets:CT a arden-markets:CottonFuture ;
+    rdfs:label "ICE Cotton Futures (CT=F)"@en ;
+    arden-markets:hasCanonicalSymbol [
+        a arden-markets:MarketSymbol ;
+        arden-markets:symbolValue "CT=F"
+    ] ;
+    arden-markets:representsCommodity arden-crops:Cotton ;
+    arden-markets:isActive true .
+
+# Livestock Futures
+arden-markets:LE a arden-markets:LivestockFuture ;
+    rdfs:label "CME Live Cattle Futures (LE=F)"@en ;
+    arden-markets:hasCanonicalSymbol [
+        a arden-markets:MarketSymbol ;
+        arden-markets:symbolValue "LE=F"
+    ] ;
+    arden-markets:tradedOn arden-markets:CME ;
+    arden-markets:isActive true .
+
+arden-markets:HE a arden-markets:LivestockFuture ;
+    rdfs:label "CME Lean Hogs Futures (HE=F)"@en ;
+    arden-markets:hasCanonicalSymbol [
+        a arden-markets:MarketSymbol ;
+        arden-markets:symbolValue "HE=F"
+    ] ;
+    arden-markets:tradedOn arden-markets:CME ;
+    arden-markets:isActive true .
+
+arden-markets:GF a arden-markets:LivestockFuture ;
+    rdfs:label "CME Feeder Cattle Futures (GF=F)"@en ;
+    arden-markets:hasCanonicalSymbol [
+        a arden-markets:MarketSymbol ;
+        arden-markets:symbolValue "GF=F"
+    ] ;
+    arden-markets:tradedOn arden-markets:CME ;
+    arden-markets:isActive true .
+
+# Data quality indicators
+arden-markets:dataQualityScore a owl:DatatypeProperty ;
+    rdfs:domain arden-markets:MarketDataObservation ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "data quality score"@en ;
+    rdfs:comment "Quality score for market data observation (0.0-1.0)"@en .
+
+arden-markets:hasGap a owl:DatatypeProperty ;
+    rdfs:domain arden-markets:MarketDataObservation ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "has data gap"@en ;
+    rdfs:comment "Indicates whether observation represents interpolated or missing data"@en .

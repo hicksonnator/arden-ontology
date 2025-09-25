@@ -1,0 +1,90 @@
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix arden: <https://arden.ag/ont/core#> .
+@prefix arden-ag: <https://arden.ag/ont/ag#> .
+@prefix sosa: <http://www.w3.org/ns/sosa/> .
+@prefix qudt: <http://qudt.org/schema/qudt/> .
+@prefix unit: <http://qudt.org/vocab/unit/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# Yield Observation constraints
+arden-ag:YieldObservationConstraints a sh:NodeShape ;
+  sh:targetClass arden-ag:YieldObservation ;
+
+  # Must reference a farm parcel
+  sh:property [
+    sh:path sosa:hasFeatureOfInterest ;
+    sh:class arden:FarmParcel ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:message "Yield observation must reference exactly one farm parcel"
+  ] ;
+
+  # Yield values should be within realistic ranges
+  sh:sparql [
+    sh:message "Yield value outside realistic range for crop type" ;
+    sh:select """
+      SELECT $this
+      WHERE {
+        $this sosa:hasResult ?result .
+        ?result qudt:numericValue ?value ;
+                qudt:unit ?unit .
+        # Corn: 0-400 bu/acre, Soybeans: 0-100 bu/acre (example bounds)
+        FILTER (
+          (?unit = unit:BushelPerAcre && (?value < 0 || ?value > 400)) ||
+          (?unit = unit:TonnePerHectare && (?value < 0 || ?value > 25))
+        )
+      }
+    """
+  ] ;
+
+  # Result time should be during growing/harvest season
+  sh:sparql [
+    sh:message "Yield observation time outside typical growing season" ;
+    sh:select """
+      SELECT $this
+      WHERE {
+        $this sosa:resultTime ?time .
+        BIND(MONTH(?time) AS ?month)
+        # Northern hemisphere: planting Mar-Jun, harvest Aug-Dec
+        FILTER (?month < 3 || ?month = 7)
+      }
+    """
+  ] .
+
+# Input Use Observation constraints
+arden-ag:InputUseConstraints a sh:NodeShape ;
+  sh:targetClass arden-ag:InputUseObservation ;
+
+  # Must reference a farm parcel
+  sh:property [
+    sh:path sosa:hasFeatureOfInterest ;
+    sh:class arden:FarmParcel ;
+    sh:minCount 1 ;
+    sh:message "Input use observation must reference a farm parcel"
+  ] ;
+
+  # Application rates should be within safe/legal limits
+  sh:sparql [
+    sh:message "Input application rate exceeds typical safe limits" ;
+    sh:select """
+      SELECT $this
+      WHERE {
+        $this sosa:hasResult ?result .
+        ?result qudt:numericValue ?rate ;
+                qudt:unit ?unit .
+        # Example: fertilizer rates typically < 300 lbs/acre
+        FILTER (
+          (?unit = unit:PoundPerAcre && ?rate > 300) ||
+          (?unit = unit:KilogramPerHectare && ?rate > 336)
+        )
+      }
+    """
+  ] ;
+
+  # Application timing should be reasonable
+  sh:property [
+    sh:path sosa:resultTime ;
+    sh:datatype xsd:dateTime ;
+    sh:minCount 1 ;
+    sh:message "Input application must have valid timestamp"
+  ] .

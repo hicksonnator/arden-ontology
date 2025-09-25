@@ -1,8 +1,6 @@
 #!/bin/bash
-"""
-Production Release Packaging Script for Arden Ontology
-Creates a complete production-ready release artifact with integrity checks.
-"""
+# Production Release Packaging Script for Arden Ontology
+# Creates a complete production-ready release artifact with integrity checks.
 
 set -euo pipefail
 
@@ -37,6 +35,48 @@ mkdir -p {ontology,mappings,shapes,data,scripts,docs,externals}
 # Copy core ontology files
 echo "📚 Packaging ontology modules..."
 cp ../ontology/*.ttl ontology/
+
+# Copy enhanced/merged build artifacts
+echo "🔧 Packaging enhanced build artifacts..."
+
+# Check if build is stale (source files newer than build)
+BUILD_STALE=false
+# Determine the correct enhanced build file based on version
+ENHANCED_BUILD_FILE="../build/arden-enhanced-${VERSION/v/v}.ttl"
+ENHANCED_BUILD_SCRIPT="scripts/build-enhanced-${VERSION/v/v}.sh"
+
+if [ -f "$ENHANCED_BUILD_FILE" ]; then
+    # Check if any source files are newer than the build
+    if find ../ontology ../mappings -name "*.ttl" -newer "$ENHANCED_BUILD_FILE" | grep -q .; then
+        echo "⚠️  Build is stale - source files newer than build"
+        BUILD_STALE=true
+    fi
+else
+    echo "⚠️  Enhanced build not found: $ENHANCED_BUILD_FILE"
+    BUILD_STALE=true
+fi
+
+# Rebuild if necessary
+if [ "$BUILD_STALE" = true ]; then
+    echo "🔨 Rebuilding enhanced ontology with latest changes..."
+    if [ -f "../$ENHANCED_BUILD_SCRIPT" ]; then
+        cd .. && bash "$ENHANCED_BUILD_SCRIPT" && cd release
+    else
+        echo "⚠️  Build script not found: $ENHANCED_BUILD_SCRIPT, using v1.2.1 script"
+        cd .. && bash scripts/build-enhanced-v1.2.1.sh && cd release
+        ENHANCED_BUILD_FILE="../build/arden-enhanced-v1.2.1.ttl"
+    fi
+fi
+
+# Copy the build
+if [ -f "$ENHANCED_BUILD_FILE" ]; then
+    cp "$ENHANCED_BUILD_FILE" ontology/arden-enhanced-complete.ttl
+    TERM_COUNT=$(grep -c "rdf:type owl:Class\|rdf:type owl:ObjectProperty\|rdf:type owl:DatatypeProperty\|rdf:type owl:AnnotationProperty\|rdf:type owl:NamedIndividual" "$ENHANCED_BUILD_FILE")
+    echo "✅ Enhanced ontology included ($TERM_COUNT terms) - $VERSION with Market Data"
+else
+    echo "❌ Failed to build enhanced ontology"
+    exit 1
+fi
 
 # Copy mappings and code schemes
 echo "🗺️  Packaging mappings..."
@@ -322,6 +362,97 @@ This release package contains:
 **Status**: PRODUCTION-READY ✅
 EOF
 
+# TERM COUNT VALIDATION
+echo "🔍 Validating ontology completeness..."
+
+# Count terms in individual modules
+MODULE_TERMS=$(find "${RELEASE_DIR}/ontology" -name "*.ttl" -not -name "arden-enhanced-complete.ttl" -exec grep -c "rdf:type.*owl:Class\|rdf:type.*owl:ObjectProperty\|rdf:type.*owl:DatatypeProperty" {} + 2>/dev/null | awk '{sum += $1} END {print sum+0}')
+
+# Count ALL terms in enhanced ontology (classes, properties, individuals)
+ENHANCED_TERMS=$(grep -c "rdf:type owl:Class\|rdf:type owl:ObjectProperty\|rdf:type owl:DatatypeProperty\|rdf:type owl:AnnotationProperty\|rdf:type owl:NamedIndividual" "${RELEASE_DIR}/ontology/arden-enhanced-complete.ttl" 2>/dev/null || echo "0")
+
+# Expected minimums based on current working ontology (update when ontology grows)
+MIN_MODULE_TERMS=320           # Individual modules baseline: 332, allow 10% variance
+MIN_ENHANCED_TERMS=1250        # Enhanced baseline: 1,268 terms, allow 1.5% variance
+MIN_MARKET_TERMS=50            # Market data baseline: 63, ensure Yahoo Finance integration
+MIN_CORE_TERMS=5               # Core ontology should have basic terms
+MIN_INTEGRATION_TERMS=60       # Integration module should have substantial terms
+
+echo "📊 ONTOLOGY COMPLETENESS VALIDATION"
+echo "=================================="
+echo "Individual modules: ${MODULE_TERMS} terms (minimum: ${MIN_MODULE_TERMS})"
+echo "Enhanced complete:  ${ENHANCED_TERMS} terms (minimum: ${MIN_ENHANCED_TERMS})"
+
+# Enhanced validation checks
+echo ""
+echo "🔍 Detailed Module Analysis:"
+
+# Check core ontology modules
+CORE_TERMS=$(grep -c "a owl:Class\|a owl:ObjectProperty\|a owl:DatatypeProperty" "${RELEASE_DIR}/ontology/arden-core.ttl" 2>/dev/null || echo "0")
+MARKET_TERMS=$(grep -c "a owl:Class\|a owl:ObjectProperty\|a owl:DatatypeProperty" "${RELEASE_DIR}/ontology/arden-markets.ttl" 2>/dev/null || echo "0")
+INTEGRATION_TERMS=$(grep -c "a owl:Class\|a owl:ObjectProperty\|a owl:DatatypeProperty" "${RELEASE_DIR}/ontology/arden-integration.ttl" 2>/dev/null || echo "0")
+
+echo "  - Core module: ${CORE_TERMS} terms (minimum: ${MIN_CORE_TERMS})"
+echo "  - Markets module: ${MARKET_TERMS} terms (minimum: ${MIN_MARKET_TERMS})"
+echo "  - Integration module: ${INTEGRATION_TERMS} terms (minimum: ${MIN_INTEGRATION_TERMS})"
+
+# Check for critical Yahoo Finance market data
+YAHOO_FINANCE_CHECK=$(grep -c "CornFuture\|SoybeanFuture\|WheatFuture\|OHLCVObservation\|YahooFinance" "${RELEASE_DIR}/ontology/arden-markets.ttl" 2>/dev/null || echo "0")
+echo "  - Yahoo Finance integration: ${YAHOO_FINANCE_CHECK} key terms found"
+
+echo ""
+echo "🚨 VALIDATION GATES:"
+
+# Critical validation failures (hard stops)
+VALIDATION_FAILED=false
+
+if [ "${MODULE_TERMS}" -lt "${MIN_MODULE_TERMS}" ]; then
+    echo "❌ CRITICAL: Individual modules have only ${MODULE_TERMS} terms (expected ≥${MIN_MODULE_TERMS})"
+    VALIDATION_FAILED=true
+fi
+
+if [ "${ENHANCED_TERMS}" -lt "${MIN_ENHANCED_TERMS}" ]; then
+    echo "❌ CRITICAL: Enhanced ontology has only ${ENHANCED_TERMS} terms (expected ≥${MIN_ENHANCED_TERMS})"
+    VALIDATION_FAILED=true
+fi
+
+if [ "${MARKET_TERMS}" -lt "${MIN_MARKET_TERMS}" ]; then
+    echo "❌ CRITICAL: Markets module has only ${MARKET_TERMS} terms (expected ≥${MIN_MARKET_TERMS})"
+    VALIDATION_FAILED=true
+fi
+
+if [ "${YAHOO_FINANCE_CHECK}" -lt "3" ]; then
+    echo "❌ CRITICAL: Yahoo Finance integration incomplete (${YAHOO_FINANCE_CHECK} key terms, expected ≥3)"
+    VALIDATION_FAILED=true
+fi
+
+if [ "${CORE_TERMS}" -lt "${MIN_CORE_TERMS}" ]; then
+    echo "❌ CRITICAL: Core module has only ${CORE_TERMS} terms (expected ≥${MIN_CORE_TERMS})"
+    VALIDATION_FAILED=true
+fi
+
+if [ "${INTEGRATION_TERMS}" -lt "${MIN_INTEGRATION_TERMS}" ]; then
+    echo "❌ CRITICAL: Integration module has only ${INTEGRATION_TERMS} terms (expected ≥${MIN_INTEGRATION_TERMS})"
+    VALIDATION_FAILED=true
+fi
+
+# Exit if validation failed
+if [ "$VALIDATION_FAILED" = true ]; then
+    echo ""
+    echo "🛑 RELEASE BLOCKED: Ontology validation failed"
+    echo "   The ontology appears incomplete or corrupted."
+    echo "   Check build process and source modules before releasing."
+    exit 1
+fi
+
+# Success - add to manifest
+echo "✅ Term count validation passed"
+echo "" >> "${RELEASE_DIR}/MANIFEST.md"
+echo "## Ontology Metrics" >> "${RELEASE_DIR}/MANIFEST.md"
+echo "- **Individual Modules**: ${MODULE_TERMS} terms (classes, properties)" >> "${RELEASE_DIR}/MANIFEST.md"
+echo "- **Enhanced Complete**: ${ENHANCED_TERMS} terms (with external integrations)" >> "${RELEASE_DIR}/MANIFEST.md"
+echo "- **Validation Status**: ✅ PASSED ($(date))" >> "${RELEASE_DIR}/MANIFEST.md"
+
 # Create final package archive
 cd ..
 ARCHIVE_NAME="${PACKAGE_NAME}-${VERSION}-${TIMESTAMP}.tar.gz"
@@ -334,16 +465,58 @@ ARCHIVE_SHA256=$(sha256sum "${ARCHIVE_NAME}" | cut -d' ' -f1)
 ARCHIVE_SIZE=$(du -h "${ARCHIVE_NAME}" | cut -f1)
 
 echo ""
-echo "✅ RELEASE PACKAGE COMPLETE"
-echo "=========================="
+echo ""
+echo "🔒 FINAL PRE-DEPLOYMENT VALIDATION"
+echo "================================="
+
+# Final archive validation - ensure the archive contains expected content
+TEMP_EXTRACT_DIR="/tmp/claude/final_validation_$$"
+mkdir -p "$TEMP_EXTRACT_DIR"
+tar -xzf "${ARCHIVE_NAME}" -C "$TEMP_EXTRACT_DIR" 2>/dev/null
+
+if [ $? -ne 0 ]; then
+    echo "❌ DEPLOYMENT BLOCKED: Archive is corrupted or unreadable"
+    rm -rf "$TEMP_EXTRACT_DIR" 2>/dev/null
+    exit 1
+fi
+
+# Verify archive contents
+ARCHIVE_ENHANCED_TERMS=$(find "$TEMP_EXTRACT_DIR" -name "arden-enhanced-complete.ttl" -exec grep -c "rdf:type owl:Class\|rdf:type owl:ObjectProperty\|rdf:type owl:DatatypeProperty\|rdf:type owl:AnnotationProperty\|rdf:type owl:NamedIndividual" {} \; 2>/dev/null || echo "0")
+ARCHIVE_MARKET_CHECK=$(find "$TEMP_EXTRACT_DIR" -name "arden-markets.ttl" -exec grep -c "CornFuture\|SoybeanFuture\|WheatFuture" {} \; 2>/dev/null || echo "0")
+
+echo "Archive validation:"
+echo "  - Enhanced ontology in archive: ${ARCHIVE_ENHANCED_TERMS} terms"
+echo "  - Market data in archive: ${ARCHIVE_MARKET_CHECK} key terms"
+
+# Final validation gate before deployment
+if [ "${ARCHIVE_ENHANCED_TERMS}" -lt "${MIN_ENHANCED_TERMS}" ] || [ "${ARCHIVE_MARKET_CHECK}" -lt "3" ]; then
+    echo ""
+    echo "🛑 DEPLOYMENT BLOCKED: Final archive validation failed"
+    echo "   Archive contents do not match expected ontology completeness."
+    echo "   This is the LAST GATE before deployment - investigate immediately."
+    rm -rf "$TEMP_EXTRACT_DIR" 2>/dev/null
+    exit 1
+fi
+
+# Cleanup
+rm -rf "$TEMP_EXTRACT_DIR" 2>/dev/null
+
+echo ""
+echo "✅ RELEASE PACKAGE COMPLETE & VALIDATED"
+echo "======================================="
 echo "Archive: ${ARCHIVE_NAME}"
 echo "Size: ${ARCHIVE_SIZE}"
 echo "SHA256: ${ARCHIVE_SHA256}"
+echo "Ontology Terms: ${ARCHIVE_ENHANCED_TERMS} (validated)"
+echo "Market Integration: ✅ Verified"
 echo ""
-echo "🚀 Ready for production deployment!"
+echo "🚀 CLEARED FOR PRODUCTION DEPLOYMENT!"
+echo ""
+echo "⚠️  IMPORTANT: Use this exact archive for GitHub release:"
+echo "   gh release create ${VERSION} --title 'Arden Ontology ${VERSION}' --notes 'Enhanced ontology with ${ARCHIVE_ENHANCED_TERMS} terms' '${ARCHIVE_NAME}'"
 echo ""
 echo "Next steps:"
-echo "1. Upload archive to deployment repository"
+echo "1. Upload THIS archive to GitHub (validated above)"
 echo "2. Follow PRODUCTION_ROLLOUT.md for deployment"
 echo "3. Verify integrity using MANIFEST.md checksums"
 echo "4. Monitor data quality post-deployment"

@@ -1,0 +1,369 @@
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix arden: <https://arden.ag/ont/core#> .
+@prefix arden-ag: <https://arden.ag/ont/ag#> .
+@prefix arden-fin: <https://arden.ag/ont/fin#> .
+@prefix qudt: <http://qudt.org/schema/qudt/> .
+@prefix unit: <http://qudt.org/vocab/unit/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# ==================================================
+# QUDT UNIT VALIDATION FOUNDATION FOR ARDEN v1.3.0
+# ==================================================
+
+# AGRICULTURAL YIELD UNITS VALIDATION
+
+arden:YieldUnitValidation a sh:NodeShape ;
+    sh:targetClass arden-ag:YieldObservation ;
+    rdfs:label "Agricultural Yield Unit Validation" ;
+    rdfs:comment "Ensures yield measurements use normalized agricultural units" ;
+
+    # Yield value must have proper QUDT structure
+    sh:property [
+        sh:path sosa:hasResult ;
+        sh:class qudt:Quantity ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Yield observation must have exactly one QUDT quantity result"
+    ] ;
+
+    # Yield units must be from approved agricultural list
+    sh:sparql [
+        sh:message "Yield unit not in approved agricultural units list" ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this sosa:hasResult ?quantity .
+                ?quantity qudt:unit ?unit ;
+                         qudt:numericValue ?value .
+
+                # Approved yield units for US agriculture
+                FILTER (?unit NOT IN (
+                    unit:BU-PER-AC,      # bushels per acre
+                    unit:TON-PER-AC,     # tons per acre
+                    unit:LB-PER-AC,      # pounds per acre
+                    unit:T-PER-HA,       # metric tons per hectare
+                    unit:KiloGM-PER-HA   # kilograms per hectare
+                ))
+            }
+        """
+    ] ;
+
+    # Yield values must be reasonable (not negative, not impossibly high)
+    sh:sparql [
+        sh:message "Yield value outside reasonable range for unit type" ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this sosa:hasResult ?quantity .
+                ?quantity qudt:unit ?unit ;
+                         qudt:numericValue ?value .
+
+                # Reasonable ranges by unit type
+                FILTER (
+                    (?unit = unit:BU-PER-AC && (?value < 0 || ?value > 300)) ||  # Corn/soy max ~300 bu/ac
+                    (?unit = unit:TON-PER-AC && (?value < 0 || ?value > 50)) ||  # Silage max ~50 ton/ac
+                    (?unit = unit:LB-PER-AC && (?value < 0 || ?value > 20000))   # Cotton max ~2000 lb/ac
+                )
+            }
+        """
+    ] .
+
+# COMMODITY PRICE UNITS VALIDATION
+
+arden:CommodityPriceUnitValidation a sh:NodeShape ;
+    sh:targetClass arden-fin:CommodityPrice ;
+    rdfs:label "Commodity Price Unit Validation" ;
+
+    # Price must have QUDT quantity structure
+    sh:property [
+        sh:path arden:priceValue ;
+        sh:class qudt:Quantity ;
+        sh:minCount 1 ;
+        sh:message "Commodity price must have QUDT quantity value"
+    ] ;
+
+    # Price units must be from approved commodity pricing list
+    sh:sparql [
+        sh:message "Price unit not in approved commodity pricing units" ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this arden:priceValue ?quantity .
+                ?quantity qudt:unit ?unit .
+
+                # Approved commodity price units
+                FILTER (?unit NOT IN (
+                    unit:USD-PER-BU,     # dollars per bushel (corn, soy, wheat)
+                    unit:USD-PER-LB,     # dollars per pound (cotton, livestock)
+                    unit:USD-PER-TON,    # dollars per ton (hay, silage)
+                    unit:USD-PER-CWT,    # dollars per hundredweight (livestock)
+                    unit:USD-PER-GAL     # dollars per gallon (milk, ethanol)
+                ))
+            }
+        """
+    ] ;
+
+    # Price timestamp must be recent for real-time validation
+    sh:property [
+        sh:path arden:priceTimestamp ;
+        sh:datatype xsd:dateTime ;
+        sh:minCount 1 ;
+        sh:message "Commodity price must have timestamp"
+    ] ;
+
+    sh:sparql [
+        sh:message "Commodity price data is stale (>24 hours old)" ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this arden:priceTimestamp ?timestamp .
+                FILTER (?timestamp < (NOW() - "P1D"^^xsd:duration))
+            }
+        """
+    ] .
+
+# LAND AREA UNITS VALIDATION
+
+arden:LandAreaUnitValidation a sh:NodeShape ;
+    sh:targetClass arden:FarmParcel ;
+    rdfs:label "Land Area Unit Validation" ;
+
+    # Area must use standard land measurement units
+    sh:property [
+        sh:path arden:area ;
+        sh:class qudt:Quantity ;
+        sh:minCount 1
+    ] ;
+
+    sh:sparql [
+        sh:message "Land area unit not in approved list" ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this arden:area ?quantity .
+                ?quantity qudt:unit ?unit .
+
+                # Approved land area units
+                FILTER (?unit NOT IN (
+                    unit:AC,        # acres (primary US unit)
+                    unit:HA,        # hectares (metric)
+                    unit:SQ-MI,     # square miles (large operations)
+                    unit:SQ-FT      # square feet (small plots)
+                ))
+            }
+        """
+    ] ;
+
+    # Area values must be reasonable
+    sh:sparql [
+        sh:message "Land area value outside reasonable range" ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this arden:area ?quantity .
+                ?quantity qudt:unit ?unit ;
+                         qudt:numericValue ?value .
+
+                FILTER (
+                    (?unit = unit:AC && (?value <= 0 || ?value > 50000)) ||     # Max farm size ~50k acres
+                    (?unit = unit:HA && (?value <= 0 || ?value > 20000)) ||     # ~50k acres = 20k hectares
+                    (?unit = unit:SQ-FT && (?value <= 0 || ?value > 2000000000)) # ~50k acres = 2B sq ft
+                )
+            }
+        """
+    ] .
+
+# FINANCIAL AMOUNT UNITS VALIDATION
+
+arden:FinancialAmountUnitValidation a sh:NodeShape ;
+    sh:targetClass arden-fin:MonetaryAmount ;
+    rdfs:label "Financial Amount Unit Validation" ;
+
+    # Must have currency unit
+    sh:property [
+        sh:path qudt:unit ;
+        sh:in ( unit:USD unit:CAD ) ;  # North American agriculture focus
+        sh:minCount 1 ;
+        sh:message "Financial amount must specify USD or CAD currency"
+    ] ;
+
+    # Must have positive numeric value for most financial amounts
+    sh:property [
+        sh:path qudt:numericValue ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0 ;
+        sh:message "Financial amount cannot be negative"
+    ] ;
+
+    # Large amounts should be flagged for review
+    sh:sparql [
+        sh:message "Financial amount unusually large - verify accuracy" ;
+        sh:severity sh:Warning ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this qudt:numericValue ?value ;
+                      qudt:unit unit:USD .
+                FILTER (?value > 10000000)  # > $10M
+            }
+        """
+    ] .
+
+# UNIT CONVERSION CONSISTENCY VALIDATION
+
+arden:UnitConversionConsistency a sh:NodeShape ;
+    sh:targetClass arden:Farm ;
+    rdfs:label "Cross-Property Unit Conversion Consistency" ;
+
+    # Yield per acre * total acres should equal total production
+    sh:sparql [
+        sh:message "Yield calculation inconsistent with total production" ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this arden:hasParcel ?parcel .
+
+                ?parcel arden:area ?areaQty ;
+                        arden:yieldObservation ?yieldObs .
+
+                ?areaQty qudt:numericValue ?acres ;
+                         qudt:unit unit:AC .
+
+                ?yieldObs sosa:hasResult ?yieldQty .
+                ?yieldQty qudt:numericValue ?yieldPerAcre ;
+                          qudt:unit unit:BU-PER-AC .
+
+                # Calculate expected total production
+                BIND(?acres * ?yieldPerAcre AS ?expectedTotal)
+
+                # Check if reported total matches calculation (within 5% tolerance)
+                OPTIONAL {
+                    $this arden:totalProduction ?totalQty .
+                    ?totalQty qudt:numericValue ?actualTotal ;
+                              qudt:unit unit:BU .
+                    BIND(ABS(?actualTotal - ?expectedTotal) / ?expectedTotal AS ?variance)
+                    FILTER (?variance > 0.05)
+                }
+            }
+        """
+    ] .
+
+# TEMPORAL UNIT VALIDATION
+
+arden:TemporalUnitValidation a sh:NodeShape ;
+    sh:targetClass arden:TemporalMeasurement ;
+    rdfs:label "Time Period Unit Validation" ;
+
+    sh:property [
+        sh:path arden:duration ;
+        sh:class qudt:Quantity
+    ] ;
+
+    sh:sparql [
+        sh:message "Time period unit not in approved list" ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this arden:duration ?quantity .
+                ?quantity qudt:unit ?unit .
+
+                # Approved time units for agricultural planning
+                FILTER (?unit NOT IN (
+                    unit:DAY,
+                    unit:WK,      # weeks
+                    unit:MO,      # months
+                    unit:YR,      # years
+                    unit:SEASON   # growing seasons
+                ))
+            }
+        """
+    ] .
+
+# QUDT MANDATORY PROPERTIES VALIDATION
+
+arden:QUDTMandatoryProperties a sh:NodeShape ;
+    sh:targetClass qudt:Quantity ;
+    rdfs:label "QUDT Quantity Mandatory Properties" ;
+
+    # Every quantity must have numeric value
+    sh:property [
+        sh:path qudt:numericValue ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:decimal ;
+        sh:message "QUDT quantity must have exactly one numeric value"
+    ] ;
+
+    # Every quantity must have unit
+    sh:property [
+        sh:path qudt:unit ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:nodeKind sh:IRI ;
+        sh:message "QUDT quantity must have exactly one unit"
+    ] ;
+
+    # Optional but recommended: uncertainty bounds
+    sh:property [
+        sh:path qudt:standardUncertainty ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:decimal ;
+        sh:message "Standard uncertainty should be decimal value"
+    ] .
+
+# KILLER QUESTION SPECIFIC UNIT VALIDATION
+
+# KQ3: Grain futures price units must match stored grain quantity units
+arden:GrainFuturesUnitConsistency a sh:NodeShape ;
+    sh:targetClass arden-fin:GrainInventoryLoan ;
+    rdfs:label "Grain Futures Unit Consistency for KQ3" ;
+
+    sh:sparql [
+        sh:message "Grain inventory and futures price units inconsistent" ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this arden:securedBy ?grainInventory ;
+                      arden:pricedAgainst ?futuresContract .
+
+                ?grainInventory arden:quantity ?qtyValue .
+                ?qtyValue qudt:unit ?storageUnit .
+
+                ?futuresContract arden:priceValue ?priceValue .
+                ?priceValue qudt:unit ?priceUnit .
+
+                # Check unit compatibility
+                FILTER NOT (
+                    (?storageUnit = unit:BU && ?priceUnit = unit:USD-PER-BU) ||
+                    (?storageUnit = unit:TON && ?priceUnit = unit:USD-PER-TON)
+                )
+            }
+        """
+    ] .
+
+# KQ4: Cash flow calculations must use consistent time periods
+arden:CashFlowTemporalConsistency a sh:NodeShape ;
+    sh:targetClass arden-fin:CashFlowProjection ;
+    rdfs:label "Cash Flow Temporal Unit Consistency for KQ4" ;
+
+    sh:sparql [
+        sh:message "Cash flow periods inconsistent with loan payment schedule" ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this arden:projectionPeriod ?period ;
+                      arden:supports ?loan .
+
+                ?period qudt:unit ?periodUnit .
+                ?loan arden:paymentFrequency ?paymentPeriod .
+                ?paymentPeriod qudt:unit ?paymentUnit .
+
+                # Period units must be compatible
+                FILTER NOT (
+                    ?periodUnit = ?paymentUnit ||
+                    (?periodUnit = unit:YR && ?paymentUnit = unit:MO) ||
+                    (?periodUnit = unit:MO && ?paymentUnit = unit:WK)
+                )
+            }
+        """
+    ] .

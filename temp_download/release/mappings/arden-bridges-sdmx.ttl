@@ -1,0 +1,230 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+@prefix arden: <https://arden.ag/ont/core#> .
+@prefix arden-ag: <https://arden.ag/ont/ag#> .
+@prefix qb: <http://purl.org/linked-data/cube#> .
+@prefix sdmx-dimension: <http://purl.org/linked-data/sdmx/2009/dimension#> .
+@prefix sdmx-measure: <http://purl.org/linked-data/sdmx/2009/measure#> .
+@prefix sdmx-attribute: <http://purl.org/linked-data/sdmx/2009/attribute#> .
+
+# ===================================================================
+# Arden ↔ SDMX/Data Cube Bridge Mappings
+# ===================================================================
+#
+# Maps Arden statistical data concepts to RDF Data Cube and SDMX
+# vocabularies. Ensures Arden observations follow QB/SDMX patterns
+# for interoperable statistical data exchange.
+#
+# Created: 2024-09-19 for Arden v1.2.0
+# ===================================================================
+
+<https://arden.ag/ont/mappings/sdmx> a owl:Ontology ;
+    dct:title "Arden-SDMX/Data Cube Bridge Mappings"@en ;
+    dct:description "Bridge mappings between Arden statistical concepts and RDF Data Cube (QB) + SDMX vocabularies."@en ;
+    dct:created "2024-09-19"^^xsd:date ;
+    owl:imports <https://arden.ag/ont/core> ,
+                <https://arden.ag/ont/ag> .
+
+# ===================================================================
+# DATA CUBE STRUCTURE MAPPINGS
+# ===================================================================
+
+# Arden datasets align with QB dataset structure
+arden:AgriculturalDataset rdfs:subClassOf qb:DataSet ;
+    rdfs:label "Agricultural Dataset"@en ;
+    rdfs:comment "A collection of agricultural statistical observations organized according to QB/SDMX principles."@en .
+
+# Arden observations follow QB observation pattern
+arden:AgriculturalObservation rdfs:subClassOf qb:Observation ;
+    rdfs:label "Agricultural Observation"@en ;
+    rdfs:comment "A single statistical observation of an agricultural measure for specific dimensions."@en .
+
+# Data structure definitions for agricultural data
+arden:AgriculturalDSD rdfs:subClassOf qb:DataStructureDefinition ;
+    rdfs:label "Agricultural Data Structure Definition"@en ;
+    rdfs:comment "Defines the structure of agricultural statistical datasets including dimensions, measures, and attributes."@en .
+
+# ===================================================================
+# STANDARD SDMX DIMENSIONS FOR AGRICULTURE
+# ===================================================================
+
+# Reference Area (Geographic)
+arden:hasRefArea a qb:DimensionProperty ;
+    skos:exactMatch sdmx-dimension:refArea ;
+    rdfs:label "has reference area"@en ;
+    rdfs:comment "The geographic area (county, state, country) for the observation."@en ;
+    rdfs:range arden:GeographicArea .
+
+# Time Period
+arden:hasTimePeriod a qb:DimensionProperty ;
+    skos:exactMatch sdmx-dimension:timePeriod ;
+    rdfs:label "has time period"@en ;
+    rdfs:comment "The time period (year, month, season) for the observation."@en .
+
+# Crop Type (Agricultural-specific dimension)
+arden:hasCropType a qb:DimensionProperty ;
+    rdfs:label "has crop type"@en ;
+    rdfs:comment "The crop or commodity type for the agricultural observation."@en ;
+    rdfs:range arden-ag:Crop .
+
+# Practice Type (Agricultural-specific dimension)
+arden:hasPracticeType a qb:DimensionProperty ;
+    rdfs:label "has practice type"@en ;
+    rdfs:comment "The agricultural practice type for the observation."@en ;
+    rdfs:range arden-ag:AgriculturalPractice .
+
+# ===================================================================
+# STANDARD SDMX MEASURES FOR AGRICULTURE
+# ===================================================================
+
+# Observation Value (primary measure)
+arden:hasObsValue a qb:MeasureProperty ;
+    skos:exactMatch sdmx-measure:obsValue ;
+    rdfs:label "has observation value"@en ;
+    rdfs:comment "The primary numeric value of the agricultural observation."@en ;
+    rdfs:range xsd:decimal .
+
+# Agricultural-specific measures
+arden:hasYieldValue a qb:MeasureProperty ;
+    rdfs:subPropertyOf arden:hasObsValue ;
+    rdfs:label "has yield value"@en ;
+    rdfs:comment "The yield value for a crop observation."@en ;
+    rdfs:range xsd:decimal .
+
+arden:hasAcreageValue a qb:MeasureProperty ;
+    rdfs:subPropertyOf arden:hasObsValue ;
+    rdfs:label "has acreage value"@en ;
+    rdfs:comment "The acreage or area value for an agricultural observation."@en ;
+    rdfs:range xsd:decimal .
+
+arden:hasProductionValue a qb:MeasureProperty ;
+    rdfs:subPropertyOf arden:hasObsValue ;
+    rdfs:label "has production value"@en ;
+    rdfs:comment "The total production value for a crop observation."@en ;
+    rdfs:range xsd:decimal .
+
+# ===================================================================
+# STANDARD SDMX ATTRIBUTES FOR AGRICULTURE
+# ===================================================================
+
+# Unit of Measure
+arden:hasUnitMeasure a qb:AttributeProperty ;
+    skos:exactMatch sdmx-attribute:unitMeasure ;
+    rdfs:label "has unit of measure"@en ;
+    rdfs:comment "The unit of measurement for the observation value."@en .
+
+# Data Source
+arden:hasDataSource a qb:AttributeProperty ;
+    rdfs:label "has data source"@en ;
+    rdfs:comment "The source organization or system that provided the data."@en ;
+    rdfs:range arden:DataSource .
+
+# Confidence Level
+arden:hasConfidenceLevel a qb:AttributeProperty ;
+    rdfs:label "has confidence level"@en ;
+    rdfs:comment "The statistical confidence level or reliability indicator."@en ;
+    rdfs:range xsd:string .
+
+# Observation Status
+arden:hasObsStatus a qb:AttributeProperty ;
+    skos:exactMatch sdmx-attribute:obsStatus ;
+    rdfs:label "has observation status"@en ;
+    rdfs:comment "Status of the observation (normal, estimated, forecast, etc.)."@en .
+
+# ===================================================================
+# AGRICULTURAL DATA STRUCTURE DEFINITIONS
+# ===================================================================
+
+# Yield Data Structure
+arden:YieldDataDSD a arden:AgriculturalDSD ;
+    rdfs:label "Yield Data Structure Definition"@en ;
+    qb:component [ qb:dimension arden:hasRefArea ] ;
+    qb:component [ qb:dimension arden:hasTimePeriod ] ;
+    qb:component [ qb:dimension arden:hasCropType ] ;
+    qb:component [ qb:measure arden:hasYieldValue ] ;
+    qb:component [ qb:attribute arden:hasUnitMeasure ] ;
+    qb:component [ qb:attribute arden:hasDataSource ] .
+
+# Acreage Data Structure
+arden:AcreageDataDSD a arden:AgriculturalDSD ;
+    rdfs:label "Acreage Data Structure Definition"@en ;
+    qb:component [ qb:dimension arden:hasRefArea ] ;
+    qb:component [ qb:dimension arden:hasTimePeriod ] ;
+    qb:component [ qb:dimension arden:hasCropType ] ;
+    qb:component [ qb:measure arden:hasAcreageValue ] ;
+    qb:component [ qb:attribute arden:hasUnitMeasure ] ;
+    qb:component [ qb:attribute arden:hasDataSource ] .
+
+# Production Data Structure
+arden:ProductionDataDSD a arden:AgriculturalDSD ;
+    rdfs:label "Production Data Structure Definition"@en ;
+    qb:component [ qb:dimension arden:hasRefArea ] ;
+    qb:component [ qb:dimension arden:hasTimePeriod ] ;
+    qb:component [ qb:dimension arden:hasCropType ] ;
+    qb:component [ qb:measure arden:hasProductionValue ] ;
+    qb:component [ qb:attribute arden:hasUnitMeasure ] ;
+    qb:component [ qb:attribute arden:hasDataSource ] .
+
+# ===================================================================
+# DATASET MAPPINGS
+# ===================================================================
+
+# NASS Yield Dataset
+arden:NASSYieldDataset a arden:AgriculturalDataset ;
+    rdfs:label "NASS Yield Dataset"@en ;
+    qb:structure arden:YieldDataDSD ;
+    dct:source "USDA NASS QuickStats" .
+
+# Census/ERS Dataset
+arden:CensusERSDataset a arden:AgriculturalDataset ;
+    rdfs:label "Census/ERS Dataset"@en ;
+    qb:structure arden:AcreageDataDSD ;
+    dct:source "USDA Census of Agriculture / Economic Research Service" .
+
+# RMA Dataset
+arden:RMADataset a arden:AgriculturalDataset ;
+    rdfs:label "RMA Dataset"@en ;
+    qb:structure arden:AcreageDataDSD ;
+    dct:source "USDA Risk Management Agency" .
+
+# ===================================================================
+# OBSERVATION RESTRICTIONS
+# ===================================================================
+
+# All agricultural observations must have required dimensions
+arden:AgriculturalObservation rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty arden:hasRefArea ;
+    owl:cardinality 1
+] .
+
+arden:AgriculturalObservation rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty arden:hasTimePeriod ;
+    owl:cardinality 1
+] .
+
+arden:AgriculturalObservation rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty qb:dataSet ;
+    owl:cardinality 1
+] .
+
+# Agricultural observations must have at least one measure
+arden:AgriculturalObservation rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty arden:hasObsValue ;
+    owl:minCardinality 1
+] .
+
+# All measures must have units
+arden:AgriculturalObservation rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty arden:hasUnitMeasure ;
+    owl:cardinality 1
+] .

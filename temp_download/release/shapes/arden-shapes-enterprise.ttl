@@ -1,0 +1,314 @@
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix arden: <https://arden.ag/ont/core#> .
+@prefix arden-equip: <https://arden.ag/ont/equipment#> .
+@prefix arden-crops: <https://arden.ag/ont/crops#> .
+@prefix arden-markets: <https://arden.ag/ont/markets#> .
+@prefix arden-reg: <https://arden.ag/ont/regulatory#> .
+@prefix arden-int: <https://arden.ag/ont/integration#> .
+@prefix sosa: <http://www.w3.org/ns/sosa/> .
+@prefix qudt: <http://qudt.org/schema/qudt/> .
+@prefix unit: <http://qudt.org/vocab/unit/> .
+@prefix dcat: <http://www.w3.org/ns/dcat#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# Enterprise-level constraints for equipment management
+arden-equip:EquipmentEnterpriseConstraints a sh:NodeShape ;
+  sh:targetClass arden-equip:FarmEquipment ;
+
+  # All equipment must have manufacturer and model year
+  sh:property [
+    sh:path arden-equip:manufacturer ;
+    sh:datatype xsd:string ;
+    sh:minCount 1 ;
+    sh:minLength 2 ;
+    sh:message "Equipment must have manufacturer specified"
+  ] ;
+
+  sh:property [
+    sh:path arden-equip:modelYear ;
+    sh:datatype xsd:gYear ;
+    sh:minCount 1 ;
+    sh:minInclusive 1970 ;
+    sh:maxInclusive 2030 ;
+    sh:message "Equipment model year must be between 1970 and 2030"
+  ] ;
+
+  # Serial numbers must be unique within farm operation
+  sh:sparql [
+    sh:message "Equipment serial number must be unique within farm operation" ;
+    sh:select """
+      SELECT $this
+      WHERE {
+        $this arden-equip:serialNumber ?serial .
+        ?operation arden:hasEquipment $this , ?other .
+        ?other arden-equip:serialNumber ?serial .
+        FILTER ($this != ?other)
+      }
+    """
+  ] ;
+
+  # Active equipment should have recent telemetry
+  sh:sparql [
+    sh:message "Active equipment should have telemetry within last 30 days" ;
+    sh:select """
+      SELECT $this
+      WHERE {
+        $this arden-equip:equipmentStatus "active" .
+        FILTER NOT EXISTS {
+          ?telemetry arden-equip:usesEquipment $this ;
+                     sosa:resultTime ?time .
+          FILTER (?time > (NOW() - "P30D"^^xsd:duration))
+        }
+      }
+    """
+  ] .
+
+# Equipment operation tracking
+arden-equip:EquipmentOperationConstraints a sh:NodeShape ;
+  sh:targetClass arden-equip:EquipmentOperation ;
+
+  # Operations must have valid time ranges
+  sh:sparql [
+    sh:message "Equipment operation end time must be after start time" ;
+    sh:select """
+      SELECT $this
+      WHERE {
+        $this <https://example.org/startTime> ?start ;
+              <https://example.org/endTime> ?end .
+        FILTER (?end <= ?start)
+      }
+    """
+  ] ;
+
+  # Fuel consumption should be reasonable for operation duration
+  sh:sparql [
+    sh:message "Fuel consumption rate appears unrealistic for operation duration" ;
+    sh:select """
+      SELECT $this
+      WHERE {
+        $this <https://example.org/startTime> ?start ;
+              <https://example.org/endTime> ?end ;
+              arden-equip:fuelConsumption ?fuelQV .
+        ?fuelQV qudt:numericValue ?fuel ;
+                qudt:unit unit:Gallon .
+        BIND((?end - ?start) / 3600 AS ?hours)
+        BIND(?fuel / ?hours AS ?fuelRate)
+        # Alert if consuming more than 20 gallons/hour
+        FILTER (?fuelRate > 20)
+      }
+    """
+  ] .
+
+# Crop season enterprise constraints
+arden-crops:CropSeasonEnterpriseConstraints a sh:NodeShape ;
+  sh:targetClass arden-crops:CropSeason ;
+
+  # Crop seasons must not overlap on same parcel
+  sh:sparql [
+    sh:message "Crop seasons cannot overlap on the same parcel" ;
+    sh:select """
+      SELECT $this
+      WHERE {
+        $this arden-crops:onParcel ?parcel ;
+              <https://example.org/seasonStart> ?start1 ;
+              <https://example.org/seasonEnd> ?end1 .
+        ?other arden-crops:onParcel ?parcel ;
+               <https://example.org/seasonStart> ?start2 ;
+               <https://example.org/seasonEnd> ?end2 .
+        FILTER ($this != ?other)
+        FILTER (?start1 < ?end2 && ?start2 < ?end1)
+      }
+    """
+  ] ;
+
+  # Planting dates should align with regional recommendations
+  sh:sparql [
+    sh:message "Planting date outside recommended window for region/crop" ;
+    sh:select """
+      SELECT $this
+      WHERE {
+        $this arden-crops:growsCrop ?crop ;
+              arden-crops:onParcel ?parcel .
+        ?parcel arden:locatedInCounty ?county .
+        ?planting a arden-crops:PlantingOperation ;
+                  arden-crops:plantingDate ?plantDate ;
+                  arden-crops:forCropSeason $this .
+        BIND(MONTH(?plantDate) AS ?month)
+        # Example: corn planting in Northern US should be April-June
+        FILTER (?crop = <https://arden.ag/codes/corn> && (?month < 4 || ?month > 6))
+      }
+    """
+  ] .
+
+# Market transaction enterprise constraints
+arden-markets:TransactionEnterpriseConstraints a sh:NodeShape ;
+  sh:targetClass arden-markets:SaleTransaction , arden-markets:PurchaseTransaction ;
+
+  # Transaction amounts should be reasonable
+  sh:property [
+    sh:path arden-markets:totalValue ;
+    sh:class qudt:QuantityValue ;
+    sh:minCount 1 ;
+    sh:message "Transaction must have total value"
+  ] ;
+
+  sh:sparql [
+    sh:message "Transaction value appears unusually high (>$1M)" ;
+    sh:select """
+      SELECT $this
+      WHERE {
+        $this arden-markets:totalValue ?valueQV .
+        ?valueQV qudt:numericValue ?amount ;
+                 qudt:unit unit:Dollar .
+        FILTER (?amount > 1000000)
+      }
+    """
+  ] ;
+
+  # Price per unit should be within market range
+  sh:sparql [
+    sh:message "Price per unit outside typical market range" ;
+    sh:select """
+      SELECT $this
+      WHERE {
+        $this arden-markets:quantity ?qtyQV ;
+              arden-markets:totalValue ?valueQV .
+        ?qtyQV qudt:numericValue ?qty ;
+               qudt:unit unit:Bushel .
+        ?valueQV qudt:numericValue ?value ;
+                 qudt:unit unit:Dollar .
+        BIND(?value / ?qty AS ?pricePerBushel)
+        # Alert if corn price is outside $2-20/bushel range
+        FILTER (?pricePerBushel < 2 || ?pricePerBushel > 20)
+      }
+    """
+  ] .
+
+# Regulatory compliance enterprise constraints
+arden-reg:ComplianceEnterpriseConstraints a sh:NodeShape ;
+  sh:targetClass arden-reg:ProgramEnrollment ;
+
+  # Active enrollments must have current compliance records
+  sh:sparql [
+    sh:message "Active program enrollment missing recent compliance check" ;
+    sh:select """
+      SELECT $this
+      WHERE {
+        $this arden-reg:enrollmentDate ?enrollDate ;
+              arden-reg:contractPeriod ?period .
+        ?period <http://www.w3.org/2006/time#hasEnd> ?endDate .
+        FILTER (?endDate > NOW())
+        FILTER NOT EXISTS {
+          $this arden-reg:hasCompliance ?compliance .
+          ?compliance arden-reg:inspectionDate ?inspectionDate .
+          FILTER (?inspectionDate > (NOW() - "P1Y"^^xsd:duration))
+        }
+      }
+    """
+  ] ;
+
+  # Non-compliant records should have corrective actions
+  sh:sparql [
+    sh:message "Non-compliant status requires documented corrective action" ;
+    sh:select """
+      SELECT $this
+      WHERE {
+        $this arden-reg:hasCompliance ?compliance .
+        ?compliance arden-reg:complianceStatus "non-compliant" .
+        FILTER NOT EXISTS {
+          ?compliance <https://example.org/correctiveAction> ?action
+        }
+      }
+    """
+  ] .
+
+# Data integration enterprise constraints
+arden-int:DataIntegrationEnterpriseConstraints a sh:NodeShape ;
+  sh:targetClass arden-int:DataIngestionJob ;
+
+  # Active jobs must have recent successful runs
+  sh:sparql [
+    sh:message "Active data ingestion job has not run successfully in 48 hours" ;
+    sh:select """
+      SELECT $this
+      WHERE {
+        $this arden-int:jobStatus "active" ;
+              arden-int:lastRunTime ?lastRun .
+        FILTER (?lastRun < (NOW() - "P2D"^^xsd:duration))
+      }
+    """
+  ] ;
+
+  # Failed jobs should be investigated
+  sh:sparql [
+    sh:message "Failed data ingestion job requires investigation" ;
+    sh:select """
+      SELECT $this
+      WHERE {
+        $this arden-int:jobStatus "failed" .
+        FILTER NOT EXISTS {
+          $this <https://example.org/investigationTicket> ?ticket
+        }
+      }
+    """
+  ] .
+
+# Cross-system data quality constraints
+arden-int:DataQualityEnterpriseConstraints a sh:NodeShape ;
+  sh:targetClass arden-int:DataQualityReport ;
+
+  # Data completeness should meet minimum thresholds
+  sh:property [
+    sh:path arden-int:dataCompletenessScore ;
+    sh:datatype xsd:decimal ;
+    sh:minInclusive 80.0 ;
+    sh:message "Data completeness score must be at least 80%"
+  ] ;
+
+  # High error rates should trigger alerts
+  sh:sparql [
+    sh:message "Error rate exceeds acceptable threshold (>5%)" ;
+    sh:select """
+      SELECT $this
+      WHERE {
+        $this arden-int:recordCount ?total ;
+              arden-int:errorCount ?errors .
+        BIND((?errors / ?total) * 100 AS ?errorRate)
+        FILTER (?errorRate > 5)
+      }
+    """
+  ] .
+
+# Financial enterprise constraints (enhanced)
+arden:FinancialEnterpriseConstraints a sh:NodeShape ;
+  sh:targetClass arden:FarmOperation ;
+
+  # Farm operations with loans should have current financial reports
+  sh:sparql [
+    sh:message "Farm operation with loans missing current financial reporting" ;
+    sh:select """
+      SELECT $this
+      WHERE {
+        $this arden:hasLoan ?loan .
+        FILTER NOT EXISTS {
+          $this <https://example.org/hasFinancialReport> ?report .
+          ?report <https://example.org/reportDate> ?reportDate .
+          FILTER (?reportDate > (NOW() - "P1Y"^^xsd:duration))
+        }
+      }
+    """
+  ] ;
+
+  # Total debt-to-asset ratio monitoring
+  sh:sparql [
+    sh:message "Debt-to-asset ratio exceeds 70% threshold" ;
+    sh:select """
+      SELECT $this
+      WHERE {
+        $this <https://example.org/totalAssets> ?assets ;
+              <https://example.org/totalDebt> ?debt .
+        BIND((?debt / ?assets) * 100 AS ?debtRatio)
+        FILTER (?debtRatio > 70)
+      }
+    """
+  ] .

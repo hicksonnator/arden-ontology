@@ -1,0 +1,17 @@
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix arden: <https://arden.ag/ont/core#> .
+@prefix arden-ag: <https://arden.ag/ont/ag#> .
+@prefix arden-geo: <https://arden.ag/ont/geo#> .
+@prefix geosparql: <http://www.opengis.net/ont/geosparql#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# Ensure parcels have geometry and a county
+[] a sh:NodeShape ;
+  sh:targetClass arden:FarmParcel ;
+  sh:property [ sh:path geosparql:hasGeometry ; sh:minCount 1 ] ;
+  sh:property [ sh:path arden:locatedInCounty ; sh:minCount 1 ] .
+
+# Basic observation timestamps
+[] a sh:NodeShape ;
+  sh:targetClass arden-ag:YieldObservation ;
+  sh:property [ sh:path <http://www.w3.org/ns/sosa/resultTime> ; sh:minCount 1 ; sh:datatype xsd:dateTime ] .

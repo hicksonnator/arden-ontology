@@ -1,0 +1,136 @@
+@prefix : <https://arden.ag/data/> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix geosparql: <http://www.opengis.net/ont/geosparql#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# FIPS County Reference Data - Iowa
+# Source: US Census Bureau FIPS codes - Public Domain
+
+# FIPS Code Scheme
+<https://arden.ag/codes/fips-counties> a skos:ConceptScheme ;
+  skos:prefLabel "FIPS County Codes"@en ;
+  dct:source <https://www.census.gov/library/reference/code-lists/ansi.html> ;
+  dct:publisher "US Census Bureau"@en ;
+  skos:definition "Federal Information Processing Standards (FIPS) county codes"@en .
+
+# Iowa State
+:state_19 a skos:Concept ;
+  skos:inScheme <https://arden.ag/codes/fips-states> ;
+  skos:notation "19" ;
+  skos:prefLabel "Iowa"@en ;
+  skos:altLabel "IA"@en .
+
+# Polk County, IA (Des Moines metro area)
+:fips_19153 a skos:Concept ;
+  skos:inScheme <https://arden.ag/codes/fips-counties> ;
+  skos:notation "19153" ;
+  skos:prefLabel "Polk County, IA"@en ;
+  skos:altLabel "POLK"@en ;
+  dct:isPartOf :state_19 ;
+  geosparql:hasGeometry [
+    a geosparql:Geometry ;
+    geosparql:asWKT "SRID=4326;POLYGON((-93.8936 41.3854, -93.3145 41.3854, -93.3145 41.7847, -93.8936 41.7847, -93.8936 41.3854))"^^geosparql:wktLiteral
+  ] ;
+  <https://example.org/areaSquareMiles> "592.2"^^xsd:decimal ;
+  <https://example.org/countySeat> "Des Moines"@en ;
+  <https://example.org/ruralUrbanCode> "1"@en ;  # Metropolitan county
+  <https://example.org/metropolitanArea> "Des Moines-West Des Moines, IA"@en .
+
+# Story County, IA (Ames - Iowa State University)
+:fips_19169 a skos:Concept ;
+  skos:inScheme <https://arden.ag/codes/fips-counties> ;
+  skos:notation "19169" ;
+  skos:prefLabel "Story County, IA"@en ;
+  skos:altLabel "STORY"@en ;
+  dct:isPartOf :state_19 ;
+  geosparql:hasGeometry [
+    a geosparql:Geometry ;
+    geosparql:asWKT "SRID=4326;POLYGON((-93.8428 42.0334, -93.3428 42.0334, -93.3428 42.3945, -93.8428 42.3945, -93.8428 42.0334))"^^geosparql:wktLiteral
+  ] ;
+  <https://example.org/areaSquareMiles> "572.9"^^xsd:decimal ;
+  <https://example.org/countySeat> "Nevada"@en ;
+  <https://example.org/ruralUrbanCode> "3"@en ;  # Adjacent to metropolitan area
+  <https://example.org/universityCampus> "Iowa State University"@en .
+
+# Johnson County, IA (Iowa City - University of Iowa)
+:fips_19103 a skos:Concept ;
+  skos:inScheme <https://arden.ag/codes/fips-counties> ;
+  skos:notation "19103" ;
+  skos:prefLabel "Johnson County, IA"@en ;
+  skos:altLabel "JOHNSON"@en ;
+  dct:isPartOf :state_19 ;
+  geosparql:hasGeometry [
+    a geosparql:Geometry ;
+    geosparql:asWKT "SRID=4326;POLYGON((-91.8234 41.4623, -91.2934 41.4623, -91.2934 41.8456, -91.8234 41.8456, -91.8234 41.4623))"^^geosparql:wktLiteral
+  ] ;
+  <https://example.org/areaSquareMiles> "614.3"^^xsd:decimal ;
+  <https://example.org/countySeat> "Iowa City"@en ;
+  <https://example.org/ruralUrbanCode> "2"@en ;  # Micropolitan area
+  <https://example.org/universityCampus> "University of Iowa"@en .
+
+# Linn County, IA (Cedar Rapids metro)
+:fips_19113 a skos:Concept ;
+  skos:inScheme <https://arden.ag/codes/fips-counties> ;
+  skos:notation "19113" ;
+  skos:prefLabel "Linn County, IA"@en ;
+  skos:altLabel "LINN"@en ;
+  dct:isPartOf :state_19 ;
+  geosparql:hasGeometry [
+    a geosparql:Geometry ;
+    geosparql:asWKT "SRID=4326;POLYGON((-91.8923 41.8456, -91.2823 41.8456, -91.2823 42.2445, -91.8923 42.2445, -91.8923 41.8456))"^^geosparql:wktLiteral
+  ] ;
+  <https://example.org/areaSquareMiles> "717.8"^^xsd:decimal ;
+  <https://example.org/countySeat> "Cedar Rapids"@en ;
+  <https://example.org/ruralUrbanCode> "1"@en ;  # Metropolitan county
+  <https://example.org/metropolitanArea> "Cedar Rapids, IA"@en .
+
+# Hamilton County, IA (rural agricultural)
+:fips_19079 a skos:Concept ;
+  skos:inScheme <https://arden.ag/codes/fips-counties> ;
+  skos:notation "19079" ;
+  skos:prefLabel "Hamilton County, IA"@en ;
+  skos:altLabel "HAMILTON"@en ;
+  dct:isPartOf :state_19 ;
+  geosparql:hasGeometry [
+    a geosparql:Geometry ;
+    geosparql:asWKT "SRID=4326;POLYGON((-93.8234 42.2445, -93.3234 42.2445, -93.3234 42.6123, -93.8234 42.6123, -93.8234 42.2445))"^^geosparql:wktLiteral
+  ] ;
+  <https://example.org/areaSquareMiles> "576.1"^^xsd:decimal ;
+  <https://example.org/countySeat> "Webster City"@en ;
+  <https://example.org/ruralUrbanCode> "6"@en ;  # Nonmetropolitan, urban population 2,500-19,999
+  <https://example.org/primaryIndustry> "Agriculture"@en .
+
+# Sioux County, IA (livestock intensive)
+:fips_19167 a skos:Concept ;
+  skos:inScheme <https://arden.ag/codes/fips-counties> ;
+  skos:notation "19167" ;
+  skos:prefLabel "Sioux County, IA"@en ;
+  skos:altLabel "SIOUX"@en ;
+  dct:isPartOf :state_19 ;
+  geosparql:hasGeometry [
+    a geosparql:Geometry ;
+    geosparql:asWKT "SRID=4326;POLYGON((-96.6378 43.0623, -96.1378 43.0623, -96.1378 43.4234, -96.6378 43.4234, -96.6378 43.0623))"^^geosparql:wktLiteral
+  ] ;
+  <https://example.org/areaSquareMiles> "768.4"^^xsd:decimal ;
+  <https://example.org/countySeat> "Orange City"@en ;
+  <https://example.org/ruralUrbanCode> "7"@en ;  # Nonmetropolitan, urban population < 2,500
+  <https://example.org/primaryIndustry> "Livestock"@en ;
+  <https://example.org/specialization> "Hog Production"@en .
+
+# Geographic Classifications for Analysis
+:iowa_counties a skos:Collection ;
+  skos:prefLabel "Iowa Counties"@en ;
+  skos:member :fips_19153, :fips_19169, :fips_19103, :fips_19113, :fips_19079, :fips_19167 .
+
+:metro_counties a skos:Collection ;
+  skos:prefLabel "Metropolitan Counties"@en ;
+  skos:member :fips_19153, :fips_19113 .
+
+:university_counties a skos:Collection ;
+  skos:prefLabel "University Counties"@en ;
+  skos:member :fips_19169, :fips_19103 .
+
+:rural_ag_counties a skos:Collection ;
+  skos:prefLabel "Rural Agricultural Counties"@en ;
+  skos:member :fips_19079, :fips_19167 .

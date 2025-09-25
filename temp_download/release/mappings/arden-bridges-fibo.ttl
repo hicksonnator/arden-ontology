@@ -1,0 +1,167 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+
+@prefix arden: <https://arden.ag/ont/core#> .
+@prefix arden-fin: <https://arden.ag/ont/fin#> .
+@prefix fibo-fnd-aap-agt: <https://spec.edmcouncil.org/fibo/ontology/FND/AgentsAndPeople/Agents/> .
+@prefix fibo-fnd-pty-pty: <https://spec.edmcouncil.org/fibo/ontology/FND/Parties/Parties/> .
+@prefix fibo-be-le-lp: <https://spec.edmcouncil.org/fibo/ontology/BE/LegalEntities/LegalPersons/> .
+@prefix fibo-fbc-dae-dbt: <https://spec.edmcouncil.org/fibo/ontology/FBC/DebtAndEquities/Debt/> .
+@prefix fibo-fnd-acc-cur: <https://spec.edmcouncil.org/fibo/ontology/FND/Accounting/CurrencyAmount/> .
+@prefix fibo-fnd-dt-fd: <https://spec.edmcouncil.org/fibo/ontology/FND/DatesAndTimes/FinancialDates/> .
+
+# ===================================================================
+# Arden ↔ FIBO (Financial Industry Business Ontology) Bridge Mappings
+# ===================================================================
+#
+# Maps Arden financial concepts to FIBO minimal subset (FND/BE/FBC-Debt).
+# Focus on agricultural loan modeling without securities/derivatives.
+# Uses rdfs:subClassOf and restrictions, avoiding owl:equivalentClass.
+#
+# Created: 2024-09-19 for Arden v1.2.0
+# ===================================================================
+
+<https://arden.ag/ont/mappings/fibo> a owl:Ontology ;
+    dct:title "Arden-FIBO Bridge Mappings"@en ;
+    dct:description "Bridge mappings between Arden financial concepts and FIBO (Financial Industry Business Ontology) terms for agricultural finance."@en ;
+    dct:created "2024-09-19"^^<http://www.w3.org/2001/XMLSchema#date> ;
+    owl:imports <https://arden.ag/ont/fin> .
+
+# ===================================================================
+# AGENTS AND PARTIES
+# ===================================================================
+
+# Legal entities and agents
+arden-fin:FinancialAgent rdfs:subClassOf fibo-fnd-aap-agt:Agent .
+arden-fin:FinancialParty rdfs:subClassOf fibo-fnd-pty-pty:Party .
+arden-fin:LegalEntity rdfs:subClassOf fibo-be-le-lp:LegalEntity .
+
+# Agricultural-specific financial entities
+arden-fin:Farm rdfs:subClassOf fibo-be-le-lp:LegalEntity .
+arden-fin:AgriculturalLender rdfs:subClassOf fibo-fbc-dae-dbt:Lender .
+arden-fin:Farmer rdfs:subClassOf fibo-fbc-dae-dbt:Borrower .
+
+# ===================================================================
+# LOAN AND CREDIT CONCEPTS
+# ===================================================================
+
+# Core loan concepts
+arden-fin:AgriculturalLoan rdfs:subClassOf fibo-fbc-dae-dbt:Loan .
+arden-fin:AgriculturalCreditFacility rdfs:subClassOf fibo-fbc-dae-dbt:CreditFacility .
+arden-fin:AgriculturalCreditAgreement rdfs:subClassOf fibo-fbc-dae-dbt:CreditAgreement .
+
+# Loan instruments
+arden-fin:OperatingLoan rdfs:subClassOf arden-fin:AgriculturalLoan .
+arden-fin:EquipmentLoan rdfs:subClassOf arden-fin:AgriculturalLoan .
+arden-fin:LandLoan rdfs:subClassOf arden-fin:AgriculturalLoan .
+arden-fin:CropLoan rdfs:subClassOf arden-fin:AgriculturalLoan .
+
+# ===================================================================
+# FINANCIAL OBLIGATIONS AND DEBT
+# ===================================================================
+
+arden-fin:LoanObligation rdfs:subClassOf fibo-fbc-dae-dbt:DebtObligation .
+arden-fin:FinancialObligation rdfs:subClassOf fibo-fbc-dae-dbt:FinancialObligation .
+
+# ===================================================================
+# INTEREST RATES AND PRICING
+# ===================================================================
+
+# Interest rate concepts
+arden-fin:InterestRate rdfs:subClassOf fibo-fbc-dae-dbt:InterestRate .
+arden-fin:FixedInterestRate rdfs:subClassOf fibo-fbc-dae-dbt:FixedInterestRate .
+arden-fin:VariableInterestRate rdfs:subClassOf fibo-fbc-dae-dbt:VariableInterestRate .
+arden-fin:RateSpecification rdfs:subClassOf fibo-fbc-dae-dbt:RateSpecification .
+
+# ===================================================================
+# PAYMENT AND REPAYMENT
+# ===================================================================
+
+# Payment concepts
+arden-fin:Payment rdfs:subClassOf fibo-fbc-fct-bct:Payment .
+arden-fin:LoanPayment rdfs:subClassOf arden-fin:Payment .
+arden-fin:RepaymentSchedule rdfs:subClassOf fibo-fbc-dae-dbt:RepaymentSchedule .
+arden-fin:PaymentEvent rdfs:subClassOf fibo-fbc-dae-dbt:PaymentEvent .
+
+# ===================================================================
+# CURRENCY AND MONETARY AMOUNTS
+# ===================================================================
+
+# Currency and amounts
+arden-fin:Currency rdfs:subClassOf fibo-fnd-acc-cur:Currency .
+arden-fin:MonetaryAmount rdfs:subClassOf fibo-fnd-acc-cur:MonetaryAmount .
+arden-fin:LoanAmount rdfs:subClassOf arden-fin:MonetaryAmount .
+arden-fin:PrincipalAmount rdfs:subClassOf arden-fin:MonetaryAmount .
+
+# ===================================================================
+# DATES AND TEMPORAL CONCEPTS
+# ===================================================================
+
+# Financial dates
+arden-fin:EffectiveDate rdfs:subClassOf fibo-fnd-dt-fd:EffectiveDate .
+arden-fin:MaturityDate rdfs:subClassOf fibo-fnd-dt-fd:MaturityDate .
+arden-fin:IssueDate rdfs:subClassOf fibo-fnd-dt-fd:IssueDate .
+arden-fin:LoanDate rdfs:subClassOf arden-fin:EffectiveDate .
+
+# ===================================================================
+# PROPERTY MAPPINGS
+# ===================================================================
+
+# Principal and amounts
+arden-fin:hasPrincipalAmount skos:exactMatch fibo-fbc-dae-dbt:hasPrincipalAmount .
+arden-fin:hasNotionalAmount skos:exactMatch fibo-fbc-dae-dbt:hasNotionalAmount .
+arden-fin:hasOutstandingAmount skos:exactMatch fibo-fbc-dae-dbt:hasOutstandingAmount .
+
+# Interest rates
+arden-fin:hasInterestRate skos:exactMatch fibo-fbc-dae-dbt:hasInterestRate .
+
+# Dates
+arden-fin:hasEffectiveDate skos:exactMatch fibo-fnd-dt-fd:hasEffectiveDate .
+arden-fin:hasMaturityDate skos:exactMatch fibo-fnd-dt-fd:hasMaturityDate .
+
+# Currency
+arden-fin:hasCurrency skos:exactMatch fibo-fnd-acc-cur:hasCurrency .
+arden-fin:hasAmount skos:exactMatch fibo-fnd-acc-cur:hasAmount .
+
+# Repayment
+arden-fin:hasRepaymentSchedule skos:exactMatch fibo-fbc-dae-dbt:hasRepaymentSchedule .
+arden-fin:hasPaymentFrequency skos:exactMatch fibo-fbc-dae-dbt:hasPaymentFrequency .
+
+# Parties
+arden-fin:hasLender rdfs:subPropertyOf fibo-fnd-pty-pty:hasParty .
+arden-fin:hasBorrower rdfs:subPropertyOf fibo-fnd-pty-pty:hasParty .
+
+# ===================================================================
+# RESTRICTIONS AND CONSTRAINTS
+# ===================================================================
+
+# Agricultural loan must have agricultural borrower
+arden-fin:AgriculturalLoan rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty arden-fin:hasBorrower ;
+    owl:someValuesFrom arden-fin:Farmer
+] .
+
+# Agricultural loan must have currency
+arden-fin:AgriculturalLoan rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty arden-fin:hasCurrency ;
+    owl:cardinality 1
+] .
+
+# Agricultural loan must have principal amount
+arden-fin:AgriculturalLoan rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty arden-fin:hasPrincipalAmount ;
+    owl:cardinality 1
+] .
+
+# Agricultural loan must have interest rate
+arden-fin:AgriculturalLoan rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty arden-fin:hasInterestRate ;
+    owl:cardinality 1
+] .

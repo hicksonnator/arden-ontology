@@ -1,0 +1,36 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix fibo-fbc-dae-dbt: <https://spec.edmcouncil.org/fibo/ontology/FBC/DebtAndEquities/Debt/> .
+@prefix fibo-fbc-pas-caa: <https://spec.edmcouncil.org/fibo/ontology/FBC/ProductsAndServices/ClientsAndAccounts/> .
+@prefix fibo-fnd-pty-pty: <https://spec.edmcouncil.org/fibo/ontology/FND/Parties/Parties/> .
+@prefix fibo-fnd-agr-ctr: <https://spec.edmcouncil.org/fibo/ontology/FND/Agreements/Contracts/> .
+
+<https://arden.ag/ont/fibo-ag-micro> a owl:Ontology ;
+    rdfs:label "Arden FIBO Micro-Extract"@en ;
+    rdfs:comment "Minimal FIBO terms for ag-finance competency questions"@en .
+
+# Core lending concepts (20-30 terms max)
+fibo-fbc-dae-dbt:Loan a owl:Class ;
+    rdfs:label "Loan"@en ;
+    rdfs:comment "A contract whereby one party provides funds to another"@en .
+
+fibo-fbc-dae-dbt:Mortgage a owl:Class ;
+    rdfs:label "Mortgage"@en ;
+    rdfs:subClassOf fibo-fbc-dae-dbt:Loan .
+
+fibo-fbc-dae-dbt:Collateral a owl:Class ;
+    rdfs:label "Collateral"@en ;
+    rdfs:comment "Assets pledged as security for a loan"@en .
+
+fibo-fbc-pas-caa:RepaymentSchedule a owl:Class ;
+    rdfs:label "Repayment Schedule"@en .
+
+fibo-fbc-pas-caa:CashFlow a owl:Class ;
+    rdfs:label "Cash Flow"@en .
+
+fibo-fnd-pty-pty:Party a owl:Class ;
+    rdfs:label "Party"@en .
+
+fibo-fnd-agr-ctr:Contract a owl:Class ;
+    rdfs:label "Contract"@en .

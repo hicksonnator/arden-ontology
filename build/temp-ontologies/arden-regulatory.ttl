@@ -1,0 +1,279 @@
+@prefix arden: <https://arden.ag/ont/core#> .
+@prefix arden-reg: <https://arden.ag/ont/regulatory#> .
+@prefix arden-crops: <https://arden.ag/ont/crops#> .
+@prefix arden-fin: <https://arden.ag/ont/fin#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix sosa: <http://www.w3.org/ns/sosa/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix time: <http://www.w3.org/2006/time#> .
+@prefix qudt: <http://qudt.org/schema/qudt/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+<https://arden.ag/ont/regulatory>
+  a owl:Ontology ;
+  rdfs:label "Arden Regulatory"@en ;
+  rdfs:comment "Government programs, regulations, and compliance requirements"@en ;
+  owl:versionInfo "v1.0" ;
+              <https://arden.ag/ont/crops> ,
+              <https://arden.ag/ont/fin> ,
+              <http://www.w3.org/ns/prov-o-20130430> ,
+              <http://www.w3.org/2006/time#> .
+
+### Anchor Classes (production-tight minimal set)
+arden-reg:WaterRight a owl:Class ;
+  rdfs:label "Water Right"@en ;
+  rdfs:comment "Legal authorization to use water resources for agricultural purposes"@en .
+
+arden-reg:Permit a owl:Class ;
+  rdfs:label "Permit"@en ;
+  rdfs:comment "Government-issued authorization with provenance and validity period"@en ;
+  prov:wasAttributedTo [ a prov:Agent ] .
+
+arden-reg:Certification a owl:Class ;
+  rdfs:label "Certification"@en ;
+  rdfs:comment "GAP/Organic or other third-party certification with time validity"@en .
+
+arden-reg:validityInterval a owl:ObjectProperty ;
+  rdfs:domain arden-reg:Permit , arden-reg:Certification ;
+  rdfs:range time:ProperInterval ;
+  rdfs:label "validity interval"@en .
+
+arden-reg:DisasterAssistanceProgram a owl:Class ;
+  rdfs:subClassOf arden-reg:GovernmentProgram ;
+  rdfs:label "Disaster Assistance Program"@en ;
+  rdfs:comment "Emergency assistance for natural disasters"@en .
+
+### USDA Conservation Programs
+arden-reg:CRP a owl:Class ;
+  rdfs:subClassOf arden-reg:ConservationProgram ;
+  rdfs:label "Conservation Reserve Program"@en ;
+  rdfs:comment "CRP - Land retirement program"@en .
+
+arden-reg:CSP a owl:Class ;
+  rdfs:subClassOf arden-reg:ConservationProgram ;
+  rdfs:label "Conservation Stewardship Program"@en ;
+  rdfs:comment "CSP - Working lands conservation program"@en .
+
+arden-reg:EQIP a owl:Class ;
+  rdfs:subClassOf arden-reg:ConservationProgram ;
+  rdfs:label "Environmental Quality Incentives Program"@en ;
+  rdfs:comment "EQIP - Financial assistance for conservation practices"@en .
+
+arden-reg:ACEP a owl:Class ;
+  rdfs:subClassOf arden-reg:ConservationProgram ;
+  rdfs:label "Agricultural Conservation Easement Program"@en ;
+  rdfs:comment "ACEP - Easement program for wetlands and farmland"@en .
+
+### Program Participation & Compliance
+arden-reg:ProgramEnrollment a owl:Class ;
+  rdfs:label "Program Enrollment"@en ;
+  rdfs:comment "Farm operation's participation in government program"@en .
+
+arden-reg:ConservationPractice a owl:Class ;
+  rdfs:subClassOf arden:Practice ;
+  rdfs:label "Conservation Practice"@en ;
+  rdfs:comment "Approved conservation practice (NRCS practice standards)"@en .
+
+arden-reg:ComplianceRecord a owl:Class ;
+  rdfs:label "Compliance Record"@en ;
+  rdfs:comment "Documentation of regulatory compliance status"@en .
+
+arden-reg:PaymentRecord a owl:Class ;
+  rdfs:label "Payment Record"@en ;
+  rdfs:comment "Government program payment to farm operation"@en .
+
+### Environmental Regulations
+arden-reg:WaterRights a owl:Class ;
+  rdfs:label "Water Rights"@en ;
+  rdfs:comment "Legal right to use water for agricultural purposes"@en .
+
+arden-reg:WaterWithdrawalPermit a owl:Class ;
+  rdfs:label "Water Withdrawal Permit"@en ;
+  rdfs:comment "Permit for withdrawing water from surface/groundwater"@en .
+
+arden-reg:PesticideApplication a owl:Class ;
+  rdfs:subClassOf arden-crops:PestManagementEvent ;
+  rdfs:label "Pesticide Application"@en ;
+  rdfs:comment "Regulated application of pesticides"@en .
+
+arden-reg:PesticideUseRestriction a owl:Class ;
+  rdfs:label "Pesticide Use Restriction"@en ;
+  rdfs:comment "Regulatory restrictions on pesticide use"@en .
+
+### Food Safety & Certification
+arden-reg:FoodSafetyCertification a owl:Class ;
+  rdfs:label "Food Safety Certification"@en ;
+  rdfs:comment "Third-party food safety certification (GAP, etc.)"@en .
+
+arden-reg:OrganicCertification a owl:Class ;
+  rdfs:subClassOf arden-reg:FoodSafetyCertification ;
+  rdfs:label "Organic Certification"@en ;
+  rdfs:comment "USDA Organic certification"@en .
+
+arden-reg:GAPCertification a owl:Class ;
+  rdfs:subClassOf arden-reg:FoodSafetyCertification ;
+  rdfs:label "Good Agricultural Practices Certification"@en ;
+  rdfs:comment "GAP certification for food safety"@en .
+
+arden-reg:AuditRecord a owl:Class ;
+  rdfs:label "Audit Record"@en ;
+  rdfs:comment "Third-party audit for certification compliance"@en .
+
+### Properties
+arden-reg:enrolledIn a owl:ObjectProperty ;
+  rdfs:domain arden:FarmOperation ;
+  rdfs:range arden-reg:ProgramEnrollment ;
+  rdfs:label "enrolled in"@en .
+
+arden-reg:participatesIn a owl:ObjectProperty ;
+  rdfs:domain arden-reg:ProgramEnrollment ;
+  rdfs:range arden-reg:GovernmentProgram ;
+  rdfs:label "participates in"@en .
+
+arden-reg:implementsPractice a owl:ObjectProperty ;
+  rdfs:domain arden-reg:ProgramEnrollment ;
+  rdfs:range arden-reg:ConservationPractice ;
+  rdfs:label "implements practice"@en .
+
+arden-reg:onParcel a owl:ObjectProperty ;
+  rdfs:domain arden-reg:ConservationPractice ;
+  rdfs:range arden:FarmParcel ;
+  rdfs:label "on parcel"@en .
+
+arden-reg:hasCompliance a owl:ObjectProperty ;
+  rdfs:domain arden-reg:ProgramEnrollment ;
+  rdfs:range arden-reg:ComplianceRecord ;
+  rdfs:label "has compliance"@en .
+
+arden-reg:receivesPayment a owl:ObjectProperty ;
+  rdfs:domain arden:FarmOperation ;
+  rdfs:range arden-reg:PaymentRecord ;
+  rdfs:label "receives payment"@en .
+
+arden-reg:programCode a owl:DatatypeProperty ;
+  rdfs:domain arden-reg:GovernmentProgram ;
+  rdfs:range xsd:string ;
+  rdfs:label "program code"@en ;
+  rdfs:comment "Official USDA program code"@en .
+
+arden-reg:practiceCode a owl:DatatypeProperty ;
+  rdfs:domain arden-reg:ConservationPractice ;
+  rdfs:range xsd:string ;
+  rdfs:label "practice code"@en ;
+  rdfs:comment "NRCS practice standard code"@en .
+
+arden-reg:enrollmentDate a owl:DatatypeProperty ;
+  rdfs:domain arden-reg:ProgramEnrollment ;
+  rdfs:range xsd:date ;
+  rdfs:label "enrollment date"@en .
+
+arden-reg:contractPeriod a owl:ObjectProperty ;
+  rdfs:domain arden-reg:ProgramEnrollment ;
+  rdfs:range time:TemporalEntity ;
+  rdfs:label "contract period"@en .
+
+arden-reg:paymentAmount a owl:ObjectProperty ;
+  rdfs:domain arden-reg:PaymentRecord ;
+  rdfs:range qudt:QuantityValue ;
+  rdfs:label "payment amount"@en .
+
+arden-reg:paymentDate a owl:DatatypeProperty ;
+  rdfs:domain arden-reg:PaymentRecord ;
+  rdfs:range xsd:date ;
+  rdfs:label "payment date"@en .
+
+arden-reg:complianceStatus a owl:DatatypeProperty ;
+  rdfs:domain arden-reg:ComplianceRecord ;
+  rdfs:range xsd:string ;
+  rdfs:label "compliance status"@en ;
+  rdfs:comment "Values: compliant, non-compliant, pending, violation"@en .
+
+arden-reg:inspectionDate a owl:DatatypeProperty ;
+  rdfs:domain arden-reg:ComplianceRecord ;
+  rdfs:range xsd:date ;
+  rdfs:label "inspection date"@en .
+
+### Water Rights & Environmental
+arden-reg:hasWaterRights a owl:ObjectProperty ;
+  rdfs:domain arden:FarmOperation ;
+  rdfs:range arden-reg:WaterRights ;
+  rdfs:label "has water rights"@en .
+
+arden-reg:waterSource a owl:DatatypeProperty ;
+  rdfs:domain arden-reg:WaterRights ;
+  rdfs:range xsd:string ;
+  rdfs:label "water source"@en ;
+  rdfs:comment "Source of water (well, river, reservoir, etc.)"@en .
+
+arden-reg:allocationAmount a owl:ObjectProperty ;
+  rdfs:domain arden-reg:WaterRights ;
+  rdfs:range qudt:QuantityValue ;
+  rdfs:label "allocation amount"@en ;
+  rdfs:comment "Annual water allocation amount"@en .
+
+arden-reg:permitNumber a owl:DatatypeProperty ;
+  rdfs:domain arden-reg:WaterWithdrawalPermit ;
+  rdfs:range xsd:string ;
+  rdfs:label "permit number"@en .
+
+arden-reg:expirationDate a owl:DatatypeProperty ;
+  rdfs:domain arden-reg:WaterWithdrawalPermit , arden-reg:FoodSafetyCertification ;
+  rdfs:range xsd:date ;
+  rdfs:label "expiration date"@en .
+
+### Pesticide Regulations
+arden-reg:epaRegistrationNumber a owl:DatatypeProperty ;
+  rdfs:domain arden-reg:PesticideApplication ;
+  rdfs:range xsd:string ;
+  rdfs:label "EPA registration number"@en .
+
+arden-reg:applicatorLicense a owl:DatatypeProperty ;
+  rdfs:domain arden-reg:PesticideApplication ;
+  rdfs:range xsd:string ;
+  rdfs:label "applicator license"@en ;
+  rdfs:comment "Certified pesticide applicator license number"@en .
+
+arden-reg:preharvest_interval a owl:DatatypeProperty ;
+  rdfs:domain arden-reg:PesticideApplication ;
+  rdfs:range xsd:duration ;
+  rdfs:label "pre-harvest interval"@en ;
+  rdfs:comment "Required time between application and harvest"@en .
+
+### Certification & Audits
+arden-reg:certificationBody a owl:DatatypeProperty ;
+  rdfs:domain arden-reg:FoodSafetyCertification ;
+  rdfs:range xsd:string ;
+  rdfs:label "certification body"@en ;
+  rdfs:comment "Organization issuing certification"@en .
+
+arden-reg:certificateNumber a owl:DatatypeProperty ;
+  rdfs:domain arden-reg:FoodSafetyCertification ;
+  rdfs:range xsd:string ;
+  rdfs:label "certificate number"@en .
+
+arden-reg:auditScore a owl:DatatypeProperty ;
+  rdfs:domain arden-reg:AuditRecord ;
+  rdfs:range xsd:decimal ;
+  rdfs:label "audit score"@en .
+
+arden-reg:auditDate a owl:DatatypeProperty ;
+  rdfs:domain arden-reg:AuditRecord ;
+  rdfs:range xsd:date ;
+  rdfs:label "audit date"@en .
+
+### Traceability & Reporting
+arden-reg:TraceabilityRecord a owl:Class ;
+  rdfs:label "Traceability Record"@en ;
+  rdfs:comment "Record for food safety traceability requirements"@en .
+
+arden-reg:LotNumber a owl:DatatypeProperty ;
+  rdfs:domain arden-reg:TraceabilityRecord ;
+  rdfs:range xsd:string ;
+  rdfs:label "lot number"@en .
+
+arden-reg:harvestLot a owl:ObjectProperty ;
+  rdfs:domain arden-crops:HarvestOperation ;
+  rdfs:range arden-reg:TraceabilityRecord ;
+  rdfs:label "harvest lot"@en .

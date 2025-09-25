@@ -25,7 +25,19 @@
       "Bash(while read line)",
       "Bash(awk:*)",
       "Bash(echo:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(gh release create:*)",
+      "Bash(gh release list:*)",
+      "Bash(gh release download:*)",
+      "Bash(ARDEN_VERSION=v1.2.2 bash scripts/release-package.sh)",
+      "Bash(gh release delete:*)",
+      "Bash(find:*)",
+      "Bash(ARDEN_VERSION=v1.2.2-test bash scripts/release-package.sh)",
+      "Bash(ARDEN_VERSION=v1.2.2-test bash scripts/release-package-test.sh)",
+      "Bash(ARDEN_VERSION=v1.2.2 bash scripts/build-enhanced-v1.2.2.sh)",
+      "Bash(ARDEN_VERSION=v1.2.2 timeout 300s bash scripts/release-package.sh)",
+      "Bash(tar:*)",
+      "Bash(sha256sum:*)"
     ],
     "deny": [],
     "ask": []

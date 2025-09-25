@@ -1,0 +1,328 @@
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+@prefix arden: <https://arden.ag/ont/core#> .
+@prefix arden-fin: <https://arden.ag/ont/fin#> .
+@prefix actus: <https://spec.edmcouncil.org/fibo/ontology/ACTUS/ACTUSControlledVocabulary/> .
+
+# ===================================================================
+# SHACL Shapes for Financial Data Validation
+# ===================================================================
+#
+# Validates agricultural loans, interest rates, payment schedules,
+# ACTUS contract parameters, and currency handling.
+#
+# L1: Permissive (warnings)
+# L2: Production-ready (errors)
+# L3: Enterprise-strict (blocking)
+#
+# Created: 2024-09-19 for Arden v1.2.0
+# ===================================================================
+
+<https://arden.ag/ont/shapes/finance> a owl:Ontology ;
+    rdfs:label "Arden Financial Validation Shapes"@en ;
+    rdfs:comment "SHACL shapes for validating agricultural financial data."@en .
+
+# ===================================================================
+# AGRICULTURAL LOAN SHAPES
+# ===================================================================
+
+arden:AgriculturalLoanShape a sh:NodeShape ;
+    sh:targetClass arden-fin:AgriculturalLoan ;
+    rdfs:label "Agricultural Loan Shape"@en ;
+
+    # L2: Must have positive principal amount
+    sh:property [
+        sh:path arden-fin:hasPrincipalAmount ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:decimal ;
+        sh:minExclusive 0.0 ;
+        sh:severity sh:Violation ;
+        sh:message "Agricultural loan must have positive principal amount (> 0)"@en
+    ] ;
+
+    # L2: Must have non-negative interest rate
+    sh:property [
+        sh:path arden-fin:hasInterestRate ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 30.0 ;  # reasonable maximum
+        sh:severity sh:Violation ;
+        sh:message "Interest rate must be between 0-30%"@en
+    ] ;
+
+    # L2: Must have currency (ISO 4217)
+    sh:property [
+        sh:path arden-fin:hasCurrency ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:pattern "^[A-Z]{3}$" ;
+        sh:severity sh:Violation ;
+        sh:message "Currency must be 3-letter ISO 4217 code (e.g., USD, EUR)"@en
+    ] ;
+
+    # L2: Must have borrower
+    sh:property [
+        sh:path arden-fin:hasBorrower ;
+        sh:minCount 1 ;
+        sh:class arden-fin:Farmer ;
+        sh:severity sh:Violation ;
+        sh:message "Agricultural loan must have farmer borrower"@en
+    ] ;
+
+    # L2: Must have lender
+    sh:property [
+        sh:path arden-fin:hasLender ;
+        sh:minCount 1 ;
+        sh:class arden-fin:AgriculturalLender ;
+        sh:severity sh:Violation ;
+        sh:message "Agricultural loan must have agricultural lender"@en
+    ] ;
+
+    # L1: Should have effective date
+    sh:property [
+        sh:path arden-fin:hasEffectiveDate ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:date ;
+        sh:severity sh:Warning ;
+        sh:message "Loan should have effective date"@en
+    ] ;
+
+    # L1: Should have maturity date
+    sh:property [
+        sh:path arden-fin:hasMaturityDate ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:date ;
+        sh:severity sh:Warning ;
+        sh:message "Loan should have maturity date"@en
+    ] .
+
+# ===================================================================
+# LOAN DATE VALIDATION
+# ===================================================================
+
+arden:LoanDateValidationShape a sh:NodeShape ;
+    sh:targetClass arden-fin:AgriculturalLoan ;
+    rdfs:label "Loan Date Validation Shape"@en ;
+
+    # L2: Effective date must be before maturity date
+    sh:sparql [
+        sh:select """
+            SELECT $this (?effectiveDate AS ?value1) (?maturityDate AS ?value2)
+            WHERE {
+                $this arden-fin:hasEffectiveDate ?effectiveDate ;
+                      arden-fin:hasMaturityDate ?maturityDate .
+                FILTER (?effectiveDate >= ?maturityDate)
+            }
+        """ ;
+        sh:severity sh:Violation ;
+        sh:message "Effective date must be before maturity date"@en
+    ] .
+
+# ===================================================================
+# ACTUS CONTRACT TYPE VALIDATION
+# ===================================================================
+
+arden:ACTUSContractShape a sh:NodeShape ;
+    sh:targetClass arden-fin:AgriculturalLoan ;
+    sh:condition [
+        sh:property [
+            sh:path arden-fin:actusContractType ;
+            sh:minCount 1
+        ]
+    ] ;
+    rdfs:label "ACTUS Contract Shape"@en ;
+
+    # L2: If ACTUS contract type present, must be allowed type
+    sh:property [
+        sh:path arden-fin:actusContractType ;
+        sh:in (
+            actus:ACTUSContractType-Annuity
+            actus:ACTUSContractType-LinearAmortizer
+            actus:ACTUSContractType-PrincipalAtMaturity
+        ) ;
+        sh:severity sh:Violation ;
+        sh:message "ACTUS contract type must be ANN, LAM, or PAM for agricultural loans"@en
+    ] ;
+
+    # L2: If ACTUS contract type present, required parameters must exist
+    sh:property [
+        sh:path arden-fin:hasNotionalPrincipal ;
+        sh:minCount 1 ;
+        sh:severity sh:Violation ;
+        sh:message "ACTUS loans must have notional principal"@en
+    ] ;
+
+    sh:property [
+        sh:path arden-fin:hasNominalInterestRate ;
+        sh:minCount 1 ;
+        sh:severity sh:Violation ;
+        sh:message "ACTUS loans must have nominal interest rate"@en
+    ] ;
+
+    sh:property [
+        sh:path arden-fin:hasDayCountConvention ;
+        sh:minCount 1 ;
+        sh:severity sh:Violation ;
+        sh:message "ACTUS loans must have day count convention"@en
+    ] ;
+
+    sh:property [
+        sh:path arden-fin:hasContractRole ;
+        sh:minCount 1 ;
+        sh:severity sh:Violation ;
+        sh:message "ACTUS loans must specify contract role"@en
+    ] .
+
+# ===================================================================
+# REPAYMENT SCHEDULE VALIDATION
+# ===================================================================
+
+arden:RepaymentScheduleShape a sh:NodeShape ;
+    sh:targetClass arden-fin:RepaymentSchedule ;
+    rdfs:label "Repayment Schedule Shape"@en ;
+
+    # L2: Must have at least one payment entry
+    sh:property [
+        sh:path arden-fin:hasPaymentEntry ;
+        sh:minCount 1 ;
+        sh:class arden-fin:PaymentEntry ;
+        sh:severity sh:Violation ;
+        sh:message "Repayment schedule must have at least one payment entry"@en
+    ] .
+
+arden:PaymentEntryShape a sh:NodeShape ;
+    sh:targetClass arden-fin:PaymentEntry ;
+    rdfs:label "Payment Entry Shape"@en ;
+
+    # L2: Must have payment date
+    sh:property [
+        sh:path arden-fin:hasPaymentDate ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:date ;
+        sh:severity sh:Violation ;
+        sh:message "Payment entry must have payment date"@en
+    ] ;
+
+    # L2: Must have positive payment amount
+    sh:property [
+        sh:path arden-fin:hasPaymentAmount ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:decimal ;
+        sh:minExclusive 0.0 ;
+        sh:severity sh:Violation ;
+        sh:message "Payment amount must be positive"@en
+    ] .
+
+# ===================================================================
+# PAYMENT SCHEDULE TEMPORAL VALIDATION
+# ===================================================================
+
+arden:PaymentScheduleTemporalShape a sh:NodeShape ;
+    sh:targetClass arden-fin:RepaymentSchedule ;
+    rdfs:label "Payment Schedule Temporal Shape"@en ;
+
+    # L2: Payment dates must be in strictly increasing order
+    sh:sparql [
+        sh:select """
+            SELECT $this ?payment1 ?payment2 ?date1 ?date2
+            WHERE {
+                $this arden-fin:hasPaymentEntry ?payment1 ;
+                      arden-fin:hasPaymentEntry ?payment2 .
+                ?payment1 arden-fin:hasPaymentDate ?date1 .
+                ?payment2 arden-fin:hasPaymentDate ?date2 .
+                FILTER (?payment1 != ?payment2 && ?date1 >= ?date2)
+            }
+        """ ;
+        sh:severity sh:Violation ;
+        sh:message "Payment dates must be in strictly increasing order"@en
+    ] .
+
+# ===================================================================
+# CURRENCY VALIDATION
+# ===================================================================
+
+arden:CurrencyShape a sh:NodeShape ;
+    sh:targetNode arden-fin:Currency ;
+    rdfs:label "Currency Shape"@en ;
+
+    # L2: Common agricultural finance currencies
+    sh:property [
+        sh:path arden-fin:hasCurrency ;
+        sh:in ( "USD" "EUR" "CAD" "BRL" "ARS" ) ;
+        sh:severity sh:Warning ;
+        sh:message "Consider using common agricultural finance currencies"@en
+    ] .
+
+# ===================================================================
+# LOAN TYPE SPECIFIC VALIDATION
+# ===================================================================
+
+# Operating Loan Validation
+arden:OperatingLoanShape a sh:NodeShape ;
+    sh:targetClass arden-fin:OperatingLoan ;
+    rdfs:label "Operating Loan Shape"@en ;
+
+    # L1: Operating loans typically short-term (≤ 1 year)
+    sh:sparql [
+        sh:select """
+            SELECT $this (?effectiveDate AS ?value1) (?maturityDate AS ?value2)
+            WHERE {
+                $this arden-fin:hasEffectiveDate ?effectiveDate ;
+                      arden-fin:hasMaturityDate ?maturityDate .
+                FILTER (?maturityDate > (?effectiveDate + "P2Y"^^xsd:duration))
+            }
+        """ ;
+        sh:severity sh:Warning ;
+        sh:message "Operating loans are typically short-term (≤2 years)"@en
+    ] .
+
+# Equipment Loan Validation
+arden:EquipmentLoanShape a sh:NodeShape ;
+    sh:targetClass arden-fin:EquipmentLoan ;
+    rdfs:label "Equipment Loan Shape"@en ;
+
+    # L1: Equipment loans typically medium-term (3-10 years)
+    sh:property [
+        sh:path arden-fin:hasPrincipalAmount ;
+        sh:minInclusive 5000.0 ;  # minimum equipment loan
+        sh:severity sh:Warning ;
+        sh:message "Equipment loans typically start at $5,000+"@en
+    ] .
+
+# ===================================================================
+# FINANCIAL RATIO VALIDATION
+# ===================================================================
+
+arden:LoanToValueShape a sh:NodeShape ;
+    sh:targetClass arden-fin:AgriculturalLoan ;
+    sh:condition [
+        sh:property [
+            sh:path arden-fin:hasCollateralValue ;
+            sh:minCount 1
+        ]
+    ] ;
+    rdfs:label "Loan-to-Value Shape"@en ;
+
+    # L1: Loan-to-value ratio should be reasonable
+    sh:sparql [
+        sh:select """
+            SELECT $this ?loanAmount ?collateralValue
+            WHERE {
+                $this arden-fin:hasPrincipalAmount ?loanAmount ;
+                      arden-fin:hasCollateralValue ?collateralValue .
+                FILTER (?loanAmount > (?collateralValue * 0.9))
+            }
+        """ ;
+        sh:severity sh:Warning ;
+        sh:message "Loan-to-value ratio exceeds 90% - consider review"@en
+    ] .

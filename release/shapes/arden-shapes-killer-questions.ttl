@@ -1,0 +1,349 @@
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix arden: <https://arden.ag/ont/core#> .
+@prefix arden-fin: <https://arden.ag/ont/fin#> .
+@prefix arden-ag: <https://arden.ag/ont/ag#> .
+@prefix arden-labor: <https://arden.ag/ont/labor#> .
+@prefix arden-tax: <https://arden.ag/ont/tax#> .
+@prefix arden-risk: <https://arden.ag/ont/risk#> .
+@prefix bridge: <https://arden.ag/ont/bridge#> .
+@prefix fibo: <https://spec.edmcouncil.org/fibo/ontology/> .
+@prefix sosa: <http://www.w3.org/ns/sosa/> .
+@prefix qudt: <http://qudt.org/schema/qudt/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# ==================================================
+# KILLER COMPETENCY QUESTION SHACL VALIDATION
+# ==================================================
+
+# TIER 1: LOANS & COLLATERAL DYNAMICS
+
+# KQ4: Wheat futures → grain bin collateral value validation
+arden:WheatFuturesCollateralConsistency a sh:NodeShape ;
+  sh:targetClass arden-fin:CollateralAsset ;
+
+  sh:sparql [
+    sh:message "Wheat grain bin collateral value inconsistent with current futures prices" ;
+    sh:select """
+      SELECT $this
+      WHERE {
+        $this a arden-fin:CollateralAsset ;
+              arden:assetType arden-ag:WheatGrain ;
+              arden-fin:collateralValue ?collateralValue ;
+              arden:location ?grainBin .
+
+        # Get current wheat futures price
+        ?futuresContract a arden-fin:FuturesContract ;
+                        arden:commodity arden-ag:Wheat ;
+                        arden-fin:currentPrice ?futuresPrice ;
+                        arden:priceDate ?priceDate .
+
+        # Collateral should be within 15% of futures price * stored quantity
+        ?grainBin arden:storedQuantity/qudt:numericValue ?quantity .
+        BIND(?futuresPrice * ?quantity AS ?expectedValue)
+        BIND(ABS(?collateralValue - ?expectedValue) / ?expectedValue AS ?variance)
+
+        # Flag if variance > 15%
+        FILTER (?variance > 0.15)
+        # Only check recent prices (within 30 days)
+        FILTER (?priceDate > (NOW() - "P30D"^^xsd:duration))
+      }
+    """
+  ] .
+
+# KQ5: Soybean yield impact on debt service coverage validation
+arden:YieldDebtServiceAlignment a sh:NodeShape ;
+  sh:targetClass arden:FarmOperation ;
+
+  sh:sparql [
+    sh:message "Projected yield decline may compromise debt service coverage ratio" ;
+    sh:select """
+      SELECT $this
+      WHERE {
+        $this arden:hasLoan ?loan ;
+              arden:hasParcel ?parcel .
+
+        ?loan arden-fin:annualPayment ?payment .
+
+        # Get projected soybean yield
+        ?yieldProjection sosa:hasFeatureOfInterest ?parcel ;
+                        arden-ag:projectedYield ?projectedYield ;
+                        arden-ag:cropType arden-ag:Soybean .
+
+        # Get current soybean price
+        arden-ag:Soybean arden:marketPrice ?soybeanPrice .
+
+        # Calculate projected revenue
+        ?parcel arden:acreage ?acres .
+        BIND(?projectedYield * ?acres * ?soybeanPrice AS ?projectedRevenue)
+
+        # Debt service coverage ratio should be > 1.2
+        BIND(?projectedRevenue / ?payment AS ?dscr)
+        FILTER (?dscr < 1.2)
+
+        # Only flag if yield dropped significantly (>5%)
+        ?historicalYield sosa:hasFeatureOfInterest ?parcel ;
+                        arden:averageYield ?avgYield .
+        BIND((?avgYield - ?projectedYield) / ?avgYield AS ?yieldDrop)
+        FILTER (?yieldDrop > 0.05)
+      }
+    """
+  ] .
+
+# KQ6: Land value threshold impact on line of credit
+arden:LandValueCreditLineConsistency a sh:NodeShape ;
+  sh:targetClass arden-fin:LineOfCredit ;
+
+  sh:sparql [
+    sh:message "Land value below threshold may trigger credit line reduction" ;
+    sh:select """
+      SELECT $this
+      WHERE {
+        $this arden-fin:securedBy ?farmland ;
+              arden-fin:creditLimit ?currentLimit .
+
+        ?farmland a arden:Farmland ;
+                  arden:currentValue ?landValue ;
+                  arden:acreage ?acres .
+
+        BIND(?landValue / ?acres AS ?valuePerAcre)
+
+        # Flag if land value drops below $5,000/acre threshold
+        FILTER (?valuePerAcre < 5000)
+
+        # And if current credit limit seems too high for collateral
+        BIND(?landValue * 0.75 AS ?maxCredit)  # 75% LTV typical for land
+        FILTER (?currentLimit > ?maxCredit)
+      }
+    """
+  ] .
+
+# TIER 1: RISK & INSURANCE
+
+# KQ7: Federal crop insurance eligibility validation
+arden:FederalInsuranceEligibility a sh:NodeShape ;
+  sh:targetClass arden-fin:CropInsurancePolicy ;
+
+  sh:sparql [
+    sh:message "Crop may not qualify for federal insurance subsidies" ;
+    sh:select """
+      SELECT $this
+      WHERE {
+        $this arden-fin:coversCrop ?crop ;
+              arden:claimsSubsidy ?subsidy .
+
+        # Check if crop is on federal insurance eligible list
+        FILTER NOT EXISTS {
+          ?crop arden:federalInsuranceEligible true
+        }
+
+        # But policy claims subsidies
+        FILTER (?subsidy > 0)
+      }
+    """
+  ] .
+
+# KQ8: Soil erosion risk impact on collateral valuation
+arden:SoilErosionRiskAdjustment a sh:NodeShape ;
+  sh:targetClass arden:FarmParcel ;
+
+  sh:sparql [
+    sh:message "High soil erosion risk not reflected in collateral risk adjustment" ;
+    sh:select """
+      SELECT $this
+      WHERE {
+        $this arden:soilType ?soil ;
+              arden-fin:usedAsCollateral ?loan .
+
+        # High erosion risk soils
+        ?soil arden-risk:erosionRisk ?erosionLevel .
+        FILTER (?erosionLevel = "high")
+
+        # But no risk adjustment applied to loan
+        FILTER NOT EXISTS {
+          ?loan arden-fin:riskAdjustment ?adjustment .
+          FILTER (?adjustment > 0)
+        }
+      }
+    """
+  ] .
+
+# TIER 2: LABOR & TAX COMPLIANCE
+
+# KQ1: Family farm child labor tax exemption validation
+arden:FamilyFarmChildLaborTaxExemption a sh:NodeShape ;
+  sh:targetClass arden-labor:FarmEmployee ;
+
+  sh:sparql [
+    sh:message "Child farm worker may not qualify for tax withholding exemption" ;
+    sh:select """
+      SELECT $this
+      WHERE {
+        $this arden:age ?age ;
+              arden:employer ?farm ;
+              arden-labor:subjectToWithholding ?withholding .
+
+        # Child under 18
+        FILTER (?age < 18)
+
+        # Working on family farm
+        ?farm a arden:FamilyFarm .
+        ?this arden:childOf ?farmOwner .
+        ?farmOwner arden:owns ?farm .
+
+        # But has withholding applied (should be exempt)
+        FILTER (?withholding = true)
+      }
+    """
+  ] .
+
+# KQ2: Seasonal worker tax threshold validation
+arden:SeasonalWorkerTaxCompliance a sh:NodeShape ;
+  sh:targetClass arden-labor:SeasonalFarmWorker ;
+
+  sh:sparql [
+    sh:message "Seasonal worker compensation may trigger federal tax reporting requirements" ;
+    sh:select """
+      SELECT $this
+      WHERE {
+        $this arden-labor:annualWages ?wages ;
+              arden-labor:taxFormsCompleted ?formsCompleted .
+
+        # Wages over $600 threshold require 1099 reporting
+        FILTER (?wages >= 600)
+
+        # But no tax forms indicated as completed
+        FILTER (!?formsCompleted)
+      }
+    """
+  ] .
+
+# TIER 2: TAX & INCENTIVES
+
+# KQ10: Farmer Mac eligibility for ACRE Act treatment
+arden:FarmerMacACRETreatment a sh:NodeShape ;
+  sh:targetClass arden-fin:FarmlandMortgage ;
+
+  sh:sparql [
+    sh:message "Farmer Mac mortgage may not qualify for ACRE Act tax treatment" ;
+    sh:select """
+      SELECT $this
+      WHERE {
+        $this arden-fin:securitizedBy arden-fin:FarmerMac ;
+              arden-tax:claimsACRETreatment ?claimsACRE .
+
+        # Claims ACRE tax treatment
+        FILTER (?claimsACRE = true)
+
+        # But doesn't meet qualifying criteria
+        FILTER NOT EXISTS {
+          $this arden:farmSize ?size ;
+                arden:borrowerIncome ?income .
+          # ACRE Act limits (example thresholds)
+          FILTER (?size <= 1000 && ?income <= 500000)  # acres and dollars
+        }
+      }
+    """
+  ] .
+
+# KQ11: Agricultural equipment depreciation schedule validation
+arden:AgriculturalEquipmentDepreciation a sh:NodeShape ;
+  sh:targetClass arden:AgriculturalEquipment ;
+
+  sh:sparql [
+    sh:message "Equipment depreciation schedule may not comply with IRS agricultural rules" ;
+    sh:select """
+      SELECT $this
+      WHERE {
+        $this arden:equipmentType ?type ;
+              arden-tax:depreciationSchedule ?schedule ;
+              arden:purchaseDate ?purchaseDate .
+
+        # Check if schedule matches IRS rules for equipment type
+        ?type arden-tax:irsDepreciationPeriod ?correctPeriod .
+        ?schedule arden-tax:depreciationPeriod ?claimedPeriod .
+
+        FILTER (?correctPeriod != ?claimedPeriod)
+
+        # Only for recent purchases (within 2 years)
+        FILTER (?purchaseDate > (NOW() - "P730D"^^xsd:duration))
+      }
+    """
+  ] .
+
+# CROSS-CUTTING: REGULATORY CONSISTENCY
+
+# Multi-domain consistency check
+arden:RegulatoryConsistencyCheck a sh:NodeShape ;
+  sh:targetClass arden:FarmOperation ;
+
+  sh:sparql [
+    sh:message "Farm operation has conflicting regulatory compliance requirements" ;
+    sh:select """
+      SELECT $this
+      WHERE {
+        $this arden:hasLoan ?loan ;
+              arden:enrolledInProgram ?program1, ?program2 .
+
+        # Check for program conflicts
+        ?program1 arden:conflictsWith ?program2 .
+
+        # That affect loan covenants
+        ?loan arden-fin:covenant ?covenant .
+        ?covenant arden:requires ?requirement .
+        {
+          ?program1 arden:prohibits ?requirement
+        } UNION {
+          ?program2 arden:prohibits ?requirement
+        }
+      }
+    """
+  ] .
+
+# DATA COMPLETENESS FOR KILLER QUESTIONS
+
+# Minimum data requirements for cross-domain reasoning
+arden:KillerQuestionDataCompleteness a sh:NodeShape ;
+  sh:targetClass arden:FarmOperation ;
+
+  sh:sparql [
+    sh:message "Insufficient data for killer competency question reasoning" ;
+    sh:select """
+      SELECT $this
+      WHERE {
+        $this a arden:FarmOperation .
+
+        # Count available data elements for cross-domain reasoning
+        {
+          SELECT $this (COUNT(DISTINCT ?element) AS ?dataCount)
+          WHERE {
+            $this a arden:FarmOperation .
+
+            # Financial data
+            { $this arden:hasLoan ?loan . BIND("loan" AS ?element) }
+            UNION
+            # Production data
+            { $this arden:hasParcel ?parcel . BIND("parcel" AS ?element) }
+            UNION
+            # Market data
+            { ?crop arden:marketPrice ?price . BIND("market-price" AS ?element) }
+            UNION
+            # Risk data
+            { ?parcel arden:soilType/arden-risk:erosionRisk ?risk . BIND("soil-risk" AS ?element) }
+            UNION
+            # Compliance data
+            { $this arden:enrolledInProgram ?program . BIND("program" AS ?element) }
+            UNION
+            # Tax data
+            { $this arden:taxStatus ?status . BIND("tax-status" AS ?element) }
+            UNION
+            # Labor data
+            { $this arden:hasEmployee ?employee . BIND("employee" AS ?element) }
+          }
+          GROUP BY $this
+        }
+
+        # Require at least 4 of 7 key data elements for meaningful reasoning
+        FILTER (?dataCount < 4)
+      }
+    """
+  ] .

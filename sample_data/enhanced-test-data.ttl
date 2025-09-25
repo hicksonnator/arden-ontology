@@ -1,0 +1,109 @@
+@prefix : <https://arden.ag/data/> .
+@prefix arden: <https://arden.ag/ont/core#> .
+@prefix arden-fin: <https://arden.ag/ont/fin#> .
+@prefix arden-ag: <https://arden.ag/ont/ag#> .
+@prefix sosa: <http://www.w3.org/ns/sosa/> .
+@prefix qudt: <http://qudt.org/schema/qudt/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# TEST DATA TO TRIGGER ENHANCED SHACL VALIDATIONS
+
+# Test 1: Harvest after loan payment (should trigger warning)
+:farm001 a arden:FarmOperation ;
+    arden:hasParcel :parcel001 ;
+    arden:hasLoan :loan001 .
+
+:parcel001 a arden:FarmParcel ;
+    arden:locatedInCounty :county_19153 ;  # Story County, Iowa
+    arden-ag:predominantCrop arden-ag:MaizeCrop .
+
+:loan001 a arden-fin:AgriculturalLoan ;
+    arden-fin:nextPaymentDue "2024-10-01"^^xsd:date ;
+    arden-fin:loanAmount 250000.0 ;
+    arden-fin:collateralValue 280000.0 .
+
+:yield001 a arden-ag:YieldObservation ;
+    sosa:hasFeatureOfInterest :parcel001 ;
+    sosa:resultTime "2024-10-15"^^xsd:date ;  # Harvest AFTER loan payment
+    sosa:hasResult :yieldValue001 .
+
+:yieldValue001 qudt:numericValue 180.0 ;  # Reasonable corn yield
+    qudt:unit <http://qudt.org/vocab/unit/BU-PER-AC> .
+
+# Test 2: Extreme yield (should trigger warning)
+:yield002 a arden-ag:YieldObservation ;
+    sosa:hasFeatureOfInterest :parcel002 ;
+    sosa:resultTime "2024-09-15"^^xsd:date ;
+    sosa:hasResult :yieldValue002 .
+
+:parcel002 a arden:FarmParcel ;
+    arden:locatedInCounty :county_19153 ;
+    arden-ag:predominantCrop arden-ag:SoybeanCrop .
+
+:yieldValue002 qudt:numericValue 120.0 ;  # Extreme soybean yield (>80 bu/ac)
+    qudt:unit <http://qudt.org/vocab/unit/BU-PER-AC> .
+
+# Test 3: High loan-to-value ratio (should trigger warning)
+:loan002 a arden-fin:AgriculturalLoan ;
+    arden-fin:loanAmount 900000.0 ;
+    arden-fin:collateralValue 1000000.0 ;  # 90% LTV (>85% limit)
+    arden-fin:borrower :borrower001 .
+
+# Test 4: Organic parcel with synthetic input (should trigger error)
+:parcel003 a arden:FarmParcel ;
+    arden-ag:hasCertification arden-ag:OrganicCertification .
+
+:input001 a arden-ag:InputUseObservation ;
+    sosa:hasFeatureOfInterest :parcel003 ;
+    arden-ag:inputType :synthetic001 .
+
+:synthetic001 a arden-ag:SyntheticFertilizer .
+
+# Test 5: Multiple risk factors (should trigger warning)
+:farm002 a arden:FarmOperation ;
+    arden:hasParcel :parcel004 ;
+    arden:hasLoan :loan003 .
+
+:loan003 a arden-fin:AgriculturalLoan ;
+    arden-fin:debtToIncomeRatio 0.5 ;  # High DTI (>0.4)
+    arden-fin:borrower :borrower002 .
+
+:parcel004 a arden:FarmParcel ;
+    arden:locatedInCounty :county_19153 .
+
+# Recent insurance claim (second risk factor)
+:claim001 a arden-fin:InsuranceClaim ;
+    arden-fin:referencesPolicy :policy001 ;
+    arden:eventDate "2024-07-15"^^xsd:date .  # Recent claim
+
+:policy001 a arden-fin:InsurancePolicy ;
+    arden-fin:coversParcel :parcel004 .
+
+# Low yield (third risk factor)
+:yield003 a arden-ag:YieldObservation ;
+    sosa:hasFeatureOfInterest :parcel004 ;
+    sosa:hasResult :yieldValue003 .
+
+:yieldValue003 qudt:numericValue 85.0 ;  # Below 100 threshold
+    qudt:unit <http://qudt.org/vocab/unit/BU-PER-AC> .
+
+# Test 6: Planting outside season (should trigger warning)
+:planting001 a arden-ag:PlantingEvent ;
+    arden-ag:plantsCrop arden-ag:MaizeCrop ;
+    arden:eventDate "2024-02-15"^^xsd:date ;  # February planting (too early)
+    arden:locatedInCounty :county_19153 .
+
+# Test 7: Incomplete loan data (should trigger warning)
+:loan004 a arden-fin:AgriculturalLoan ;
+    arden-fin:borrower :borrower003 .
+
+:borrower003 a arden-fin:Borrower ;
+    arden-fin:creditScore 680 .  # Only 1 of 5 required elements
+
+# Reference entities
+:county_19153 a <https://example.org/County> ;
+    <http://www.w3.org/2000/01/rdf-schema#label> "Story County, Iowa" .
+
+arden-ag:OrganicCertification a arden-ag:Certification .
+arden-ag:MaizeCrop a arden-ag:Crop .
+arden-ag:SoybeanCrop a arden-ag:Crop .

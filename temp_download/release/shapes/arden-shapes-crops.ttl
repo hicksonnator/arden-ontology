@@ -1,0 +1,317 @@
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix qudt: <http://qudt.org/schema/qudt/> .
+@prefix unit: <http://qudt.org/vocab/unit/> .
+
+@prefix arden: <https://arden.ag/ont/core#> .
+@prefix arden-ag: <https://arden.ag/ont/ag#> .
+@prefix agro: <http://purl.obolibrary.org/obo/> .
+
+# ===================================================================
+# SHACL Shapes for Crop-Related Data Validation
+# ===================================================================
+#
+# Validates crop/variety labeling, growth stages, yield observations,
+# and crop rotation sequences against AGRO ontology patterns.
+#
+# L1: Permissive (warnings)
+# L2: Production-ready (errors)
+# L3: Enterprise-strict (blocking)
+#
+# Created: 2024-09-19 for Arden v1.2.0
+# ===================================================================
+
+<https://arden.ag/ont/shapes/crops> a owl:Ontology ;
+    rdfs:label "Arden Crop Validation Shapes"@en ;
+    rdfs:comment "SHACL shapes for validating crop-related agricultural data."@en .
+
+# ===================================================================
+# CROP ENTITY SHAPES
+# ===================================================================
+
+arden:CropShape a sh:NodeShape ;
+    sh:targetClass arden-ag:Crop ;
+    rdfs:label "Crop Shape"@en ;
+    rdfs:comment "Validates basic crop entity requirements."@en ;
+
+    # L1: Crop should have preferred label
+    sh:property [
+        sh:path skos:prefLabel ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string ;
+        sh:severity sh:Warning ;
+        sh:message "Crop should have a preferred label (skos:prefLabel)"@en
+    ] ;
+
+    # L2: Crop must have at least one label
+    sh:property [
+        sh:path rdfs:label ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string ;
+        sh:severity sh:Violation ;
+        sh:message "Crop must have at least one label (rdfs:label)"@en
+    ] ;
+
+    # L1: Crop should have scientific name if available
+    sh:property [
+        sh:path arden-ag:hasScientificName ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:severity sh:Info ;
+        sh:message "Crop should have scientific name when available"@en
+    ] .
+
+# ===================================================================
+# CROP VARIETY SHAPES
+# ===================================================================
+
+arden:CropVarietyShape a sh:NodeShape ;
+    sh:targetClass arden-ag:CropVariety ;
+    rdfs:label "Crop Variety Shape"@en ;
+
+    # L2: Variety must have preferred label
+    sh:property [
+        sh:path skos:prefLabel ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:severity sh:Violation ;
+        sh:message "Crop variety must have exactly one preferred label"@en
+    ] ;
+
+    # L2: Variety must be linked to a crop
+    sh:property [
+        sh:path arden-ag:varietyOf ;
+        sh:minCount 1 ;
+        sh:class arden-ag:Crop ;
+        sh:severity sh:Violation ;
+        sh:message "Crop variety must be linked to a crop (arden-ag:varietyOf)"@en
+    ] .
+
+# ===================================================================
+# GROWTH STAGE SHAPES
+# ===================================================================
+
+arden:GrowthStageShape a sh:NodeShape ;
+    sh:targetClass arden-ag:GrowthStage ;
+    rdfs:label "Growth Stage Shape"@en ;
+
+    # L1: Growth stage should have BBCH code if available
+    sh:property [
+        sh:path arden-ag:hasBBCHCode ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:pattern "^[0-9]{2}$" ;
+        sh:severity sh:Warning ;
+        sh:message "Growth stage should have valid BBCH code (2-digit number) when available"@en
+    ] ;
+
+    # L2: Growth stage must have label
+    sh:property [
+        sh:path rdfs:label ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string ;
+        sh:severity sh:Violation ;
+        sh:message "Growth stage must have a label"@en
+    ] .
+
+# ===================================================================
+# CROP ROTATION SHAPES
+# ===================================================================
+
+arden:CropRotationShape a sh:NodeShape ;
+    sh:targetClass arden-ag:CropRotation ;
+    rdfs:label "Crop Rotation Shape"@en ;
+
+    # L2: Crop rotation must have at least 2 crops in sequence
+    sh:property [
+        sh:path arden-ag:hasRotationMember ;
+        sh:minCount 2 ;
+        sh:class arden-ag:Crop ;
+        sh:severity sh:Violation ;
+        sh:message "Crop rotation must have at least 2 crops in sequence"@en
+    ] ;
+
+    # L1: Should have rotation period
+    sh:property [
+        sh:path arden-ag:hasRotationPeriod ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 1 ;
+        sh:maxInclusive 10 ;
+        sh:severity sh:Warning ;
+        sh:message "Crop rotation should specify period (1-10 years)"@en
+    ] .
+
+# ===================================================================
+# YIELD OBSERVATION SHAPES
+# ===================================================================
+
+arden:YieldObservationShape a sh:NodeShape ;
+    sh:targetClass arden-ag:YieldObservation ;
+    rdfs:label "Yield Observation Shape"@en ;
+
+    # L2: Must have observed crop
+    sh:property [
+        sh:path arden-ag:observedCrop ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:class arden-ag:Crop ;
+        sh:severity sh:Violation ;
+        sh:message "Yield observation must specify exactly one observed crop"@en
+    ] ;
+
+    # L2: Must have yield value
+    sh:property [
+        sh:path arden-ag:hasYieldValue ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:severity sh:Violation ;
+        sh:message "Yield observation must have positive yield value"@en
+    ] ;
+
+    # L2: Must have appropriate yield unit
+    sh:property [
+        sh:path arden-ag:hasYieldUnit ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:in (
+            unit:BU-PER-AC     # bushels per acre
+            unit:KiloGM-PER-HA # kilograms per hectare
+            unit:TON-PER-HA    # tons per hectare
+            unit:LB-PER-AC     # pounds per acre
+        ) ;
+        sh:severity sh:Violation ;
+        sh:message "Yield observation must use standard yield units (BU/AC, KG/HA, TON/HA, LB/AC)"@en
+    ] ;
+
+    # L1: Should have observation date
+    sh:property [
+        sh:path arden:hasObservationDate ;
+        sh:maxCount 1 ;
+        sh:or (
+            [ sh:datatype xsd:date ]
+            [ sh:datatype xsd:gYear ]
+            [ sh:datatype xsd:gYearMonth ]
+        ) ;
+        sh:severity sh:Warning ;
+        sh:message "Yield observation should have observation date"@en
+    ] .
+
+# ===================================================================
+# CROP-SPECIFIC YIELD VALIDATION
+# ===================================================================
+
+# Corn/Maize yield validation
+arden:CornYieldShape a sh:NodeShape ;
+    sh:targetClass arden-ag:YieldObservation ;
+    sh:condition [
+        sh:property [
+            sh:path arden-ag:observedCrop ;
+            sh:hasValue arden-ag:MaizeCrop
+        ]
+    ] ;
+    rdfs:label "Corn Yield Shape"@en ;
+
+    # L2: Corn yield should be in reasonable range
+    sh:property [
+        sh:path arden-ag:hasYieldValue ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 350.0 ;  # reasonable max for bushels/acre
+        sh:severity sh:Warning ;
+        sh:message "Corn yield appears unusually high (>350 BU/AC equivalent)"@en
+    ] ;
+
+    # L2: Corn yield typically measured in bushels per acre
+    sh:property [
+        sh:path arden-ag:hasYieldUnit ;
+        sh:in ( unit:BU-PER-AC unit:KiloGM-PER-HA ) ;
+        sh:severity sh:Warning ;
+        sh:message "Corn yield typically measured in BU/AC or KG/HA"@en
+    ] .
+
+# Soybean yield validation
+arden:SoybeanYieldShape a sh:NodeShape ;
+    sh:targetClass arden-ag:YieldObservation ;
+    sh:condition [
+        sh:property [
+            sh:path arden-ag:observedCrop ;
+            sh:hasValue arden-ag:SoybeanCrop
+        ]
+    ] ;
+    rdfs:label "Soybean Yield Shape"@en ;
+
+    # L2: Soybean yield should be in reasonable range
+    sh:property [
+        sh:path arden-ag:hasYieldValue ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 100.0 ;  # reasonable max for bushels/acre
+        sh:severity sh:Warning ;
+        sh:message "Soybean yield appears unusually high (>100 BU/AC equivalent)"@en
+    ] .
+
+# ===================================================================
+# CROP OBSERVATION TEMPORAL VALIDATION
+# ===================================================================
+
+arden:CropObservationTemporalShape a sh:NodeShape ;
+    sh:targetClass arden-ag:CropObservation ;
+    rdfs:label "Crop Observation Temporal Shape"@en ;
+
+    # L1: If both planting and harvest dates exist, harvest should be after planting
+    sh:sparql [
+        sh:select """
+            SELECT $this (?plantingDate AS ?value1) (?harvestDate AS ?value2)
+            WHERE {
+                $this arden-ag:hasPlantingDate ?plantingDate ;
+                      arden-ag:hasHarvestDate ?harvestDate .
+                FILTER (?harvestDate <= ?plantingDate)
+            }
+        """ ;
+        sh:severity sh:Warning ;
+        sh:message "Harvest date should be after planting date"@en
+    ] .
+
+# ===================================================================
+# QUALITY AND COMPOSITION VALIDATION
+# ===================================================================
+
+arden:CropQualityShape a sh:NodeShape ;
+    sh:targetClass arden-ag:GrainQualityMeasurement ;
+    rdfs:label "Crop Quality Shape"@en ;
+
+    # L2: Protein content should be realistic percentage
+    sh:property [
+        sh:path arden-ag:hasProteinContent ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 50.0 ;
+        sh:severity sh:Violation ;
+        sh:message "Protein content must be between 0-50%"@en
+    ] ;
+
+    # L2: Oil content should be realistic percentage
+    sh:property [
+        sh:path arden-ag:hasOilContent ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 30.0 ;
+        sh:severity sh:Violation ;
+        sh:message "Oil content must be between 0-30%"@en
+    ] ;
+
+    # L2: Moisture content should be realistic
+    sh:property [
+        sh:path arden-ag:hasMoistureContent ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 100.0 ;
+        sh:severity sh:Violation ;
+        sh:message "Moisture content must be between 0-100%"@en
+    ] .

@@ -1,0 +1,749 @@
+@prefix arden-shapes: <https://arden.ag/ont/shapes/market#> .
+@prefix arden: <https://arden.ag/ont/core#> .
+@prefix arden-markets: <https://arden.ag/ont/markets#> .
+@prefix arden-fin: <https://arden.ag/ont/fin#> .
+@prefix arden-crops: <https://arden.ag/ont/crops#> .
+@prefix sosa: <http://www.w3.org/ns/sosa/> .
+@prefix time: <http://www.w3.org/2006/time#> .
+@prefix qudt: <http://qudt.org/schema/qudt/> .
+@prefix unit: <http://qudt.org/vocab/unit/> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+
+<https://arden.ag/ont/shapes/market> a owl:Ontology ;
+    rdfs:label "Arden Market Data SHACL Shapes"@en ;
+    rdfs:comment "SHACL validation shapes for market data quality, consistency, and Yahoo Finance integration"@en ;
+    dct:created "2025-09-25"^^xsd:date ;
+    dct:modified "2025-09-25"^^xsd:date ;
+    owl:versionInfo "1.2.1" ;
+    owl:imports <https://arden.ag/ont/core> ,
+                <https://arden.ag/ont/markets> ,
+                <https://arden.ag/ont/fin> ,
+                <http://www.w3.org/ns/sosa/> ,
+                <http://www.w3.org/2006/time> ,
+                <http://qudt.org/schema/qudt> .
+
+# =============================================================================
+# MARKET INSTRUMENT VALIDATION SHAPES
+# =============================================================================
+
+# Market Instrument Basic Validation
+arden-shapes:MarketInstrumentShape a sh:NodeShape ;
+    sh:targetClass arden-markets:MarketInstrument ;
+    rdfs:label "Market Instrument Validation"@en ;
+    rdfs:comment "Basic validation for market instruments including symbol and exchange requirements"@en ;
+    sh:property [
+        sh:path arden-markets:hasCanonicalSymbol ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:class arden-markets:MarketSymbol ;
+        sh:name "canonical symbol" ;
+        sh:description "Market instrument must have exactly one canonical trading symbol"
+    ] ,
+    [
+        sh:path arden-markets:isActive ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:boolean ;
+        sh:name "active status" ;
+        sh:description "Market instrument must have defined active status"
+    ] ,
+    [
+        sh:path arden-markets:tradedOn ;
+        sh:minCount 0 ;
+        sh:maxCount 1 ;
+        sh:class arden-markets:MarketExchange ;
+        sh:name "trading exchange" ;
+        sh:description "Market instrument may specify primary trading exchange"
+    ] .
+
+# Symbol Validation Shape
+arden-shapes:MarketSymbolShape a sh:NodeShape ;
+    sh:targetClass arden-markets:MarketSymbol ;
+    rdfs:label "Market Symbol Validation"@en ;
+    rdfs:comment "Validation for trading symbols including format and uniqueness requirements"@en ;
+    sh:property [
+        sh:path arden-markets:symbolValue ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 1 ;
+        sh:maxLength 20 ;
+        sh:name "symbol value" ;
+        sh:description "Symbol value must be 1-20 characters"
+    ] ;
+    # Yahoo Finance symbol format validation
+    sh:sparql [
+        sh:message "Yahoo Finance futures symbols must end with '=F'" ;
+        sh:prefixes [
+            sh:declare [
+                sh:prefix "arden-markets" ;
+                sh:namespace "https://arden.ag/ont/markets#"^^xsd:anyURI
+            ]
+        ] ;
+        sh:select """
+            SELECT $this WHERE {
+                $this arden-markets:symbolValue ?symbol .
+                ?instrument arden-markets:hasCanonicalSymbol $this .
+                ?instrument a ?type .
+                FILTER(STRSTARTS(STR(?type), STR(arden-markets:)) && STRENDS(STR(?type), "Future"))
+                FILTER(!STRENDS(?symbol, "=F"))
+            }
+        """
+    ] .
+
+# =============================================================================
+# OHLCV DATA VALIDATION SHAPES
+# =============================================================================
+
+# OHLCV Observation Validation
+arden-shapes:OHLCVObservationShape a sh:NodeShape ;
+    sh:targetClass arden-markets:OHLCVObservation ;
+    rdfs:label "OHLCV Data Validation"@en ;
+    rdfs:comment "Comprehensive validation for daily OHLCV market data including price consistency and reasonableness"@en ;
+    sh:property [
+        sh:path arden-markets:tradingDate ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:date ;
+        sh:name "trading date" ;
+        sh:description "OHLCV observation must have exactly one trading date"
+    ] ,
+    [
+        sh:path arden-markets:openPrice ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:name "open price" ;
+        sh:description "Open price must be positive decimal value"
+    ] ,
+    [
+        sh:path arden-markets:highPrice ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:name "high price" ;
+        sh:description "High price must be positive decimal value"
+    ] ,
+    [
+        sh:path arden-markets:lowPrice ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:name "low price" ;
+        sh:description "Low price must be positive decimal value"
+    ] ,
+    [
+        sh:path arden-markets:closePrice ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:name "close price" ;
+        sh:description "Close price must be positive decimal value"
+    ] ,
+    [
+        sh:path arden-markets:volume ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 0 ;
+        sh:name "trading volume" ;
+        sh:description "Volume must be non-negative integer"
+    ] ,
+    [
+        sh:path arden-markets:observesInstrument ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:class arden-markets:MarketInstrument ;
+        sh:name "observed instrument" ;
+        sh:description "OHLCV observation must reference exactly one market instrument"
+    ] ,
+    [
+        sh:path arden-markets:dataSource ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:in ("yahoo" "bloomberg" "reuters" "cme" "cbot") ;
+        sh:name "data source" ;
+        sh:description "Data source must be from approved provider list"
+    ] ;
+
+    # Price Consistency Validations
+    sh:sparql [
+        sh:message "High price must be >= open price" ;
+        sh:prefixes [
+            sh:declare [
+                sh:prefix "arden-markets" ;
+                sh:namespace "https://arden.ag/ont/markets#"^^xsd:anyURI
+            ]
+        ] ;
+        sh:select """
+            SELECT $this WHERE {
+                $this arden-markets:highPrice ?high ;
+                      arden-markets:openPrice ?open .
+                FILTER(?high < ?open)
+            }
+        """
+    ] ,
+    [
+        sh:message "High price must be >= close price" ;
+        sh:prefixes [
+            sh:declare [
+                sh:prefix "arden-markets" ;
+                sh:namespace "https://arden.ag/ont/markets#"^^xsd:anyURI
+            ]
+        ] ;
+        sh:select """
+            SELECT $this WHERE {
+                $this arden-markets:highPrice ?high ;
+                      arden-markets:closePrice ?close .
+                FILTER(?high < ?close)
+            }
+        """
+    ] ,
+    [
+        sh:message "Low price must be <= open price" ;
+        sh:prefixes [
+            sh:declare [
+                sh:prefix "arden-markets" ;
+                sh:namespace "https://arden.ag/ont/markets#"^^xsd:anyURI
+            ]
+        ] ;
+        sh:select """
+            SELECT $this WHERE {
+                $this arden-markets:lowPrice ?low ;
+                      arden-markets:openPrice ?open .
+                FILTER(?low > ?open)
+            }
+        """
+    ] ,
+    [
+        sh:message "Low price must be <= close price" ;
+        sh:prefixes [
+            sh:declare [
+                sh:prefix "arden-markets" ;
+                sh:namespace "https://arden.ag/ont/markets#"^^xsd:anyURI
+            ]
+        ] ;
+        sh:select """
+            SELECT $this WHERE {
+                $this arden-markets:lowPrice ?low ;
+                      arden-markets:closePrice ?close .
+                FILTER(?low > ?close)
+            }
+        """
+    ] ,
+    [
+        sh:message "High price must be >= low price" ;
+        sh:prefixes [
+            sh:declare [
+                sh:prefix "arden-markets" ;
+                sh:namespace "https://arden.ag/ont/markets#"^^xsd:anyURI
+            ]
+        ] ;
+        sh:select """
+            SELECT $this WHERE {
+                $this arden-markets:highPrice ?high ;
+                      arden-markets:lowPrice ?low .
+                FILTER(?high < ?low)
+            }
+        """
+    ] .
+
+# =============================================================================
+# COMMODITY-SPECIFIC PRICE REASONABLENESS VALIDATION
+# =============================================================================
+
+# Corn Futures Price Reasonableness
+arden-shapes:CornFuturePriceShape a sh:NodeShape ;
+    rdfs:label "Corn Futures Price Validation"@en ;
+    rdfs:comment "Validates corn futures prices are within reasonable bounds for agricultural commodities"@en ;
+    sh:targetNode arden-markets:ZC ;
+    sh:sparql [
+        sh:message "Corn futures price outside reasonable range ($1.00 - $15.00 per bushel)" ;
+        sh:prefixes [
+            sh:declare [
+                sh:prefix "arden-markets" ;
+                sh:namespace "https://arden.ag/ont/markets#"^^xsd:anyURI
+            ]
+        ] ;
+        sh:select """
+            SELECT $this WHERE {
+                ?obs arden-markets:observesInstrument $this ;
+                     arden-markets:closePrice ?price .
+                FILTER(?price < 1.00 || ?price > 15.00)
+            }
+        """
+    ] .
+
+# Soybean Futures Price Reasonableness
+arden-shapes:SoybeanFuturePriceShape a sh:NodeShape ;
+    rdfs:label "Soybean Futures Price Validation"@en ;
+    rdfs:comment "Validates soybean futures prices are within reasonable bounds"@en ;
+    sh:targetNode arden-markets:ZS ;
+    sh:sparql [
+        sh:message "Soybean futures price outside reasonable range ($5.00 - $25.00 per bushel)" ;
+        sh:prefixes [
+            sh:declare [
+                sh:prefix "arden-markets" ;
+                sh:namespace "https://arden.ag/ont/markets#"^^xsd:anyURI
+            ]
+        ] ;
+        sh:select """
+            SELECT $this WHERE {
+                ?obs arden-markets:observesInstrument $this ;
+                     arden-markets:closePrice ?price .
+                FILTER(?price < 5.00 || ?price > 25.00)
+            }
+        """
+    ] .
+
+# Wheat Futures Price Reasonableness
+arden-shapes:WheatFuturePriceShape a sh:NodeShape ;
+    rdfs:label "Wheat Futures Price Validation"@en ;
+    rdfs:comment "Validates wheat futures prices are within reasonable bounds"@en ;
+    sh:targetNode arden-markets:ZW ;
+    sh:sparql [
+        sh:message "Wheat futures price outside reasonable range ($2.00 - $12.00 per bushel)" ;
+        sh:prefixes [
+            sh:declare [
+                sh:prefix "arden-markets" ;
+                sh:namespace "https://arden.ag/ont/markets#"^^xsd:anyURI
+            ]
+        ] ;
+        sh:select """
+            SELECT $this WHERE {
+                ?obs arden-markets:observesInstrument $this ;
+                     arden-markets:closePrice ?price .
+                FILTER(?price < 2.00 || ?price > 12.00)
+            }
+        """
+    ] .
+
+# =============================================================================
+# SNAPSHOT DATA VALIDATION SHAPES
+# =============================================================================
+
+# Market Snapshot Validation
+arden-shapes:SnapshotObservationShape a sh:NodeShape ;
+    sh:targetClass arden-markets:SnapshotObservation ;
+    rdfs:label "Market Snapshot Validation"@en ;
+    rdfs:comment "Validation for real-time market snapshot data including bid/ask spreads"@en ;
+    sh:property [
+        sh:path sosa:resultTime ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:dateTime ;
+        sh:name "snapshot timestamp" ;
+        sh:description "Snapshot must have exactly one timestamp"
+    ] ,
+    [
+        sh:path arden-markets:lastPrice ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:name "last price" ;
+        sh:description "Last price must be positive decimal value"
+    ] ,
+    [
+        sh:path arden-markets:bidPrice ;
+        sh:minCount 0 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:name "bid price" ;
+        sh:description "Bid price must be positive decimal value if present"
+    ] ,
+    [
+        sh:path arden-markets:askPrice ;
+        sh:minCount 0 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:name "ask price" ;
+        sh:description "Ask price must be positive decimal value if present"
+    ] ,
+    [
+        sh:path arden-markets:marketState ;
+        sh:minCount 0 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:in ("OPEN" "CLOSED" "PRE_MARKET" "POST_MARKET" "HALTED") ;
+        sh:name "market state" ;
+        sh:description "Market state must be from approved state list"
+    ] ,
+    [
+        sh:path arden-markets:observesInstrument ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:class arden-markets:MarketInstrument ;
+        sh:name "observed instrument" ;
+        sh:description "Snapshot observation must reference exactly one market instrument"
+    ] ;
+
+    # Bid-Ask Spread Validation
+    sh:sparql [
+        sh:message "Ask price must be >= bid price" ;
+        sh:prefixes [
+            sh:declare [
+                sh:prefix "arden-markets" ;
+                sh:namespace "https://arden.ag/ont/markets#"^^xsd:anyURI
+            ]
+        ] ;
+        sh:select """
+            SELECT $this WHERE {
+                $this arden-markets:bidPrice ?bid ;
+                      arden-markets:askPrice ?ask .
+                FILTER(?ask < ?bid)
+            }
+        """
+    ] ,
+    [
+        sh:message "Bid-ask spread exceeds reasonable threshold (>10% of last price)" ;
+        sh:prefixes [
+            sh:declare [
+                sh:prefix "arden-markets" ;
+                sh:namespace "https://arden.ag/ont/markets#"^^xsd:anyURI
+            ]
+        ] ;
+        sh:select """
+            SELECT $this WHERE {
+                $this arden-markets:bidPrice ?bid ;
+                      arden-markets:askPrice ?ask ;
+                      arden-markets:lastPrice ?last .
+                BIND((?ask - ?bid) / ?last AS ?spreadPct)
+                FILTER(?spreadPct > 0.10)
+            }
+        """
+    ] .
+
+# =============================================================================
+# CORPORATE ACTIONS VALIDATION SHAPES
+# =============================================================================
+
+# Dividend Validation
+arden-shapes:DividendShape a sh:NodeShape ;
+    sh:targetClass arden-markets:Dividend ;
+    rdfs:label "Dividend Validation"@en ;
+    rdfs:comment "Validation for dividend corporate actions including date consistency and amount reasonableness"@en ;
+    sh:property [
+        sh:path arden-markets:affectsInstrument ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:class arden-markets:MarketInstrument ;
+        sh:name "affected instrument" ;
+        sh:description "Dividend must affect exactly one market instrument"
+    ] ,
+    [
+        sh:path arden-markets:exDate ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:date ;
+        sh:name "ex-dividend date" ;
+        sh:description "Dividend must have exactly one ex-dividend date"
+    ] ,
+    [
+        sh:path arden-markets:dividendAmount ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.01 ;
+        sh:maxInclusive 50.00 ;
+        sh:name "dividend amount" ;
+        sh:description "Dividend amount must be between $0.01 and $50.00 per share"
+    ] ,
+    [
+        sh:path arden-markets:recordDate ;
+        sh:minCount 0 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:date ;
+        sh:name "record date" ;
+        sh:description "Record date must be single date if specified"
+    ] ,
+    [
+        sh:path arden-markets:payDate ;
+        sh:minCount 0 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:date ;
+        sh:name "payment date" ;
+        sh:description "Payment date must be single date if specified"
+    ] ;
+
+    # Date Consistency Validation
+    sh:sparql [
+        sh:message "Record date must be before ex-dividend date" ;
+        sh:prefixes [
+            sh:declare [
+                sh:prefix "arden-markets" ;
+                sh:namespace "https://arden.ag/ont/markets#"^^xsd:anyURI
+            ]
+        ] ;
+        sh:select """
+            SELECT $this WHERE {
+                $this arden-markets:recordDate ?record ;
+                      arden-markets:exDate ?ex .
+                FILTER(?record >= ?ex)
+            }
+        """
+    ] ,
+    [
+        sh:message "Payment date must be after ex-dividend date" ;
+        sh:prefixes [
+            sh:declare [
+                sh:prefix "arden-markets" ;
+                sh:namespace "https://arden.ag/ont/markets#"^^xsd:anyURI
+            ]
+        ] ;
+        sh:select """
+            SELECT $this WHERE {
+                $this arden-markets:payDate ?pay ;
+                      arden-markets:exDate ?ex .
+                FILTER(?pay <= ?ex)
+            }
+        """
+    ] .
+
+# Stock Split Validation
+arden-shapes:StockSplitShape a sh:NodeShape ;
+    sh:targetClass arden-markets:StockSplit ;
+    rdfs:label "Stock Split Validation"@en ;
+    rdfs:comment "Validation for stock split corporate actions including ratio reasonableness"@en ;
+    sh:property [
+        sh:path arden-markets:affectsInstrument ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:class arden-markets:MarketInstrument ;
+        sh:name "affected instrument" ;
+        sh:description "Stock split must affect exactly one market instrument"
+    ] ,
+    [
+        sh:path arden-markets:exDate ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:date ;
+        sh:name "ex-split date" ;
+        sh:description "Stock split must have exactly one ex-split date"
+    ] ,
+    [
+        sh:path arden-markets:splitRatio ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.1 ;
+        sh:maxInclusive 10.0 ;
+        sh:name "split ratio" ;
+        sh:description "Split ratio must be between 0.1 and 10.0 (e.g., 2.0 for 2-for-1 split)"
+    ] .
+
+# =============================================================================
+# TEMPORAL DATA VALIDATION SHAPES
+# =============================================================================
+
+# Trading Date Consistency
+arden-shapes:TradingDateShape a sh:NodeShape ;
+    sh:targetClass arden-markets:OHLCVObservation ;
+    rdfs:label "Trading Date Consistency"@en ;
+    rdfs:comment "Validates trading dates are reasonable and not in future"@en ;
+    sh:sparql [
+        sh:message "Trading date cannot be in the future" ;
+        sh:prefixes [
+            sh:declare [
+                sh:prefix "arden-markets" ;
+                sh:namespace "https://arden.ag/ont/markets#"^^xsd:anyURI
+            ]
+        ] ;
+        sh:select """
+            SELECT $this WHERE {
+                $this arden-markets:tradingDate ?date .
+                BIND(NOW() AS ?now)
+                BIND(STRBEFORE(STR(?now), "T") AS ?todayStr)
+                BIND(STRDT(?todayStr, xsd:date) AS ?today)
+                FILTER(?date > ?today)
+            }
+        """
+    ] ,
+    [
+        sh:message "Trading date cannot be more than 50 years in the past" ;
+        sh:prefixes [
+            sh:declare [
+                sh:prefix "arden-markets" ;
+                sh:namespace "https://arden.ag/ont/markets#"^^xsd:anyURI
+            ]
+        ] ;
+        sh:select """
+            SELECT $this WHERE {
+                $this arden-markets:tradingDate ?date .
+                BIND(NOW() - "P18250D"^^xsd:duration AS ?fiftyYearsAgo)
+                BIND(STRBEFORE(STR(?fiftyYearsAgo), "T") AS ?limitStr)
+                BIND(STRDT(?limitStr, xsd:date) AS ?limit)
+                FILTER(?date < ?limit)
+            }
+        """
+    ] .
+
+# =============================================================================
+# DATA QUALITY AND COMPLETENESS VALIDATION
+# =============================================================================
+
+# Data Completeness Validation
+arden-shapes:DataCompletenessShape a sh:NodeShape ;
+    sh:targetClass arden-markets:MarketDataObservation ;
+    rdfs:label "Market Data Completeness"@en ;
+    rdfs:comment "Validates market data observations have required data quality indicators"@en ;
+    sh:property [
+        sh:path arden-markets:dataSource ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:name "data source" ;
+        sh:description "Market data observation must specify data source"
+    ] ,
+    [
+        sh:path arden-markets:dataQualityScore ;
+        sh:minCount 0 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 1.0 ;
+        sh:name "data quality score" ;
+        sh:description "Data quality score must be between 0.0 and 1.0 if specified"
+    ] ,
+    [
+        sh:path arden-markets:hasGap ;
+        sh:minCount 0 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:boolean ;
+        sh:name "has gap indicator" ;
+        sh:description "Gap indicator must be boolean if specified"
+    ] .
+
+# Yahoo Finance Specific Validation
+arden-shapes:YahooFinanceDataShape a sh:NodeShape ;
+    rdfs:label "Yahoo Finance Data Validation"@en ;
+    rdfs:comment "Specific validation rules for data sourced from Yahoo Finance"@en ;
+    sh:target [
+        a sh:SPARQLTarget ;
+        sh:prefixes [
+            sh:declare [
+                sh:prefix "arden-markets" ;
+                sh:namespace "https://arden.ag/ont/markets#"^^xsd:anyURI
+            ]
+        ] ;
+        sh:select """
+            SELECT ?this WHERE {
+                ?this arden-markets:dataSource "yahoo" .
+            }
+        """
+    ] ;
+    sh:property [
+        sh:path arden-markets:currency ;
+        sh:minCount 0 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:in ("USD" "CAD" "EUR" "GBP") ;
+        sh:name "currency" ;
+        sh:description "Yahoo Finance data currency must be from supported list"
+    ] ;
+    # Validate volume is reasonable for Yahoo Finance data
+    sh:sparql [
+        sh:message "Volume suspiciously low for active trading day (Yahoo Finance)" ;
+        sh:prefixes [
+            sh:declare [
+                sh:prefix "arden-markets" ;
+                sh:namespace "https://arden.ag/ont/markets#"^^xsd:anyURI
+            ]
+        ] ;
+        sh:select """
+            SELECT $this WHERE {
+                $this a arden-markets:OHLCVObservation ;
+                      arden-markets:volume ?volume ;
+                      arden-markets:dataSource "yahoo" .
+                FILTER(?volume > 0 && ?volume < 1000)
+            }
+        """
+    ] .
+
+# =============================================================================
+# INTEGRATION AND CONSISTENCY VALIDATION
+# =============================================================================
+
+# Market-Agricultural Commodity Consistency
+arden-shapes:CommodityConsistencyShape a sh:NodeShape ;
+    rdfs:label "Commodity-Market Consistency"@en ;
+    rdfs:comment "Validates consistency between agricultural commodities and their market representations"@en ;
+    sh:target [
+        a sh:SPARQLTarget ;
+        sh:prefixes [
+            sh:declare [
+                sh:prefix "arden-markets" ;
+                sh:namespace "https://arden.ag/ont/markets#"^^xsd:anyURI
+            ] ,
+            [
+                sh:prefix "arden-crops" ;
+                sh:namespace "https://arden.ag/ont/crops#"^^xsd:anyURI
+            ]
+        ] ;
+        sh:select """
+            SELECT ?this WHERE {
+                ?this a arden-markets:CommodityFuture .
+            }
+        """
+    ] ;
+    sh:sparql [
+        sh:message "Commodity future must represent a valid agricultural commodity" ;
+        sh:prefixes [
+            sh:declare [
+                sh:prefix "arden-markets" ;
+                sh:namespace "https://arden.ag/ont/markets#"^^xsd:anyURI
+            ] ,
+            [
+                sh:prefix "arden-crops" ;
+                sh:namespace "https://arden.ag/ont/crops#"^^xsd:anyURI
+            ]
+        ] ;
+        sh:select """
+            SELECT $this WHERE {
+                $this a arden-markets:CommodityFuture .
+                OPTIONAL { $this arden-markets:representsCommodity ?commodity }
+                FILTER(!BOUND(?commodity))
+            }
+        """
+    ] .
+
+# Historical Price Consistency
+arden-shapes:PriceConsistencyShape a sh:NodeShape ;
+    sh:targetClass arden-markets:OHLCVObservation ;
+    rdfs:label "Historical Price Consistency"@en ;
+    rdfs:comment "Validates price observations are consistent with recent historical data"@en ;
+    sh:sparql [
+        sh:message "Price change exceeds reasonable daily volatility threshold (>25%)" ;
+        sh:prefixes [
+            sh:declare [
+                sh:prefix "arden-markets" ;
+                sh:namespace "https://arden.ag/ont/markets#"^^xsd:anyURI
+            ]
+        ] ;
+        sh:select """
+            SELECT $this WHERE {
+                $this arden-markets:observesInstrument ?instrument ;
+                      arden-markets:tradingDate ?date ;
+                      arden-markets:closePrice ?close .
+                ?prev arden-markets:observesInstrument ?instrument ;
+                      arden-markets:tradingDate ?prevDate ;
+                      arden-markets:closePrice ?prevClose .
+                FILTER(?date > ?prevDate)
+                FILTER(?prevDate >= ?date - "P7D"^^xsd:duration)  # Within 7 days
+                BIND(ABS(?close - ?prevClose) / ?prevClose AS ?change)
+                FILTER(?change > 0.25)  # 25% change threshold
+            }
+        """
+    ] .

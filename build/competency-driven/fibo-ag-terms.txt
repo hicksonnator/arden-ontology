@@ -1,0 +1,31 @@
+# Core lending concepts (supports "5-year corn loan", "farmland mortgage")
+fibo-fbc-dae-dbt:Loan
+fibo-fbc-dae-dbt:Mortgage
+fibo-fbc-dae-dbt:Collateral
+fibo-fbc-dae-dbt:Lender
+fibo-fbc-dae-dbt:Borrower
+
+# Payment structures (supports "repayment schedules", "amortization structure")
+fibo-fbc-pas-caa:RepaymentSchedule
+fibo-fbc-pas-caa:AmortizationSchedule
+fibo-fbc-pas-caa:CashFlow
+fibo-fbc-pas-caa:CashFlowAssumption
+
+# Contracts & agreements (supports "Farm Credit eligibility")
+fibo-fnd-agr-ctr:Contract
+fibo-fnd-agr-ctr:Agreement
+fibo-fnd-pty-pty:Party
+fibo-fnd-aap-agt:Agent
+
+# Commodities & derivatives (supports "wheat futures pricing")
+fibo-der-drc-comm:CommodityDerivative
+fibo-der-drc-comm:CommodityAsset
+fibo-der-drc-comm:FuturesContract
+
+# Securities (supports "insurance securitization")
+fibo-sec-dbt-mbs:MortgageBackedSecurity
+fibo-sec-dbt-dbti:DebtSecurity
+
+# Valuation (supports "collateral valuation")
+fibo-fnd-acc-cur:MonetaryAmount
+fibo-fbc-pas-caa:ValuationAdjustment

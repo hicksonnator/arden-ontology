@@ -1,0 +1,204 @@
+@prefix arden: <https://arden.ag/ont/core#> .
+@prefix arden-crops: <https://arden.ag/ont/crops#> .
+@prefix arden-ag: <https://arden.ag/ont/ag#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix sosa: <http://www.w3.org/ns/sosa/> .
+@prefix time: <http://www.w3.org/2006/time#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix agrovoc: <http://aims.fao.org/aos/agrovoc/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+<https://arden.ag/ont/crops>
+  a owl:Ontology ;
+  rdfs:label "Arden Crops"@en ;
+  rdfs:comment "Crop types, varieties, and management practices aligned with AGROVOC"@en ;
+  owl:versionInfo "v1.0" ;
+              <https://arden.ag/ont/ag> ,
+              <http://www.w3.org/2006/time#> ,
+              <http://www.w3.org/2004/02/skos/core#> .
+
+### Anchor Classes (production-tight minimal set)
+arden-crops:CommercialCrop a owl:Class ;
+  rdfs:label "Commercial Crop"@en ;
+  rdfs:comment "Agricultural plant species grown for commercial harvest"@en ;
+  skos:closeMatch agrovoc:c_1972 .
+
+arden-crops:GrowthStage a owl:Class ;
+  rdfs:subClassOf skos:Concept ;
+  rdfs:label "Growth Stage"@en ;
+  rdfs:comment "BBCH-compatible crop development stage"@en .
+
+arden-crops:RotationPlan a owl:Class ;
+  rdfs:label "Rotation Plan"@en ;
+  rdfs:comment "Multi-year crop rotation strategy for field management"@en .
+
+arden-crops:bbchCode a owl:DatatypeProperty ;
+  rdfs:domain arden-crops:GrowthStage ;
+  rdfs:range xsd:string ;
+  rdfs:label "BBCH code"@en ;
+  rdfs:comment "BBCH growth stage code (00-99)"@en .
+
+arden-crops:HorticultureCrop a owl:Class ;
+  rdfs:subClassOf arden-crops:Crop ;
+  rdfs:label "Horticulture Crop"@en ;
+  rdfs:comment "Fruits, vegetables, and specialty crops"@en .
+
+### Crop Management Activities
+arden-crops:CropSeason a owl:Class ;
+  rdfs:label "Crop Season"@en ;
+  rdfs:comment "Growing season for a specific crop on a specific parcel"@en .
+
+arden-crops:PlantingOperation a owl:Class ;
+  rdfs:subClassOf arden:Practice ;
+  rdfs:label "Planting Operation"@en ;
+  rdfs:comment "Activity of planting seeds or transplants"@en .
+
+arden-crops:HarvestOperation a owl:Class ;
+  rdfs:subClassOf arden:Practice ;
+  rdfs:label "Harvest Operation"@en ;
+  rdfs:comment "Activity of harvesting mature crops"@en .
+
+arden-crops:CultivationOperation a owl:Class ;
+  rdfs:subClassOf arden:Practice ;
+  rdfs:label "Cultivation Operation"@en ;
+  rdfs:comment "Soil preparation, cultivation, and tillage activities"@en .
+
+### Crop Rotation & Planning
+arden-crops:CropRotation a owl:Class ;
+  rdfs:label "Crop Rotation"@en ;
+  rdfs:comment "Planned sequence of crops over multiple seasons"@en .
+
+arden-crops:RotationCycle a owl:Class ;
+  rdfs:label "Rotation Cycle"@en ;
+  rdfs:comment "Complete cycle of crops in a rotation plan"@en .
+
+arden-crops:CropPlan a owl:Class ;
+  rdfs:label "Crop Plan"@en ;
+  rdfs:comment "Planned crop activities for upcoming season"@en .
+
+### Pest & Disease Management
+arden-crops:PestManagementEvent a owl:Class ;
+  rdfs:subClassOf arden-ag:InputUseObservation ;
+  rdfs:label "Pest Management Event"@en ;
+  rdfs:comment "Application of pesticides or biological controls"@en .
+
+arden-crops:DiseaseObservation a owl:Class ;
+  rdfs:subClassOf sosa:Observation ;
+  rdfs:label "Disease Observation"@en ;
+  rdfs:comment "Detection and assessment of crop diseases"@en .
+
+arden-crops:PestObservation a owl:Class ;
+  rdfs:subClassOf sosa:Observation ;
+  rdfs:label "Pest Observation"@en ;
+  rdfs:comment "Detection and assessment of crop pests"@en .
+
+### Properties
+arden-crops:hasVariety a owl:ObjectProperty ;
+  rdfs:domain arden-crops:CropSeason ;
+  rdfs:range arden-crops:CropVariety ;
+  rdfs:label "has variety"@en .
+
+arden-crops:growsCrop a owl:ObjectProperty ;
+  rdfs:domain arden-crops:CropSeason ;
+  rdfs:range arden-crops:Crop ;
+  rdfs:label "grows crop"@en .
+
+arden-crops:onParcel a owl:ObjectProperty ;
+  rdfs:domain arden-crops:CropSeason ;
+  rdfs:range arden:FarmParcel ;
+  rdfs:label "on parcel"@en .
+
+arden-crops:hasRotation a owl:ObjectProperty ;
+  rdfs:domain arden:FarmParcel ;
+  rdfs:range arden-crops:CropRotation ;
+  rdfs:label "has rotation"@en .
+
+arden-crops:followsCrop a owl:ObjectProperty ;
+  rdfs:domain arden-crops:CropSeason ;
+  rdfs:range arden-crops:CropSeason ;
+  rdfs:label "follows crop"@en ;
+  rdfs:comment "Previous crop in rotation sequence"@en .
+
+arden-crops:plantingDate a owl:DatatypeProperty ;
+  rdfs:domain arden-crops:PlantingOperation ;
+  rdfs:range xsd:date ;
+  rdfs:label "planting date"@en .
+
+arden-crops:harvestDate a owl:DatatypeProperty ;
+  rdfs:domain arden-crops:HarvestOperation ;
+  rdfs:range xsd:date ;
+  rdfs:label "harvest date"@en .
+
+arden-crops:seedingRate a owl:ObjectProperty ;
+  rdfs:domain arden-crops:PlantingOperation ;
+  rdfs:range qudt:QuantityValue ;
+  rdfs:label "seeding rate"@en .
+
+arden-crops:plantingDepth a owl:ObjectProperty ;
+  rdfs:domain arden-crops:PlantingOperation ;
+  rdfs:range qudt:QuantityValue ;
+  rdfs:label "planting depth"@en .
+
+arden-crops:rowSpacing a owl:ObjectProperty ;
+  rdfs:domain arden-crops:PlantingOperation ;
+  rdfs:range qudt:QuantityValue ;
+  rdfs:label "row spacing"@en .
+
+### Crop Development Stages (BBCH scale compatible)
+arden-crops:GrowthStage a owl:Class ;
+  rdfs:label "Growth Stage"@en ;
+  rdfs:comment "Crop development stage (BBCH scale compatible)"@en .
+
+arden-crops:GrowthStageObservation a owl:Class ;
+  rdfs:subClassOf sosa:Observation ;
+  rdfs:label "Growth Stage Observation"@en ;
+  rdfs:comment "Assessment of crop development stage"@en .
+
+arden-crops:hasGrowthStage a owl:ObjectProperty ;
+  rdfs:domain arden-crops:GrowthStageObservation ;
+  rdfs:range arden-crops:GrowthStage ;
+  rdfs:label "has growth stage"@en .
+
+arden-crops:bbchCode a owl:DatatypeProperty ;
+  rdfs:domain arden-crops:GrowthStage ;
+  rdfs:range xsd:string ;
+  rdfs:label "BBCH code"@en ;
+  rdfs:comment "BBCH growth stage code (00-99)"@en .
+
+### Field History & Records
+arden-crops:FieldHistory a owl:Class ;
+  rdfs:label "Field History"@en ;
+  rdfs:comment "Historical record of crops grown on a parcel"@en .
+
+arden-crops:CropYearRecord a owl:Class ;
+  rdfs:label "Crop Year Record"@en ;
+  rdfs:comment "Complete record of crop activities for one season"@en .
+
+arden-crops:hasFieldHistory a owl:ObjectProperty ;
+  rdfs:domain arden:FarmParcel ;
+  rdfs:range arden-crops:FieldHistory ;
+  rdfs:label "has field history"@en .
+
+arden-crops:includesRecord a owl:ObjectProperty ;
+  rdfs:domain arden-crops:FieldHistory ;
+  rdfs:range arden-crops:CropYearRecord ;
+  rdfs:label "includes record"@en .
+
+arden-crops:cropYear a owl:DatatypeProperty ;
+  rdfs:domain arden-crops:CropYearRecord ;
+  rdfs:range xsd:gYear ;
+  rdfs:label "crop year"@en .
+
+### Integration with external vocabularies
+arden-crops:agrovocConcept a owl:ObjectProperty ;
+  rdfs:domain arden-crops:Crop ;
+  rdfs:range skos:Concept ;
+  rdfs:label "AGROVOC concept"@en ;
+  rdfs:comment "Link to AGROVOC thesaurus concept"@en .
+
+arden-crops:nassCropCode a owl:DatatypeProperty ;
+  rdfs:domain arden-crops:Crop ;
+  rdfs:range xsd:string ;
+  rdfs:label "NASS crop code"@en ;
+  rdfs:comment "USDA NASS commodity code"@en .

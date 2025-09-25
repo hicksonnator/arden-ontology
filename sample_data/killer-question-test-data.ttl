@@ -1,0 +1,178 @@
+@prefix : <https://arden.ag/data/> .
+@prefix arden: <https://arden.ag/ont/core#> .
+@prefix arden-fin: <https://arden.ag/ont/fin#> .
+@prefix arden-ag: <https://arden.ag/ont/ag#> .
+@prefix arden-labor: <https://arden.ag/ont/labor#> .
+@prefix arden-tax: <https://arden.ag/ont/tax#> .
+@prefix arden-risk: <https://arden.ag/ont/risk#> .
+@prefix bridge: <https://arden.ag/ont/bridge#> .
+@prefix fibo: <https://spec.edmcouncil.org/fibo/ontology/> .
+@prefix sosa: <http://www.w3.org/ns/sosa/> .
+@prefix qudt: <http://qudt.org/schema/qudt/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# TEST DATA FOR KILLER COMPETENCY QUESTIONS
+
+# KQ1: Family child labor tax scenario (should trigger validation)
+:johnson_farm a arden:FamilyFarm ;
+    arden:owner :john_johnson .
+
+:john_johnson a arden:FarmOwner ;
+    arden:owns :johnson_farm .
+
+:tommy_johnson a arden-labor:FarmFamilyEmployee ;
+    arden:childOf :john_johnson ;
+    arden:age 16 ;
+    arden:employer :johnson_farm ;
+    arden-labor:subjectToWithholding true ;  # Should be false for under-18 family
+    arden-labor:annualWages 3000.0 .
+
+# KQ2: Seasonal worker tax compliance (should trigger validation)
+:maria_garcia a arden-labor:SeasonalFarmWorker ;
+    arden:employer :johnson_farm ;
+    arden-labor:annualWages 750.0 ;  # Over $600 threshold
+    arden-labor:taxFormsCompleted false .  # Should be true
+
+# KQ4: Wheat futures → collateral value scenario
+:wheat_grain_bin a bridge:futuresBasedCollateral ;
+    arden:assetType arden-ag:WheatGrain ;
+    arden-fin:collateralValue 45000.0 ;  # May be inconsistent with futures price
+    arden:location :grain_storage_001 ;
+    bridge:futuresContractReference :wheat_dec2024_contract .
+
+:grain_storage_001 a arden:GrainBin ;
+    arden:storedQuantity [
+        qudt:numericValue 1000.0 ;
+        qudt:unit <http://qudt.org/vocab/unit/BU>
+    ] .
+
+:wheat_dec2024_contract a arden-fin:FuturesContract ;
+    arden:commodity arden-ag:Wheat ;
+    arden-fin:currentPrice 6.25 ;  # $6.25/bushel × 1000 bu = $6,250 (vs $45,000 collateral)
+    arden:priceDate "2024-09-20"^^xsd:date .
+
+# KQ5: Soybean yield → debt service coverage
+:iowa_soybean_operation a arden:FarmOperation ;
+    arden:hasLoan :operating_loan_001 ;
+    arden:hasParcel :soybean_field_001 .
+
+:operating_loan_001 a arden-fin:AgriculturalLoan ;
+    arden-fin:annualPayment 85000.0 ;
+    bridge:debtServiceCoverageRatio 0.95 .  # Below 1.2 threshold
+
+:soybean_field_001 a arden:FarmParcel ;
+    arden:acreage 500.0 ;
+    arden-ag:predominantCrop arden-ag:Soybean .
+
+:soybean_yield_projection a arden-ag:YieldProjection ;
+    sosa:hasFeatureOfInterest :soybean_field_001 ;
+    arden-ag:projectedYield 42.0 ;  # Bushels per acre
+    arden-ag:cropType arden-ag:Soybean .
+
+:soybean_yield_historical a arden-ag:YieldObservation ;
+    sosa:hasFeatureOfInterest :soybean_field_001 ;
+    arden:averageYield 48.0 ;  # 12.5% yield drop (42/48 = 87.5%)
+    arden:period "2019-2023" .
+
+# Current soybean price
+arden-ag:Soybean arden:marketPrice 12.50 .  # $12.50/bushel
+
+# KQ6: Land value → credit line scenario
+:farmland_parcel_001 a arden:Farmland ;
+    arden:currentValue 2400000.0 ;  # $2.4M
+    arden:acreage 500.0 .  # $4,800/acre (below $5,000 threshold)
+
+:line_of_credit_001 a arden-fin:LineOfCredit ;
+    arden-fin:securedBy :farmland_parcel_001 ;
+    arden-fin:creditLimit 2000000.0 .  # $2M limit may be too high for $2.4M × 75% = $1.8M max
+
+# KQ7: Federal crop insurance eligibility
+:corn_insurance_policy a arden-fin:CropInsurancePolicy ;
+    arden-fin:coversCrop :specialty_corn_variety ;
+    arden:claimsSubsidy 15000.0 .  # Claims subsidy
+
+:specialty_corn_variety a bridge:CommodityAsset ;
+    arden:federalInsuranceEligible false .  # Not eligible for federal subsidies
+
+# KQ8: Soil erosion risk → collateral adjustment
+:erosive_soil_parcel a arden:FarmParcel ;
+    arden:soilType :highly_erosive_soil ;
+    arden-fin:usedAsCollateral :farmland_loan_001 .
+
+:highly_erosive_soil a arden:SoilType ;
+    bridge:erosionRiskLevel "high" .
+
+:farmland_loan_001 a arden-fin:AgriculturalLoan ;
+    arden-fin:securedBy :erosive_soil_parcel .
+    # Missing: arden-fin:riskAdjustment (should have risk adjustment)
+
+# KQ10: Farmer Mac ACRE Act eligibility
+:farmland_mortgage_001 a arden-fin:FarmlandMortgage ;
+    arden-fin:securitizedBy arden-fin:FarmerMac ;
+    arden-tax:claimsACRETreatment true ;  # Claims ACRE treatment
+    arden:farmSize 1200.0 ;  # 1,200 acres (over 1,000 limit)
+    arden:borrowerIncome 600000.0 .  # $600K income (over $500K limit)
+
+# KQ11: Agricultural equipment depreciation
+:new_irrigation_system a arden:AgriculturalEquipment ;
+    arden:equipmentType :irrigation_equipment ;
+    arden:purchaseDate "2024-03-15"^^xsd:date ;
+    arden-tax:depreciationSchedule :claimed_schedule .
+
+:irrigation_equipment a arden:EquipmentType ;
+    bridge:irsDepreciationPeriod 7 .  # IRS requires 7-year depreciation
+
+:claimed_schedule a arden-tax:DepreciationSchedule ;
+    arden-tax:depreciationPeriod 5 .  # Farmer claiming 5 years (incorrect)
+
+# Cross-cutting regulatory conflict scenario
+:conflict_farm_operation a arden:FarmOperation ;
+    arden:hasLoan :conservation_loan ;
+    arden:enrolledInProgram :crp_program , :crop_insurance_program .
+
+:conservation_loan a arden-fin:AgriculturalLoan ;
+    arden-fin:covenant :continuous_cropping_covenant .
+
+:continuous_cropping_covenant a arden-fin:LoanCovenant ;
+    arden:requires :continuous_agricultural_production .
+
+:crp_program a arden:GovernmentProgram ;
+    rdfs:label "Conservation Reserve Program" ;
+    arden:prohibits :continuous_agricultural_production .  # CRP requires land retirement
+
+:crop_insurance_program a arden:GovernmentProgram ;
+    rdfs:label "Federal Crop Insurance" ;
+    arden:requires :continuous_agricultural_production .
+
+# Reference entities and market data
+arden-ag:WheatGrain a bridge:CommodityAsset .
+arden-ag:Wheat a bridge:CommodityAsset .
+arden-ag:Soybean a bridge:CommodityAsset .
+arden-ag:MaizeCrop a bridge:CommodityAsset .
+
+arden-fin:FarmerMac a arden-fin:GovernmentSponsoredEntity .
+
+# Additional data for completeness validation
+:complete_farm_operation a arden:FarmOperation ;
+    arden:hasLoan :complete_loan ;
+    arden:hasParcel :complete_parcel ;
+    arden:enrolledInProgram :complete_program ;
+    arden:hasEmployee :complete_employee ;
+    arden:taxStatus "active" .
+
+:complete_loan a arden-fin:AgriculturalLoan .
+:complete_parcel a arden:FarmParcel ;
+    arden:soilType [
+        bridge:erosionRiskLevel "low"
+    ] .
+:complete_program a arden:GovernmentProgram .
+:complete_employee a arden-labor:FarmEmployee .
+
+# Market price data
+arden-ag:Wheat arden:marketPrice 6.25 .
+arden-ag:Corn arden:marketPrice 4.75 .
+
+# Current timestamp context
+:current_time a <http://www.w3.org/2006/time#Instant> ;
+    <http://www.w3.org/2006/time#inXSDDateTime> "2024-09-24T15:00:00Z"^^xsd:dateTime .

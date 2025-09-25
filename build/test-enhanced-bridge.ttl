@@ -1,0 +1,987 @@
+@prefix : <https://arden.ag/ont/bridge/cross-domain#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix agro: <http://purl.obolibrary.org/obo/> .
+@prefix qudt: <http://qudt.org/schema/qudt/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix unit: <http://qudt.org/vocab/unit/> .
+@prefix arden: <https://arden.ag/ont/core#> .
+@prefix bridge: <https://arden.ag/ont/bridge#> .
+@prefix arden-ag: <https://arden.ag/ont/ag#> .
+@prefix arden-fin: <https://arden.ag/ont/fin#> .
+@prefix fibo-fbc-dae-dbt: <https://spec.edmcouncil.org/fibo/ontology/FBC/DebtAndEquities/Debt/> .
+@prefix fibo-fbc-pas-caa: <https://spec.edmcouncil.org/fibo/ontology/FBC/ProductsAndServices/ClientsAndAccounts/> .
+@prefix fibo-der-drc-comm: <https://spec.edmcouncil.org/fibo/ontology/DER/DerivativesContracts/CommodityContracts/> .
+@base <https://arden.ag/ont/bridge/cross-domain> .
+
+<https://arden.ag/ont/bridge/cross-domain> rdf:type owl:Ontology ;
+                                            dct:created "2024-09-24"^^xsd:date ;
+                                            dct:description "Core cross-domain mappings that connect agricultural semantics (AGRO) to financial semantics (FIBO) via units (QUDT). This is Arden's competitive moat."@en ;
+                                            dct:title "Arden Cross-Domain Bridge: Agriculture ↔ Finance"@en ;
+                                            rdfs:comment "Cross-domain properties and patterns for agriculture-finance integration"@en ;
+                                            rdfs:label "Arden Bridge Vocabulary"@en ;
+                                            owl:versionInfo "v1.2.0" .
+
+#################################################################
+#    Annotation properties
+#################################################################
+
+###  http://purl.org/dc/terms/created
+dct:created rdf:type owl:AnnotationProperty .
+
+
+###  http://purl.org/dc/terms/creator
+dct:creator rdf:type owl:AnnotationProperty .
+
+
+###  http://purl.org/dc/terms/description
+dct:description rdf:type owl:AnnotationProperty .
+
+
+###  http://purl.org/dc/terms/title
+dct:title rdf:type owl:AnnotationProperty .
+
+
+###  http://www.w3.org/2002/07/owl#cardinality
+owl:cardinality rdf:type owl:AnnotationProperty .
+
+
+###  http://www.w3.org/2002/07/owl#minCardinality
+owl:minCardinality rdf:type owl:AnnotationProperty .
+
+
+#################################################################
+#    Datatypes
+#################################################################
+
+###  http://www.w3.org/2001/XMLSchema#date
+xsd:date rdf:type rdfs:Datatype .
+
+
+#################################################################
+#    Object Properties
+#################################################################
+
+###  http://www.w3.org/1999/02/22-rdf-syntax-ns#type
+rdf:type rdf:type owl:ObjectProperty .
+
+
+###  http://www.w3.org/ns/prov#wasGeneratedBy
+<http://www.w3.org/ns/prov#wasGeneratedBy> rdf:type owl:ObjectProperty .
+
+
+###  https://arden.ag/ont/bridge#cropYieldOf
+bridge:cropYieldOf rdf:type owl:ObjectProperty ;
+                   rdfs:domain qudt:QuantityValue ;
+                   rdfs:range arden-ag:ProductionSystem ;
+                   rdfs:label "crop yield of"@en .
+
+
+###  https://arden.ag/ont/bridge#drivenBy
+bridge:drivenBy rdf:type owl:ObjectProperty ;
+                owl:inverseOf bridge:drivesCashFlow ;
+                rdfs:domain arden-fin:CashFlowAssumption ;
+                rdfs:range qudt:QuantityValue ;
+                rdfs:label "driven by"@en .
+
+
+###  https://arden.ag/ont/bridge#drivesCashFlow
+bridge:drivesCashFlow rdf:type owl:ObjectProperty ,
+                               owl:IrreflexiveProperty ;
+                      rdfs:domain qudt:QuantityValue ;
+                      rdfs:range arden-fin:CashFlowAssumption ;
+                      owl:propertyChainAxiom ( bridge:cropYieldOf
+                                               bridge:usedInPlan
+                                             ) ;
+                      rdfs:comment "Causal relationship: crop yield measurements influence financial planning assumptions"@en ,
+                                   "Links a measured quantity to cash flow assumptions in financial planning"@en ;
+                      rdfs:label "drives cash flow"@en .
+
+
+###  https://arden.ag/ont/bridge#hasEvidence
+bridge:hasEvidence rdf:type owl:ObjectProperty ;
+                   rdfs:range bridge:Evidence ;
+                   rdfs:comment "Links a bridge assertion to supporting evidence"@en ;
+                   rdfs:label "has evidence"@en .
+
+
+###  https://arden.ag/ont/bridge#hasImpactType
+bridge:hasImpactType rdf:type owl:ObjectProperty .
+
+
+###  https://arden.ag/ont/bridge#hasMarketPrice
+bridge:hasMarketPrice rdf:type owl:ObjectProperty ;
+                      owl:inverseOf bridge:priceOf ;
+                      rdf:type owl:FunctionalProperty ;
+                      rdfs:domain bridge:CommodityAsset ;
+                      rdfs:range qudt:QuantityValue ,
+                                 bridge:MonetaryValue ;
+                      rdfs:comment "Each commodity asset has exactly one current market price"@en ;
+                      rdfs:label "has market price"@en .
+
+
+###  https://arden.ag/ont/bridge#hasReferenceCommodity
+bridge:hasReferenceCommodity rdf:type owl:ObjectProperty ;
+                             rdfs:domain bridge:FuturesContract ;
+                             rdfs:range arden-ag:Crop ;
+                             rdfs:label "has reference commodity"@en .
+
+
+###  https://arden.ag/ont/bridge#influencedByFutures
+bridge:influencedByFutures rdf:type owl:ObjectProperty ;
+                           rdfs:domain arden-fin:ValuationAdjustment ;
+                           rdfs:range bridge:FuturesContract ;
+                           rdfs:comment "Links collateral value to futures market trends"@en ;
+                           rdfs:label "influenced by futures"@en .
+
+
+###  https://arden.ag/ont/bridge#mappedFromRisk
+bridge:mappedFromRisk rdf:type owl:ObjectProperty ;
+                      owl:inverseOf bridge:mapsToRiskFactor ;
+                      rdfs:domain arden-fin:CollateralRiskFactor ;
+                      rdfs:range arden-ag:AgRiskFactor ;
+                      rdfs:label "mapped from risk"@en .
+
+
+###  https://arden.ag/ont/bridge#mapsToRiskFactor
+bridge:mapsToRiskFactor rdf:type owl:ObjectProperty ,
+                                 owl:AsymmetricProperty ,
+                                 owl:IrreflexiveProperty ;
+                        rdfs:domain arden-ag:AgRiskFactor ;
+                        rdfs:range arden-fin:CollateralRiskFactor ;
+                        rdfs:comment "Directional mapping from agricultural to financial risk factors"@en ,
+                                     "Maps agricultural risk factors to financial collateral risk factors"@en ;
+                        rdfs:label "maps to risk factor"@en .
+
+
+###  https://arden.ag/ont/bridge#mitigationStrategy
+bridge:mitigationStrategy rdf:type owl:ObjectProperty .
+
+
+###  https://arden.ag/ont/bridge#normalizedTo
+bridge:normalizedTo rdf:type owl:ObjectProperty ;
+                    rdfs:domain qudt:QuantityValue ;
+                    rdfs:range qudt:QuantityValue ;
+                    rdfs:comment "Links a quantity value to its normalized equivalent in standard units"@en ;
+                    rdfs:label "normalized to"@en .
+
+
+###  https://arden.ag/ont/bridge#priceOf
+bridge:priceOf rdf:type owl:ObjectProperty ,
+                        owl:InverseFunctionalProperty ;
+               rdfs:domain bridge:MonetaryValue ;
+               rdfs:range bridge:CommodityAsset ;
+               rdfs:label "price of"@en .
+
+
+###  https://arden.ag/ont/bridge#representedBy
+bridge:representedBy rdf:type owl:ObjectProperty ;
+                     owl:inverseOf bridge:representsCommodity ;
+                     rdf:type owl:FunctionalProperty ,
+                              owl:InverseFunctionalProperty ;
+                     rdfs:domain arden-ag:Crop ;
+                     rdfs:range bridge:CommodityAsset ;
+                     rdfs:label "represented by"@en .
+
+
+###  https://arden.ag/ont/bridge#representsCommodity
+bridge:representsCommodity rdf:type owl:ObjectProperty ,
+                                    owl:FunctionalProperty ,
+                                    owl:InverseFunctionalProperty ;
+                           rdfs:domain bridge:CommodityAsset ;
+                           rdfs:range arden-ag:Crop ;
+                           rdfs:comment "Bijective relationship between commodity assets and agricultural commodities"@en ,
+                                        "Links a financial asset to the agricultural commodity it represents"@en ;
+                           rdfs:label "represents commodity"@en .
+
+
+###  https://arden.ag/ont/bridge#riskProbability
+bridge:riskProbability rdf:type owl:ObjectProperty .
+
+
+###  https://arden.ag/ont/bridge#standardYieldUnit
+bridge:standardYieldUnit rdf:type owl:ObjectProperty ,
+                                  owl:FunctionalProperty ;
+                         rdfs:domain bridge:CommodityAsset ;
+                         rdfs:range qudt:Unit ;
+                         rdfs:label "standard yield unit"@en .
+
+
+###  https://arden.ag/ont/bridge#tradedVia
+bridge:tradedVia rdf:type owl:ObjectProperty ;
+                 rdfs:domain bridge:CommodityAsset ;
+                 rdfs:range bridge:FuturesContract ;
+                 rdfs:label "traded via"@en .
+
+
+###  https://arden.ag/ont/bridge#usedInPlan
+bridge:usedInPlan rdf:type owl:ObjectProperty ;
+                  rdfs:domain arden-ag:ProductionSystem ;
+                  rdfs:range arden-fin:UnderwritingPlan ;
+                  rdfs:label "used in plan"@en .
+
+
+###  https://arden.ag/ont/bridge#valuationAdjustment
+bridge:valuationAdjustment rdf:type owl:ObjectProperty ;
+                           rdfs:domain arden-fin:Collateral ;
+                           rdfs:range arden-fin:ValuationAdjustment ;
+                           rdfs:label "valuation adjustment"@en .
+
+
+###  https://arden.ag/ont/fin#wasGeneratedByModel
+arden-fin:wasGeneratedByModel rdf:type owl:ObjectProperty ;
+                              rdfs:subPropertyOf <http://www.w3.org/ns/prov#wasGeneratedBy> ;
+                              rdfs:domain arden-fin:ModeledEstimate ;
+                              rdfs:range arden-fin:EstimationModel ;
+                              rdfs:label "was generated by model"@en .
+
+
+#################################################################
+#    Data properties
+#################################################################
+
+###  http://qudt.org/schema/qudt/numericValue
+qudt:numericValue rdf:type owl:DatatypeProperty .
+
+
+###  https://arden.ag/ont/bridge#amount
+bridge:amount rdf:type owl:DatatypeProperty ,
+                       owl:FunctionalProperty ;
+              rdfs:domain bridge:MonetaryValue ;
+              rdfs:range xsd:decimal ;
+              rdfs:label "amount"@en .
+
+
+###  https://arden.ag/ont/bridge#competencyQuestion
+bridge:competencyQuestion rdf:type owl:DatatypeProperty ;
+                          rdfs:domain bridge:BridgeMapping ;
+                          rdfs:range xsd:string ;
+                          rdfs:comment "Competency question that this mapping supports"@en ;
+                          rdfs:label "competency question"@en .
+
+
+###  https://arden.ag/ont/bridge#confidence
+bridge:confidence rdf:type owl:DatatypeProperty ;
+                  rdfs:domain bridge:BridgeMapping ;
+                  rdfs:range xsd:decimal ;
+                  rdfs:comment "Confidence score for bridge mapping (0.0-1.0)"@en ;
+                  rdfs:label "confidence"@en .
+
+
+###  https://arden.ag/ont/bridge#mappingType
+bridge:mappingType rdf:type owl:DatatypeProperty ;
+                   rdfs:domain bridge:BridgeMapping ;
+                   rdfs:range xsd:string ;
+                   rdfs:label "mapping type"@en .
+
+
+###  https://arden.ag/ont/bridge#probabilityValue
+bridge:probabilityValue rdf:type owl:DatatypeProperty ,
+                                 owl:FunctionalProperty ;
+                        rdfs:domain bridge:PositiveProbability ;
+                        rdfs:range xsd:decimal ;
+                        rdfs:label "probability value"@en .
+
+
+###  https://arden.ag/ont/bridge#rateValue
+bridge:rateValue rdf:type owl:DatatypeProperty ,
+                          owl:FunctionalProperty ;
+                 rdfs:domain bridge:InterestRate ;
+                 rdfs:range xsd:decimal ;
+                 rdfs:label "rate value"@en .
+
+
+###  https://arden.ag/ont/bridge#ratioValue
+bridge:ratioValue rdf:type owl:DatatypeProperty ,
+                           owl:FunctionalProperty ;
+                  rdfs:domain bridge:LoanToValueRatio ;
+                  rdfs:range xsd:decimal ;
+                  rdfs:label "ratio value"@en .
+
+
+#################################################################
+#    Classes
+#################################################################
+
+###  http://org.semanticweb.owlapi/error#Error1
+<http://org.semanticweb.owlapi/error#Error1> rdf:type owl:Class .
+
+
+###  http://org.semanticweb.owlapi/error#Error2
+<http://org.semanticweb.owlapi/error#Error2> rdf:type owl:Class .
+
+
+###  http://org.semanticweb.owlapi/error#Error3
+<http://org.semanticweb.owlapi/error#Error3> rdf:type owl:Class .
+
+
+###  http://org.semanticweb.owlapi/error#Error4
+<http://org.semanticweb.owlapi/error#Error4> rdf:type owl:Class .
+
+
+###  http://org.semanticweb.owlapi/error#Error5
+<http://org.semanticweb.owlapi/error#Error5> rdf:type owl:Class .
+
+
+###  http://org.semanticweb.owlapi/error#Error6
+<http://org.semanticweb.owlapi/error#Error6> rdf:type owl:Class .
+
+
+###  http://qudt.org/schema/qudt/QuantityKind
+qudt:QuantityKind rdf:type owl:Class .
+
+
+###  http://qudt.org/schema/qudt/QuantityValue
+qudt:QuantityValue rdf:type owl:Class .
+
+
+###  http://qudt.org/schema/qudt/Unit
+qudt:Unit rdf:type owl:Class .
+
+
+###  http://qudt.org/vocab/unit/BushelPerAcre
+unit:BushelPerAcre rdf:type owl:Class .
+
+
+###  http://www.w3.org/ns/prov#Activity
+<http://www.w3.org/ns/prov#Activity> rdf:type owl:Class .
+
+
+###  http://www.w3.org/ns/prov#Entity
+<http://www.w3.org/ns/prov#Entity> rdf:type owl:Class .
+
+
+###  http://www.w3.org/ns/sosa/Observation
+<http://www.w3.org/ns/sosa/Observation> rdf:type owl:Class .
+
+
+###  https://arden.ag/ont/ag#AgRiskFactor
+arden-ag:AgRiskFactor rdf:type owl:Class ;
+                      rdfs:subClassOf <http://org.semanticweb.owlapi/error#Error6> ,
+                                      [ rdf:type owl:Restriction ;
+                                        owl:onProperty bridge:mapsToRiskFactor ;
+                                        owl:minCardinality "1"^^xsd:nonNegativeInteger
+                                      ] ;
+                      owl:disjointWith arden-fin:FinancialAsset .
+
+
+###  https://arden.ag/ont/ag#Crop
+arden-ag:Crop rdf:type owl:Class ;
+              owl:disjointWith arden-fin:FinancialInstrument .
+
+
+###  https://arden.ag/ont/ag#InputUseObservation
+arden-ag:InputUseObservation rdf:type owl:Class ;
+                             rdfs:subClassOf <http://www.w3.org/ns/sosa/Observation> ;
+                             rdfs:comment "Application of input (fertilizer, pesticide, seed treatment) with rate/AI."@en ;
+                             rdfs:label "Input use observation"@en .
+
+
+###  https://arden.ag/ont/ag#ProductionSystem
+arden-ag:ProductionSystem rdf:type owl:Class .
+
+
+###  https://arden.ag/ont/ag#YieldObservation
+arden-ag:YieldObservation rdf:type owl:Class ;
+                          rdfs:subClassOf <http://www.w3.org/ns/sosa/Observation> ;
+                          rdfs:comment "Yield of a crop at a parcel/time."@en ;
+                          rdfs:label "Yield observation"@en .
+
+
+###  https://arden.ag/ont/bridge#AcceptableLTV
+bridge:AcceptableLTV rdf:type owl:Class ;
+                     rdfs:subClassOf bridge:LoanToValueRatio ;
+                     rdfs:label "Acceptable Loan-to-Value Ratio"@en .
+
+
+###  https://arden.ag/ont/bridge#AreaQuantityKind
+bridge:AreaQuantityKind rdf:type owl:Class ;
+                        rdfs:subClassOf qudt:QuantityKind ;
+                        owl:disjointWith bridge:VolumeQuantityKind ;
+                        rdfs:label "Area Quantity Kind"@en .
+
+
+###  https://arden.ag/ont/bridge#BridgeMapping
+bridge:BridgeMapping rdf:type owl:Class ;
+                     rdfs:comment "A semantic mapping between agricultural and financial concepts"@en ;
+                     rdfs:label "Bridge Mapping"@en .
+
+
+###  https://arden.ag/ont/bridge#BushelPerAcreValue
+bridge:BushelPerAcreValue rdf:type owl:Class ;
+                          rdfs:subClassOf qudt:QuantityValue .
+
+
+###  https://arden.ag/ont/bridge#CollateralAsset
+bridge:CollateralAsset rdf:type owl:Class ;
+                       rdfs:subClassOf <http://org.semanticweb.owlapi/error#Error1> ,
+                                       <http://org.semanticweb.owlapi/error#Error2> .
+
+
+###  https://arden.ag/ont/bridge#CommodityAsset
+bridge:CommodityAsset rdf:type owl:Class ;
+                      rdfs:subClassOf arden-fin:Asset ,
+                                      [ rdf:type owl:Restriction ;
+                                        owl:onProperty bridge:hasMarketPrice ;
+                                        owl:cardinality "1"^^xsd:nonNegativeInteger
+                                      ] ,
+                                      [ rdf:type owl:Restriction ;
+                                        owl:onProperty bridge:representsCommodity ;
+                                        owl:cardinality "1"^^xsd:nonNegativeInteger
+                                      ] ,
+                                      [ rdf:type owl:Restriction ;
+                                        owl:onProperty bridge:standardYieldUnit ;
+                                        owl:cardinality "1"^^xsd:nonNegativeInteger
+                                      ] ;
+                      owl:disjointWith arden-fin:DebtInstrument ;
+                      rdfs:comment "Financial asset representing an agricultural commodity"@en ;
+                      rdfs:label "Commodity Asset"@en .
+
+
+###  https://arden.ag/ont/bridge#CompetencyQuestionEvidence
+bridge:CompetencyQuestionEvidence rdf:type owl:Class ;
+                                  rdfs:subClassOf bridge:Evidence ;
+                                  rdfs:comment "Evidence derived from competency question requirements"@en ;
+                                  rdfs:label "Competency Question Evidence"@en .
+
+
+###  https://arden.ag/ont/bridge#ConservationMitigated
+bridge:ConservationMitigated rdf:type owl:Class .
+
+
+###  https://arden.ag/ont/bridge#CornAsset
+bridge:CornAsset rdf:type owl:Class ;
+                 owl:equivalentClass [ owl:intersectionOf ( bridge:CommodityAsset
+                                                            [ rdf:type owl:Restriction ;
+                                                              owl:onProperty rdf:type ;
+                                                              owl:someValuesFrom bridge:GrainStorageEligible
+                                                            ]
+                                                            [ rdf:type owl:Restriction ;
+                                                              owl:onProperty rdf:type ;
+                                                              owl:someValuesFrom bridge:SecuritizationEligible
+                                                            ]
+                                                            [ rdf:type owl:Restriction ;
+                                                              owl:onProperty bridge:standardYieldUnit ;
+                                                              owl:someValuesFrom unit:BushelPerAcre
+                                                            ]
+                                                            [ rdf:type owl:Restriction ;
+                                                              owl:onProperty bridge:representsCommodity ;
+                                                              owl:hasValue arden-ag:MaizeCrop
+                                                            ]
+                                                          ) ;
+                                       rdf:type owl:Class
+                                     ] ,
+                                     [ owl:intersectionOf ( bridge:CommodityAsset
+                                                            [ rdf:type owl:Restriction ;
+                                                              owl:onProperty bridge:representsCommodity ;
+                                                              owl:hasValue arden-ag:MaizeCrop
+                                                            ]
+                                                          ) ;
+                                       rdf:type owl:Class
+                                     ] ;
+                 rdfs:subClassOf bridge:CommodityAsset ,
+                                 bridge:SecuritizationEligible ;
+                 owl:disjointWith bridge:SoybeanAsset ,
+                                  bridge:WheatAsset ;
+                 rdfs:comment "Financial asset representing corn with specific yield units and securitization eligibility"@en ;
+                 rdfs:label "Corn Asset"@en ,
+                            "Corn Commodity Asset"@en .
+
+
+###  https://arden.ag/ont/bridge#DroughtRisk
+bridge:DroughtRisk rdf:type owl:Class ;
+                   owl:equivalentClass [ owl:intersectionOf ( arden-ag:AgRiskFactor
+                                                              [ rdf:type owl:Restriction ;
+                                                                owl:onProperty bridge:hasImpactType ;
+                                                                owl:someValuesFrom bridge:YieldImpactFactor
+                                                              ]
+                                                              [ rdf:type owl:Restriction ;
+                                                                owl:onProperty bridge:mapsToRiskFactor ;
+                                                                owl:someValuesFrom bridge:ProductionRisk
+                                                              ]
+                                                              [ rdf:type owl:Restriction ;
+                                                                owl:onProperty bridge:riskProbability ;
+                                                                owl:allValuesFrom bridge:PositiveProbability
+                                                              ]
+                                                            ) ;
+                                         rdf:type owl:Class
+                                       ] ;
+                   rdfs:subClassOf arden-ag:AgRiskFactor ;
+                   owl:disjointWith bridge:SoilErosionRisk .
+
+
+###  https://arden.ag/ont/bridge#EnhancedBridge
+bridge:EnhancedBridge rdf:type owl:Class ;
+                      dct:created "2024-09-24"^^xsd:date ;
+                      dct:creator "Claude Code Ontology Enhancement"@en ;
+                      dct:description "Production-grade semantic enhancements to basic agriculture-finance bridge"@en ;
+                      rdfs:comment "Marker class for v1.2.1 enhanced semantic components"@en ;
+                      rdfs:label "Enhanced Bridge Component"@en .
+
+
+###  https://arden.ag/ont/bridge#Evidence
+bridge:Evidence rdf:type owl:Class ;
+                rdfs:comment "Supporting evidence for bridge mappings and inferences"@en ;
+                rdfs:label "Evidence"@en .
+
+
+###  https://arden.ag/ont/bridge#ExportEligible
+bridge:ExportEligible rdf:type owl:Class .
+
+
+###  https://arden.ag/ont/bridge#FuturesContract
+bridge:FuturesContract rdf:type owl:Class ;
+                       rdfs:subClassOf arden-fin:DerivativeContract ;
+                       rdfs:label "Futures Contract"@en .
+
+
+###  https://arden.ag/ont/bridge#GrainAsset
+bridge:GrainAsset rdf:type owl:Class ;
+                  owl:disjointWith bridge:LivestockAsset .
+
+
+###  https://arden.ag/ont/bridge#GrainStorageEligible
+bridge:GrainStorageEligible rdf:type owl:Class .
+
+
+###  https://arden.ag/ont/bridge#InsurableAsset
+bridge:InsurableAsset rdf:type owl:Class ;
+                      rdfs:subClassOf bridge:CollateralAsset ;
+                      rdfs:label "Insurable Asset"@en .
+
+
+###  https://arden.ag/ont/bridge#InterestRate
+bridge:InterestRate rdf:type owl:Class ;
+                    rdfs:subClassOf [ rdf:type owl:Restriction ;
+                                      owl:onProperty bridge:rateValue ;
+                                      owl:allValuesFrom [ rdf:type rdfs:Datatype ;
+                                                          owl:onDatatype xsd:decimal ;
+                                                          owl:withRestrictions ( [ xsd:minInclusive 0.0
+                                                                                 ]
+                                                                                 [ xsd:maxInclusive 50.0
+                                                                                 ]
+                                                                               )
+                                                        ]
+                                    ] .
+
+
+###  https://arden.ag/ont/bridge#LandValueRisk
+bridge:LandValueRisk rdf:type owl:Class ;
+                     rdfs:subClassOf arden-fin:CollateralRiskFactor ;
+                     owl:disjointWith bridge:ProductionRisk .
+
+
+###  https://arden.ag/ont/bridge#LivestockAsset
+bridge:LivestockAsset rdf:type owl:Class .
+
+
+###  https://arden.ag/ont/bridge#LoanContract
+bridge:LoanContract rdf:type owl:Class ;
+                    rdfs:subClassOf <http://org.semanticweb.owlapi/error#Error3> ,
+                                    <http://org.semanticweb.owlapi/error#Error4> ,
+                                    <http://org.semanticweb.owlapi/error#Error5> .
+
+
+###  https://arden.ag/ont/bridge#LoanToValueRatio
+bridge:LoanToValueRatio rdf:type owl:Class ;
+                        rdfs:subClassOf [ rdf:type owl:Restriction ;
+                                          owl:onProperty bridge:ratioValue ;
+                                          owl:allValuesFrom [ rdf:type rdfs:Datatype ;
+                                                              owl:onDatatype xsd:decimal ;
+                                                              owl:withRestrictions ( [ xsd:minInclusive 0.0
+                                                                                     ]
+                                                                                     [ xsd:maxInclusive 1.0
+                                                                                     ]
+                                                                                   )
+                                                            ]
+                                        ] .
+
+
+###  https://arden.ag/ont/bridge#LongTermImpactFactor
+bridge:LongTermImpactFactor rdf:type owl:Class .
+
+
+###  https://arden.ag/ont/bridge#LongTermRisk
+bridge:LongTermRisk rdf:type owl:Class ;
+                    owl:disjointWith bridge:ShortTermRisk .
+
+
+###  https://arden.ag/ont/bridge#MarketDataEvidence
+bridge:MarketDataEvidence rdf:type owl:Class ;
+                          rdfs:subClassOf bridge:Evidence ;
+                          rdfs:comment "Evidence from agricultural and financial market data"@en ;
+                          rdfs:label "Market Data Evidence"@en .
+
+
+###  https://arden.ag/ont/bridge#MonetaryValue
+bridge:MonetaryValue rdf:type owl:Class ;
+                     rdfs:subClassOf [ rdf:type owl:Restriction ;
+                                       owl:onProperty bridge:amount ;
+                                       owl:allValuesFrom [ rdf:type rdfs:Datatype ;
+                                                           owl:onDatatype xsd:decimal ;
+                                                           owl:withRestrictions ( [ xsd:minInclusive 0.0
+                                                                                  ]
+                                                                                )
+                                                         ]
+                                     ] .
+
+
+###  https://arden.ag/ont/bridge#OilseedProcessingEligible
+bridge:OilseedProcessingEligible rdf:type owl:Class .
+
+
+###  https://arden.ag/ont/bridge#PositiveAmount
+bridge:PositiveAmount rdf:type owl:Class ;
+                      rdfs:subClassOf bridge:MonetaryValue ;
+                      rdfs:label "Positive Amount"@en .
+
+
+###  https://arden.ag/ont/bridge#PositiveProbability
+bridge:PositiveProbability rdf:type owl:Class ;
+                           rdfs:subClassOf [ rdf:type owl:Restriction ;
+                                             owl:onProperty bridge:probabilityValue ;
+                                             owl:allValuesFrom [ rdf:type rdfs:Datatype ;
+                                                                 owl:onDatatype xsd:decimal ;
+                                                                 owl:withRestrictions ( [ xsd:minInclusive 0.0
+                                                                                        ]
+                                                                                        [ xsd:maxInclusive 1.0
+                                                                                        ]
+                                                                                      )
+                                                               ]
+                                           ] .
+
+
+###  https://arden.ag/ont/bridge#ProductionRisk
+bridge:ProductionRisk rdf:type owl:Class ;
+                      rdfs:subClassOf arden-fin:CollateralRiskFactor .
+
+
+###  https://arden.ag/ont/bridge#ReasonableInterestRate
+bridge:ReasonableInterestRate rdf:type owl:Class ;
+                              rdfs:subClassOf bridge:InterestRate ;
+                              rdfs:label "Reasonable Interest Rate"@en .
+
+
+###  https://arden.ag/ont/bridge#RecentValuation
+bridge:RecentValuation rdf:type owl:Class ;
+                       rdfs:subClassOf bridge:MonetaryValue ;
+                       rdfs:label "Recent Valuation"@en .
+
+
+###  https://arden.ag/ont/bridge#SecuritizationEligible
+bridge:SecuritizationEligible rdf:type owl:Class ;
+                              rdfs:subClassOf bridge:CommodityAsset ;
+                              rdfs:comment "Commodity asset eligible for financial securitization"@en ;
+                              rdfs:label "Securitization Eligible"@en ,
+                                         "Securitization Eligible Asset"@en .
+
+
+###  https://arden.ag/ont/bridge#ShortTermRisk
+bridge:ShortTermRisk rdf:type owl:Class .
+
+
+###  https://arden.ag/ont/bridge#SoilErosionRisk
+bridge:SoilErosionRisk rdf:type owl:Class ;
+                       owl:equivalentClass [ owl:intersectionOf ( arden-ag:AgRiskFactor
+                                                                  [ rdf:type owl:Restriction ;
+                                                                    owl:onProperty bridge:hasImpactType ;
+                                                                    owl:someValuesFrom bridge:LongTermImpactFactor
+                                                                  ]
+                                                                  [ rdf:type owl:Restriction ;
+                                                                    owl:onProperty bridge:mapsToRiskFactor ;
+                                                                    owl:someValuesFrom bridge:LandValueRisk
+                                                                  ]
+                                                                  [ rdf:type owl:Restriction ;
+                                                                    owl:onProperty bridge:mitigationStrategy ;
+                                                                    owl:allValuesFrom bridge:ConservationMitigated
+                                                                  ]
+                                                                ) ;
+                                             rdf:type owl:Class
+                                           ] ;
+                       rdfs:subClassOf arden-ag:AgRiskFactor .
+
+
+###  https://arden.ag/ont/bridge#SoybeanAsset
+bridge:SoybeanAsset rdf:type owl:Class ;
+                    owl:equivalentClass [ owl:intersectionOf ( bridge:CommodityAsset
+                                                               [ rdf:type owl:Restriction ;
+                                                                 owl:onProperty rdf:type ;
+                                                                 owl:someValuesFrom bridge:OilseedProcessingEligible
+                                                               ]
+                                                               [ rdf:type owl:Restriction ;
+                                                                 owl:onProperty bridge:standardYieldUnit ;
+                                                                 owl:someValuesFrom unit:BushelPerAcre
+                                                               ]
+                                                               [ rdf:type owl:Restriction ;
+                                                                 owl:onProperty bridge:representsCommodity ;
+                                                                 owl:hasValue arden-ag:SoybeanCrop
+                                                               ]
+                                                             ) ;
+                                          rdf:type owl:Class
+                                        ] ,
+                                        [ owl:intersectionOf ( bridge:CommodityAsset
+                                                               [ rdf:type owl:Restriction ;
+                                                                 owl:onProperty bridge:representsCommodity ;
+                                                                 owl:hasValue arden-ag:SoybeanCrop
+                                                               ]
+                                                             ) ;
+                                          rdf:type owl:Class
+                                        ] ;
+                    rdfs:subClassOf bridge:CommodityAsset ,
+                                    bridge:SecuritizationEligible ;
+                    owl:disjointWith bridge:WheatAsset ;
+                    rdfs:label "Soybean Asset"@en ,
+                               "Soybean Commodity Asset"@en .
+
+
+###  https://arden.ag/ont/bridge#TonnePerHectareValue
+bridge:TonnePerHectareValue rdf:type owl:Class ;
+                            rdfs:subClassOf qudt:QuantityValue .
+
+
+###  https://arden.ag/ont/bridge#ValidBorrower
+bridge:ValidBorrower rdf:type owl:Class ;
+                     rdfs:subClassOf arden-fin:Party ;
+                     rdfs:label "Valid Borrower"@en .
+
+
+###  https://arden.ag/ont/bridge#VolumeQuantityKind
+bridge:VolumeQuantityKind rdf:type owl:Class .
+
+
+###  https://arden.ag/ont/bridge#WheatAsset
+bridge:WheatAsset rdf:type owl:Class ;
+                  owl:equivalentClass [ owl:intersectionOf ( bridge:CommodityAsset
+                                                             [ rdf:type owl:Restriction ;
+                                                               owl:onProperty rdf:type ;
+                                                               owl:someValuesFrom bridge:ExportEligible
+                                                             ]
+                                                             [ rdf:type owl:Restriction ;
+                                                               owl:onProperty bridge:standardYieldUnit ;
+                                                               owl:someValuesFrom unit:BushelPerAcre
+                                                             ]
+                                                             [ rdf:type owl:Restriction ;
+                                                               owl:onProperty bridge:tradedVia ;
+                                                               owl:someValuesFrom bridge:WheatFuturesContract
+                                                             ]
+                                                             [ rdf:type owl:Restriction ;
+                                                               owl:onProperty bridge:representsCommodity ;
+                                                               owl:hasValue arden-ag:WheatCrop
+                                                             ]
+                                                           ) ;
+                                        rdf:type owl:Class
+                                      ] ,
+                                      [ owl:intersectionOf ( bridge:CommodityAsset
+                                                             [ rdf:type owl:Restriction ;
+                                                               owl:onProperty bridge:representsCommodity ;
+                                                               owl:hasValue arden-ag:WheatCrop
+                                                             ]
+                                                           ) ;
+                                        rdf:type owl:Class
+                                      ] ;
+                  rdfs:subClassOf bridge:CommodityAsset ,
+                                  bridge:SecuritizationEligible ;
+                  rdfs:comment "Financial asset representing wheat with futures market integration"@en ;
+                  rdfs:label "Wheat Asset"@en ,
+                             "Wheat Commodity Asset"@en .
+
+
+###  https://arden.ag/ont/bridge#WheatFuturesContract
+bridge:WheatFuturesContract rdf:type owl:Class ;
+                            rdfs:subClassOf bridge:FuturesContract .
+
+
+###  https://arden.ag/ont/bridge#YieldImpactFactor
+bridge:YieldImpactFactor rdf:type owl:Class .
+
+
+###  https://arden.ag/ont/bridge#YieldMeasurement
+bridge:YieldMeasurement rdf:type owl:Class ;
+                        rdfs:subClassOf [ rdf:type owl:Restriction ;
+                                          owl:onProperty qudt:numericValue ;
+                                          owl:allValuesFrom [ rdf:type rdfs:Datatype ;
+                                                              owl:onDatatype xsd:decimal ;
+                                                              owl:withRestrictions ( [ xsd:minInclusive 0.0
+                                                                                     ]
+                                                                                     [ xsd:maxInclusive 500.0
+                                                                                     ]
+                                                                                   )
+                                                            ]
+                                        ] .
+
+
+###  https://arden.ag/ont/bridge#YieldQuantityKind
+bridge:YieldQuantityKind rdf:type owl:Class ;
+                         rdfs:subClassOf qudt:QuantityKind ;
+                         owl:disjointWith arden-fin:MonetaryQuantityKind ;
+                         rdfs:label "Yield Quantity Kind"@en .
+
+
+###  https://arden.ag/ont/fin#AgriculturalLoan
+arden-fin:AgriculturalLoan rdf:type owl:Class ;
+                           rdfs:comment "Loan extended to a farm operation; FIBO aligned in bridge layer."@en ;
+                           rdfs:label "Agricultural loan"@en .
+
+
+###  https://arden.ag/ont/fin#Asset
+arden-fin:Asset rdf:type owl:Class .
+
+
+###  https://arden.ag/ont/fin#CashFlowAssumption
+arden-fin:CashFlowAssumption rdf:type owl:Class .
+
+
+###  https://arden.ag/ont/fin#Collateral
+arden-fin:Collateral rdf:type owl:Class .
+
+
+###  https://arden.ag/ont/fin#CollateralRiskFactor
+arden-fin:CollateralRiskFactor rdf:type owl:Class .
+
+
+###  https://arden.ag/ont/fin#DebtInstrument
+arden-fin:DebtInstrument rdf:type owl:Class .
+
+
+###  https://arden.ag/ont/fin#DerivativeContract
+arden-fin:DerivativeContract rdf:type owl:Class .
+
+
+###  https://arden.ag/ont/fin#EstimationModel
+arden-fin:EstimationModel rdf:type owl:Class ;
+                          rdfs:subClassOf <http://www.w3.org/ns/prov#Activity> ;
+                          rdfs:label "Estimation model"@en .
+
+
+###  https://arden.ag/ont/fin#FinancialAsset
+arden-fin:FinancialAsset rdf:type owl:Class .
+
+
+###  https://arden.ag/ont/fin#FinancialInstrument
+arden-fin:FinancialInstrument rdf:type owl:Class .
+
+
+###  https://arden.ag/ont/fin#InsuranceClaim
+arden-fin:InsuranceClaim rdf:type owl:Class ;
+                         rdfs:label "Insurance claim"@en .
+
+
+###  https://arden.ag/ont/fin#InsurancePolicy
+arden-fin:InsurancePolicy rdf:type owl:Class ;
+                          rdfs:label "Insurance policy"@en .
+
+
+###  https://arden.ag/ont/fin#ModeledEstimate
+arden-fin:ModeledEstimate rdf:type owl:Class ;
+                          rdfs:subClassOf <http://www.w3.org/ns/prov#Entity> ,
+                                          <http://www.w3.org/ns/sosa/Observation> ;
+                          rdfs:comment "An estimate produced by a model; carries provenance and time."@en ;
+                          rdfs:label "Modeled estimate"@en .
+
+
+###  https://arden.ag/ont/fin#MonetaryQuantityKind
+arden-fin:MonetaryQuantityKind rdf:type owl:Class .
+
+
+###  https://arden.ag/ont/fin#Party
+arden-fin:Party rdf:type owl:Class .
+
+
+###  https://arden.ag/ont/fin#PreventedPlantingEvent
+arden-fin:PreventedPlantingEvent rdf:type owl:Class ;
+                                 rdfs:comment "Area not planted due to covered cause; RMA SoB aligned."@en ;
+                                 rdfs:label "Prevented planting event"@en .
+
+
+###  https://arden.ag/ont/fin#UnderwritingPlan
+arden-fin:UnderwritingPlan rdf:type owl:Class .
+
+
+###  https://arden.ag/ont/fin#ValuationAdjustment
+arden-fin:ValuationAdjustment rdf:type owl:Class .
+
+
+#################################################################
+#    Individuals
+#################################################################
+
+###  https://arden.ag/ont/ag#MaizeCrop
+arden-ag:MaizeCrop rdf:type owl:NamedIndividual .
+
+
+###  https://arden.ag/ont/ag#SoybeanCrop
+arden-ag:SoybeanCrop rdf:type owl:NamedIndividual .
+
+
+###  https://arden.ag/ont/ag#WheatCrop
+arden-ag:WheatCrop rdf:type owl:NamedIndividual .
+
+
+###  https://arden.ag/ont/bridge#DroughtRisk
+bridge:DroughtRisk rdf:type owl:NamedIndividual ;
+                   bridge:mapsToRiskFactor bridge:ProductionRisk .
+
+
+###  https://arden.ag/ont/bridge#LandValueRisk
+bridge:LandValueRisk rdf:type owl:NamedIndividual .
+
+
+###  https://arden.ag/ont/bridge#ProductionRisk
+bridge:ProductionRisk rdf:type owl:NamedIndividual .
+
+
+###  https://arden.ag/ont/bridge#SoilErosionRisk
+bridge:SoilErosionRisk rdf:type owl:NamedIndividual ;
+                       bridge:mapsToRiskFactor bridge:LandValueRisk .
+
+
+[ owl:minCardinality "1"^^xsd:nonNegativeInteger
+] .
+
+[ owl:cardinality "1"^^xsd:nonNegativeInteger
+ ] .
+
+[ owl:cardinality "1"^^xsd:nonNegativeInteger
+ ] .
+
+[ owl:cardinality "1"^^xsd:nonNegativeInteger
+ ] .
+
+[ owl:minCardinality "1"^^xsd:nonNegativeInteger
+ ] .
+
+[ owl:cardinality "1"^^xsd:nonNegativeInteger
+ ] .
+
+#################################################################
+#    Annotations
+#################################################################
+
+bridge:AcceptableCollateral rdfs:comment "Collateral meeting minimum lending standards"@en ;
+                             rdfs:label "Acceptable Collateral"@en .
+
+
+bridge:DroughtRisk rdfs:comment "Agricultural drought risk with quantified production impact and probability bounds"@en ;
+                   rdfs:label "Drought Risk"@en ,
+                              "Drought Risk Factor"@en .
+
+
+bridge:LandValueRisk rdfs:label "Land Value Risk"@en .
+
+
+bridge:ProductionRisk rdfs:label "Production Risk"@en .
+
+
+bridge:SoilErosionRisk rdfs:label "Soil Erosion Risk"@en ,
+                                  "Soil Erosion Risk Factor"@en .
+
+
+bridge:ValidLoanContract rdfs:comment "Loan contract satisfying all business validation rules"@en ;
+                         rdfs:label "Valid Loan Contract"@en .
+
+
+###  Generated by the OWL API (version 4.5.29) https://github.com/owlcs/owlapi

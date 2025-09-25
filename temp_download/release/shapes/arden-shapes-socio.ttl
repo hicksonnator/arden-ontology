@@ -1,0 +1,328 @@
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+@prefix arden: <https://arden.ag/ont/core#> .
+@prefix qb: <http://purl.org/linked-data/cube#> .
+@prefix sdmx-dimension: <http://purl.org/linked-data/sdmx/2009/dimension#> .
+@prefix sdmx-measure: <http://purl.org/linked-data/sdmx/2009/measure#> .
+@prefix sdmx-attribute: <http://purl.org/linked-data/sdmx/2009/attribute#> .
+
+# ===================================================================
+# SHACL Shapes for Socioeconomic Data Validation
+# ===================================================================
+#
+# Validates QB DataStructureDefinitions, observations with SDMX
+# dimensions (county FIPS, time periods), measures, and attributes.
+#
+# L1: Permissive (warnings)
+# L2: Production-ready (errors)
+# L3: Enterprise-strict (blocking)
+#
+# Created: 2024-09-19 for Arden v1.2.0
+# ===================================================================
+
+<https://arden.ag/ont/shapes/socio> a owl:Ontology ;
+    rdfs:label "Arden Socioeconomic Data Validation Shapes"@en ;
+    rdfs:comment "SHACL shapes for validating socioeconomic statistical data using QB/SDMX patterns."@en .
+
+# ===================================================================
+# DATA STRUCTURE DEFINITION SHAPES
+# ===================================================================
+
+arden:DataStructureDefinitionShape a sh:NodeShape ;
+    sh:targetClass qb:DataStructureDefinition ;
+    rdfs:label "Data Structure Definition Shape"@en ;
+
+    # L2: DSD must have at least one dimension
+    sh:property [
+        sh:path qb:component ;
+        sh:qualifiedMinCount 1 ;
+        sh:qualifiedValueShape [
+            sh:property [
+                sh:path qb:dimension ;
+                sh:minCount 1
+            ]
+        ] ;
+        sh:severity sh:Violation ;
+        sh:message "Data Structure Definition must have at least one dimension"@en
+    ] ;
+
+    # L2: DSD must have at least one measure
+    sh:property [
+        sh:path qb:component ;
+        sh:qualifiedMinCount 1 ;
+        sh:qualifiedValueShape [
+            sh:property [
+                sh:path qb:measure ;
+                sh:minCount 1
+            ]
+        ] ;
+        sh:severity sh:Violation ;
+        sh:message "Data Structure Definition must have at least one measure"@en
+    ] .
+
+# Agricultural DSD specific requirements
+arden:AgriculturalDSDShape a sh:NodeShape ;
+    sh:targetClass arden:AgriculturalDSD ;
+    rdfs:label "Agricultural DSD Shape"@en ;
+
+    # L2: Must include reference area dimension
+    sh:property [
+        sh:path qb:component ;
+        sh:qualifiedMinCount 1 ;
+        sh:qualifiedValueShape [
+            sh:property [
+                sh:path qb:dimension ;
+                sh:hasValue arden:hasRefArea
+            ]
+        ] ;
+        sh:severity sh:Violation ;
+        sh:message "Agricultural DSD must include reference area dimension"@en
+    ] ;
+
+    # L2: Must include time period dimension
+    sh:property [
+        sh:path qb:component ;
+        sh:qualifiedMinCount 1 ;
+        sh:qualifiedValueShape [
+            sh:property [
+                sh:path qb:dimension ;
+                sh:hasValue arden:hasTimePeriod
+            ]
+        ] ;
+        sh:severity sh:Violation ;
+        sh:message "Agricultural DSD must include time period dimension"@en
+    ] .
+
+# ===================================================================
+# OBSERVATION SHAPES
+# ===================================================================
+
+arden:ObservationShape a sh:NodeShape ;
+    sh:targetClass qb:Observation ;
+    rdfs:label "QB Observation Shape"@en ;
+
+    # L2: Must be linked to exactly one dataset
+    sh:property [
+        sh:path qb:dataSet ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:class qb:DataSet ;
+        sh:severity sh:Violation ;
+        sh:message "Observation must be linked to exactly one dataset"@en
+    ] ;
+
+    # L2: Must have reference area (FIPS code)
+    sh:property [
+        sh:path arden:hasRefArea ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:severity sh:Violation ;
+        sh:message "Observation must have reference area"@en
+    ] ;
+
+    # L2: Must have time period
+    sh:property [
+        sh:path arden:hasTimePeriod ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:or (
+            [ sh:datatype xsd:gYear ]
+            [ sh:datatype xsd:gYearMonth ]
+            [ sh:datatype xsd:date ]
+        ) ;
+        sh:severity sh:Violation ;
+        sh:message "Observation must have time period (gYear, gYearMonth, or date)"@en
+    ] ;
+
+    # L2: Must have at least one measure value
+    sh:property [
+        sh:path arden:hasObsValue ;
+        sh:minCount 1 ;
+        sh:datatype xsd:decimal ;
+        sh:severity sh:Violation ;
+        sh:message "Observation must have numeric observation value"@en
+    ] ;
+
+    # L2: Must have unit of measure
+    sh:property [
+        sh:path arden:hasUnitMeasure ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:severity sh:Violation ;
+        sh:message "Observation must specify unit of measure"@en
+    ] .
+
+# ===================================================================
+# FIPS CODE VALIDATION
+# ===================================================================
+
+arden:FIPSCodeShape a sh:NodeShape ;
+    sh:targetClass arden:County ;
+    rdfs:label "FIPS Code Shape"@en ;
+
+    # L2: County must have valid 5-digit FIPS code
+    sh:property [
+        sh:path arden:hasFIPSCode ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:pattern "^[0-9]{5}$" ;
+        sh:severity sh:Violation ;
+        sh:message "County must have valid 5-digit FIPS code"@en
+    ] ;
+
+    # L1: Should have state FIPS code
+    sh:property [
+        sh:path arden:hasStateFIPSCode ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:pattern "^[0-9]{2}$" ;
+        sh:severity sh:Warning ;
+        sh:message "County should have 2-digit state FIPS code"@en
+    ] .
+
+# ===================================================================
+# AGRICULTURAL OBSERVATION VALIDATION
+# ===================================================================
+
+arden:AgriculturalObservationShape a sh:NodeShape ;
+    sh:targetClass arden:AgriculturalObservation ;
+    rdfs:label "Agricultural Observation Shape"@en ;
+
+    # L1: Should have data source attribution
+    sh:property [
+        sh:path arden:hasDataSource ;
+        sh:maxCount 1 ;
+        sh:in ( "NASS" "ERS" "Census" "RMA" ) ;
+        sh:severity sh:Warning ;
+        sh:message "Agricultural observation should specify data source"@en
+    ] ;
+
+    # L2: Agricultural observations should have reasonable values
+    sh:property [
+        sh:path arden:hasObsValue ;
+        sh:minInclusive 0.0 ;
+        sh:severity sh:Warning ;
+        sh:message "Agricultural observation values should be non-negative"@en
+    ] .
+
+# ===================================================================
+# YIELD OBSERVATION VALIDATION
+# ===================================================================
+
+arden:YieldObservationSocioShape a sh:NodeShape ;
+    sh:targetClass arden:AgriculturalObservation ;
+    sh:condition [
+        sh:property [
+            sh:path arden:hasCropType ;
+            sh:minCount 1
+        ]
+    ] ;
+    rdfs:label "Yield Observation Socio Shape"@en ;
+
+    # L2: Must specify crop type for yield observations
+    sh:property [
+        sh:path arden:hasCropType ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:severity sh:Violation ;
+        sh:message "Yield observation must specify exactly one crop type"@en
+    ] ;
+
+    # L2: Yield units must be appropriate
+    sh:property [
+        sh:path arden:hasUnitMeasure ;
+        sh:in ( "BU/AC" "LB/AC" "CWT/AC" "TON/AC" "KG/HA" "MT/HA" ) ;
+        sh:severity sh:Violation ;
+        sh:message "Yield observation must use standard yield units"@en
+    ] .
+
+# ===================================================================
+# DATASET VALIDATION
+# ===================================================================
+
+arden:DatasetShape a sh:NodeShape ;
+    sh:targetClass qb:DataSet ;
+    rdfs:label "Dataset Shape"@en ;
+
+    # L2: Must have data structure definition
+    sh:property [
+        sh:path qb:structure ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:class qb:DataStructureDefinition ;
+        sh:severity sh:Violation ;
+        sh:message "Dataset must have data structure definition"@en
+    ] ;
+
+    # L1: Should have title
+    sh:property [
+        sh:path rdfs:label ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string ;
+        sh:severity sh:Warning ;
+        sh:message "Dataset should have title (rdfs:label)"@en
+    ] ;
+
+    # L1: Should have description
+    sh:property [
+        sh:path rdfs:comment ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:severity sh:Info ;
+        sh:message "Dataset should have description (rdfs:comment)"@en
+    ] .
+
+# ===================================================================
+# TEMPORAL VALIDATION
+# ===================================================================
+
+arden:TemporalValidationShape a sh:NodeShape ;
+    sh:targetClass qb:Observation ;
+    rdfs:label "Temporal Validation Shape"@en ;
+
+    # L1: Agricultural data should be reasonably current
+    sh:sparql [
+        sh:select """
+            SELECT $this ?timePeriod
+            WHERE {
+                $this arden:hasTimePeriod ?timePeriod .
+                FILTER (
+                    (DATATYPE(?timePeriod) = xsd:gYear && ?timePeriod < "1900"^^xsd:gYear) ||
+                    (DATATYPE(?timePeriod) = xsd:gYear && ?timePeriod > "2030"^^xsd:gYear)
+                )
+            }
+        """ ;
+        sh:severity sh:Warning ;
+        sh:message "Time period should be between 1900-2030 for agricultural data"@en
+    ] .
+
+# ===================================================================
+# CONSISTENCY VALIDATION
+# ===================================================================
+
+arden:ConsistencyValidationShape a sh:NodeShape ;
+    sh:targetClass qb:Observation ;
+    rdfs:label "Consistency Validation Shape"@en ;
+
+    # L2: Observations must conform to their dataset's DSD
+    sh:sparql [
+        sh:select """
+            SELECT $this ?dataset ?dsd
+            WHERE {
+                $this qb:dataSet ?dataset .
+                ?dataset qb:structure ?dsd .
+                ?dsd qb:component ?component .
+                ?component qb:dimension ?dimension .
+                FILTER NOT EXISTS {
+                    $this ?dimension ?value .
+                }
+            }
+        """ ;
+        sh:severity sh:Violation ;
+        sh:message "Observation must have values for all required dimensions in its DSD"@en
+    ] .

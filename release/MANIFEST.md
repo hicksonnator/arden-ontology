@@ -1,9 +1,9 @@
 # Release Manifest
 
-**Release**: arden-ontology-production-v1.2.0
-**Build ID**: arden-release-20250919-124206
-**Generated**: 2025-09-19T10:42:07Z
-**Git Commit**: fecf73039953a11ef5426b44a2095e1c4e52ecfa
+**Release**: arden-ontology-production-v1.2.2
+**Build ID**: arden-release-20250925-160215
+**Generated**: 2025-09-25T14:02:17Z
+**Git Commit**: 75d10b4ed063d41c9ef6f7da63c867f28c6db893
 
 ## File Checksums
 
@@ -16,10 +16,20 @@ a010073b3b364a87e9b796bfc4db51fa7657183b85e03a7114358e564d43044f *./data/fips_co
 a235725d055aa003b6b4b832bf15380d0fed3eaf460f26663204171116747efb *./data/sample_parcel.ttl
 728edcc77a4a19a735613c7cafe8b9982c0ec70e9469ed0be1ec29aa20a116e0 *./data/sample_socio.ttl
 4917d48871fe87154c94eaae325324601ea4460c4f0f34e96b7a498efc7130a1 *./data/sample_yield.ttl
-f55854d12b66b54d7b39584ad30e9a1b5c9cd90edff6fde972158f39f435af61 *./docs/CLAUDE.md
-2fc36d0ff5bad9510b88ddbd3a99787fd1ce3d8c932f88df0a5c6e09dada40ba *./docs/README.md
+3056c62c297a8b751016322f8fa24986073d2c8ab114b93d8b9ae2c6e7eac023 *./docs/CLAUDE.md
+4377ee661f286cf3a5af20e499f84acc533f0168cbd174358b4dd3838e1f3785 *./docs/README.md
 33393adcdf61cc81d31c54ba5c370e8bc3628e346a23fb251c3c856c3268cbcb *./externals/LOCKFILE.md
 e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855 *./MANIFEST.md
+7d3998fe913403e26961c25851f0086d80c8d7dd4c6799932cc9b8f833ab7c19 *./mappings/arden-bridge-cross-domain.ttl
+425629a10be7add0ead2a141b26b3ba8c486d82949d4db888c7e7aa1779a229e *./mappings/arden-bridge-enhanced-v1.2.1.ttl
+38027bcf42c2e2a1f4204cfb66e0f14b935313481868749b05a21b81d8d2208d *./mappings/arden-bridge-killer-questions.ttl
+0a7386c7eb5739d62dbac57929b2a451547fcfe2b610195853a06d94c2e7f104 *./mappings/arden-bridge-markets.ttl
+bcf3cf06c62d921ff9acbffcb142eff5ab4e2ec78ca2074f9d6d0dabb8103b58 *./mappings/arden-bridges-actus.ttl
+4461143bac5833ff0fd3b1e4160326ede5d0a28cd48803d13f275356948801a1 *./mappings/arden-bridges-agro.ttl
+21e4db8f42afa5027221fbebbd95deccf8eee338725c1530a8c5d7eca11f43e9 *./mappings/arden-bridges-fibo.ttl
+516eac446b8639ec4aaf39d957aeab33a8ffa72591cfca2472e8336e52a60e5a *./mappings/arden-bridges-sdmx.ttl
+e154fb6415908264e504ca7c73773967c2ad229f8139e81e2173c546180d8ade *./mappings/arden-bridges-soil.ttl
+2621d53a3c7cc0dc0bd72beee6687b1f65c576bb855d45698b6827fa76e020f9 *./mappings/arden-units-bridge.ttl
 53a3dd9bdab95b154b26f77d80d797e6e48623d468eb036d5730bee63235733a *./mappings/codes-bridge.ttl
 e81c4fd6c402ca84303ef2d70d33dce26751c6057058731d59af44b94f709806 *./mappings/codes-consolidated.ttl
 3786653c6c31bcf2d645066a9686f18c0605d7475fd1b0021ed0e370bbd38203 *./mappings/schema-bridge.ttl
@@ -27,35 +37,61 @@ e81c4fd6c402ca84303ef2d70d33dce26751c6057058731d59af44b94f709806 *./mappings/cod
 0519c1f5400efdf9961e016d216e33ecde4c36a4536d347d78b6eaf9549af5f4 *./mappings/units-normalization.ttl
 dbcdc31df8e731afef98dda832c454c248c60aba099536abb8b2cd41bd8270ce *./ontology/arden-ag.ttl
 c072b7f32cbd24eb7b3f454a0d82540a04756bd4c618e08eb414abe429f39282 *./ontology/arden-app.ttl
-7767bb4f887ec150d6db95c20a212b972fa8b3bac94ca2ae7ac1498c8d556f5a *./ontology/arden-core.ttl
+f8421dc65ac9c8187652bcff61f322895430d2f5446fadbecb12c7ea326c91ca *./ontology/arden-core.ttl
 6e9f7a10d92ef526894662b3b54360f883d9df208cf184fe77abd45fdfa6b124 *./ontology/arden-crops.ttl
+0ffd152f64da35b456bb153ef40d8abbb070434bf68b147bf7419f5b4377fd87 *./ontology/arden-enhanced-complete.ttl
 fa40aca9afe8b88c7ea18b308b81a243a6bbc0b08b1a3d17a91de27fe474c372 *./ontology/arden-equipment.ttl
+bea260c42246f90e58f26522d27345c5137b498321f520fd6e8db17b16f4b851 *./ontology/arden-evidence.ttl
 209d8837124916725041a36e38dead75a493d828343c054f71a5d758f9bb351d *./ontology/arden-fin.ttl
 2f7b5f06b7a3b795c0d6de78ad18c73aac7974f89499e5a174606b869a3fd04f *./ontology/arden-geo.ttl
-90016ba7afdc8cb06bc80ec42f0e75d382ac4ec8f25edf10bb70cddf43fac79d *./ontology/arden-integration.ttl
-8e9cf1821f77aa6e26334be684a785818ed19b3e1c0f4574f2fe76ac3a7da088 *./ontology/arden-markets.ttl
+9fd3c84457a1324369515a26c18592f99989a796988eb32b739d6afbe160c734 *./ontology/arden-integration.ttl
+0c02c85e9f78a56b42b97a05f50c38f28f39552156218f493140f1fcb87688e3 *./ontology/arden-killer-questions-v1.3.0.ttl
+97319f64645eb7c028fc38d16f1d499a6ab7bdd883015f405412f3bfb8b286ed *./ontology/arden-markets.ttl
 3b528eeb58b1fb0fdbf7f9effee6b2ef63d16779af9a74c05394a853b0f58009 *./ontology/arden-measure.ttl
 083f8c10a8d94316f33ea7bac6208624d1c69508d20b6d1aa493ea96b9ae6b70 *./ontology/arden-regulatory.ttl
 5c10ec90b1c4f51f7c7911c66f6f411ebf480f0205b94b7874b261c0af2ec6a5 *./ontology/arden-socio.ttl
 bff3d7e75138bbbdd650aa6ca30fe21288a087e79cb1d622be287d921caefa14 *./PRODUCTION_ROLLOUT.md
-efe224ff5a1c48219e0889dae5cc6b4ee48401263c077cd3362cb9b1f57a58d6 *./scripts/build.sh
+d6da77309bcd85da0782f973b6dfda81207ec32948c8cdbe52918c874abf6943 *./scripts/build.sh
+b0717b2dc596c756e5d5d6fcec71d8f22c014ea26b25ea398f4564faeca59c31 *./scripts/build-competency-driven.sh
+9f6143252d81ce49f9a7c9e7f187fa2b7e70de49f34f71b25a72eef0af37054b *./scripts/build-enhanced-v1.2.1.sh
+54e6dd00d7db558b1c76591f009f969e314f89a13c18fec13a7cd4faa96b18f1 *./scripts/build-enhanced-v1.2.2.sh
+01eec27b345be3bd165c63e36ee226b509e17a977ab5af427f5060b563fdd030 *./scripts/build-enhanced-v1.2.2-minimal.sh
+5b8e59ca7b8d5b741212f405ca1b75b3cc7df33a644f7a5b1050f41f642dfbb8 *./scripts/build-simple-staged.sh
+e6c3c9c7baccc50e32ad1f1b22615690d8b55da635f5ae708121471d6f94bc81 *./scripts/build-staged.sh
+9fa6c966aa51d199f18455f61c0014a1068cfd37c13776f1d076927f3b28f071 *./scripts/commodity_price_integration.py
 58dcbb493c0097a0cf1ceabf8181d40bc684f4dca4aebed73c7547b884c4dd2a *./scripts/csv_to_rdf_template.py
-b50df5b4a754a5b4c34fce05f7e87ff7abae89eef0b3f0b71a07a062549a7497 *./scripts/fetch_ontologies.sh
-f962fb878070b0b2c62711eeefe4e936b845c949b52a579cb0502f77a32eb171 *./scripts/release-package.sh
+80f7b07e00bf1c00c5e6e940da709c1edee2c6bf178d2c5f33d8527827648e17 *./scripts/extract_mireot_subsets.sh
+69a6f4c31d3dd8c3eaf0d1c114ba5e3b5058a6893958609ea46006cf634211fb *./scripts/fetch_ontologies.sh
+ee5b4acd5b5afb3a2a8024e7021659a97fba58e14b70efae34fb31a6fed6eb96 *./scripts/preprocess-externals.sh
+76e0052266ccde193c954d0b050780be9db3ae6f478cbd870f791e893b82d07d *./scripts/preprocess-externals-simple.sh
+268a9e5e9a1681f44ac5ad385793ef589dd428fe16fcfe85e79674b44edb762a *./scripts/release-package.sh
 125a066764e1a7d6b4c22695e3ef36b0f2a5fde77a0bb1c84d25eaca52799739 *./scripts/test_load_order.sh
+22148d50d4f29b8a033aea918d40b01d569028785d1a4c1bc1184623853345fc *./scripts/test_new_externals.sh
 4c185bbcb9a340c3a2d078aea8e828c11fd33dfbbc5f037479c6002693ef6b99 *./scripts/update-externals-lockfile.sh
-32628a7e61f1c8483bc46dc975b2bbbf8fab4977638cfab2aa2b6b36b11132de *./scripts/validate_real_data.sh
-879dcf74ec618ecf61e58be50dcfb0576546ad6d5bdf6f6055a1ba307f28cdec *./scripts/validate_samples.sh
+57c237858ee785d4d5238903f33014c58c8f60b68c982062b79ca45667b65925 *./scripts/validate_real_data.sh
+7a9b0fd0647dc4cae181f9c22eed30869c8eaf13210bfec0d9632f75bc5191a4 *./scripts/validate_samples.sh
 33a705ac00a5952a8bc7dc9e2de799752f835b03f46f54d1d73fdf7627e4453c *./shapes/arden-shapes-agricultural.ttl
+3bcb201e8cdbac76b6fe8eb87b0368b90fcaf73e91e29224b31d195cb58322d6 *./shapes/arden-shapes-crops.ttl
 aedfc2bae5e145ce5bee2ad9d7f1e439796bd2ed31ea4d0426222c60111d1d6d *./shapes/arden-shapes-crossdomain.ttl
 16d5c87aff39ddad09334caff3a49ce33edd36848e6445183eeb45be6acaca53 *./shapes/arden-shapes-domains.ttl
+a42822b3a3617a56c155ce1624ac057ca89536f54f996c8c4212a12ed3b1d971 *./shapes/arden-shapes-enhanced-v1.2.1.ttl
 939c1ab82006a356b6ac091811de76af82bdeb31d4bf71b4abc960c67ecabf4b *./shapes/arden-shapes-enterprise.ttl
+4f99279cda27f22d926fff841e19badd10cd2ea2565efa6d701f95858d786f36 *./shapes/arden-shapes-evidence.ttl
+4e3321abcf0b2184ca2a7340e6a439a627cacf79c347b391aff219a0cc5682b1 *./shapes/arden-shapes-finance.ttl
 bd120bf1f0be59575050b1b4966f2f2e8feea0fc7b129f058a050ac7c219c78b *./shapes/arden-shapes-financial.ttl
 4e09d7b87f1d39fc317f604effd63ab25ec86100c296db1ef0310300e83c11b0 *./shapes/arden-shapes-geospatial.ttl
+b8cf0cf84c229b4882fe79330269240eb8ad211f0225acdcf50b1a0a70ea73e3 *./shapes/arden-shapes-killer-questions.ttl
+80ea72c1170b2c0ec344f063e6565e8d502bae2e4efd70ab4212b5eead7c9988 *./shapes/arden-shapes-killer-questions-v1.3.0.ttl
+cf8858d6c710c9d2ffec57ae77f90a6d816ee51620a82181b9d39137a955be2f *./shapes/arden-shapes-kq-simple.ttl
 6b05741477ca774c3b13807e9e38ccb0224ebea01d3f1cbcd0d8d97fc10cfa54 *./shapes/arden-shapes-l1.ttl
 00db50be8db1bde6c750875d233793a66c9e96be8c47835a81de63339ba16471 *./shapes/arden-shapes-l2.ttl
 effc6586e25a9b39faa5089457fdb8860fd474ce0ed55971f652de368123df89 *./shapes/arden-shapes-l3.ttl
+312d34e97d47385ea4f73b78a0d5c6580a80c3d8262535b2873f16b408bc02f3 *./shapes/arden-shapes-market-data.ttl
 33dcf94bb5d6936043930b83067834e0a4ba0ee809b683b5110f4b62bb8f30f1 *./shapes/arden-shapes-provenance.ttl
+58c766eb07724e2c7901aa49c47f8dbdfce5e1deeb346de9e1d5d06b0e8f89f0 *./shapes/arden-shapes-qudt-validation.ttl
+90214629e8a4d2f6eafd67faa307b9a0bd45dd40f446df08398ca414b055affa *./shapes/arden-shapes-socio.ttl
+b1a261e921e9547ca3a8c096043b52e9bd0440581bd06ee91ed48a55dd43c63d *./shapes/arden-shapes-soil.ttl
+f3e9b186cee82b79ae29128c2833297a5dc63a7152cc7534f09374e765867c6d *./shapes/arden-shapes-taxonomy.ttl
 ```
 
 ## Validation Status

@@ -1,0 +1,16 @@
+@prefix arden:      <https://arden.ag/ont/core#> .
+@prefix arden-geo:  <https://arden.ag/ont/geo#> .
+@prefix owl:        <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs:       <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix geosparql:  <http://www.opengis.net/ont/geosparql#> .
+
+<https://arden.ag/ont/geo>
+  a owl:Ontology ; rdfs:label "Arden Geo"@en ; owl:versionInfo "v1.1" .
+
+arden:FarmParcel rdfs:subClassOf geosparql:Feature .
+
+arden-geo:hasGeometry a owl:ObjectProperty ;
+  rdfs:subPropertyOf geosparql:hasGeometry ;
+  rdfs:domain geosparql:Feature ;
+  rdfs:range  geosparql:Geometry ;
+  rdfs:label "has geometry"@en .

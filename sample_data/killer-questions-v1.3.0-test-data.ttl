@@ -1,0 +1,303 @@
+@prefix : <https://arden.ag/data/kq/> .
+@prefix arden: <https://arden.ag/ont/core#> .
+@prefix arden-ag: <https://arden.ag/ont/ag#> .
+@prefix arden-fin: <https://arden.ag/ont/fin#> .
+@prefix arden-labor: <https://arden.ag/ont/labor#> .
+@prefix arden-evidence: <https://arden.ag/ont/evidence#> .
+@prefix bridge: <https://arden.ag/ont/bridge#> .
+@prefix qudt: <http://qudt.org/schema/qudt/> .
+@prefix unit: <http://qudt.org/vocab/unit/> .
+@prefix sosa: <http://www.w3.org/ns/sosa/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# ==================================================
+# KILLER QUESTIONS v1.3.0 TEST DATA
+# ==================================================
+
+# KQ1: FAMILY FARM CHILD LABOR TAX SCENARIO
+
+:kq1_decision a arden:FamilyLaborTaxDecision ;
+    rdfs:label "Johnson Farm Family Labor Tax Decision" ;
+    arden:involves :tommy_johnson ;
+    bridge:scheduleF​DeductionImpact 2400.0 ;
+    arden-evidence:hasEvidenceChain :kq1_evidence_chain ;
+    bridge:decisionOutcome bridge:Approved .
+
+:tommy_johnson a arden-labor:FarmFamilyChild ;
+    rdfs:label "Tommy Johnson" ;
+    arden:age 16 ;
+    bridge:isChildOfOwner true ;
+    arden:employer :johnson_family_farm ;
+    bridge:maximumExemptWages 8000.0 .  # Under 18 exemption
+
+:johnson_family_farm a arden:FamilyFarm ;
+    rdfs:label "Johnson Family Farm" ;
+    arden:owner :john_johnson .
+
+:john_johnson a arden:FarmOwner ;
+    rdfs:label "John Johnson" .
+
+# Evidence chain for KQ1
+:kq1_evidence_chain a arden-evidence:EvidenceChain ;
+    arden-evidence:chainStrength 0.90 ;
+    arden-evidence:chainCompleteness 0.85 ;
+    arden-evidence:includes :irs_pub225_evidence, :child_age_verification .
+
+:irs_pub225_evidence a arden-evidence:IRSLaborTaxEvidence ;
+    arden-evidence:confidence 0.95 ;
+    arden-evidence:authority arden-evidence:GovernmentAuthority ;
+    arden-evidence:wasGeneratedBy arden-evidence:IRS ;
+    arden-evidence:extractedOn "2024-09-24T10:00:00Z"^^xsd:dateTime ;
+    arden-evidence:sourceURL <https://www.irs.gov/publications/p225> ;
+    arden-evidence:textSpan "Children under 18 who work for parents in unincorporated farm business are exempt from Social Security and Medicare taxes" ;
+    arden-evidence:supports :kq1_decision .
+
+:child_age_verification a arden-evidence:DocumentEvidence ;
+    arden-evidence:confidence 1.0 ;
+    arden-evidence:authority arden-evidence:GovernmentAuthority ;
+    arden-evidence:extractedOn "2024-09-24T10:15:00Z"^^xsd:dateTime ;
+    arden-evidence:textSpan "Birth Certificate: Tommy Johnson, DOB: 2008-03-15" ;
+    arden-evidence:supports :tommy_johnson .
+
+# KQ2: H-2A SEASONAL WORKER COMPLIANCE SCENARIO
+
+:kq2_decision a arden:H2AWorkerDecision ;
+    rdfs:label "H-2A Corn Harvest Crew Decision" ;
+    arden:numberOfWorkers 25 ;
+    arden:workPeriod [
+        qudt:numericValue 120 ;
+        qudt:unit unit:DAY
+    ] ;
+    bridge:totalComplianceCost [
+        qudt:numericValue 387500.0 ;
+        qudt:unit unit:USD
+    ] ;
+    arden:housingPlan :h2a_housing_plan ;
+    arden-evidence:hasEvidenceChain :kq2_evidence_chain ;
+    bridge:decisionOutcome bridge:Approved .
+
+:h2a_housing_plan a bridge:H2AHousingRequirement ;
+    bridge:housingCostPerWorker [
+        qudt:numericValue 35.0 ;
+        qudt:unit unit:USD
+    ] .  # $35/day per worker
+
+# Evidence chain for KQ2
+:kq2_evidence_chain a arden-evidence:EvidenceChain ;
+    arden-evidence:chainStrength 0.82 ;
+    arden-evidence:chainCompleteness 0.78 ;
+    arden-evidence:includes :dol_h2a_evidence, :wage_rate_evidence .
+
+:dol_h2a_evidence a arden-evidence:DOLComplianceEvidence ;
+    arden-evidence:confidence 0.88 ;
+    arden-evidence:authority arden-evidence:GovernmentAuthority ;
+    arden-evidence:extractedOn "2024-08-15T14:30:00Z"^^xsd:dateTime ;
+    arden-evidence:sourceURL <https://www.dol.gov/agencies/eta/foreign-labor/wages/adverse-effect-wage-rates> ;
+    arden-evidence:textSpan "Iowa 2024 AEWR: $17.25/hour for field crops and diversified crops" ;
+    arden-evidence:supports :kq2_decision .
+
+:wage_rate_evidence a arden-evidence:DataEvidence ;
+    arden-evidence:confidence 0.82 ;
+    arden-evidence:authority arden-evidence:GovernmentAuthority ;
+    arden-evidence:extractedOn "2024-08-15T14:35:00Z"^^xsd:dateTime .
+
+# KQ3: GRAIN FUTURES COLLATERAL IMPACT SCENARIO
+
+:kq3_decision a arden:GrainCollateralDecision ;
+    rdfs:label "Soybean Inventory Loan Margin Decision" ;
+    arden:involves :soybean_inventory_loan ;
+    arden-evidence:hasEvidenceChain :kq3_evidence_chain ;
+    bridge:decisionOutcome bridge:RequiresAdditionalEvidence .
+
+:soybean_inventory_loan a arden-fin:GrainInventoryLoan ;
+    rdfs:label "Johnson Farm Soybean Inventory Loan" ;
+    arden-fin:loanAmount [
+        qudt:numericValue 625000.0 ;
+        qudt:unit unit:USD
+    ] ;
+    arden-fin:securedBy :soybean_inventory ;
+    bridge:marginCallThreshold 0.15 ;  # 15% price decline triggers margin call
+    bridge:debtServiceCoverageRatio 1.45 .
+
+:soybean_inventory a bridge:FuturesBasedCollateral ;
+    rdfs:label "Stored Soybean Inventory" ;
+    arden:quantity [
+        qudt:numericValue 50000 ;
+        qudt:unit unit:BU  # 50,000 bushels
+    ] ;
+    bridge:currentMarketValue [
+        qudt:numericValue 781250.0 ;  # 50,000 × $15.625/bu
+        qudt:unit unit:USD
+    ] ;
+    bridge:pricedAgainst :soybean_dec2024_futures ;
+    bridge:futuresCollateralSpread -0.125 .  # $0.125/bu under futures (normal basis)
+
+:soybean_dec2024_futures a arden-fin:FuturesContract ;
+    rdfs:label "Soybean December 2024 Futures" ;
+    arden:commodity arden-ag:Soybean ;
+    arden:priceValue [
+        qudt:numericValue 15.75 ;  # $15.75/bushel
+        qudt:unit unit:USD-PER-BU
+    ] ;
+    arden:priceTimestamp "2024-09-24T15:30:00Z"^^xsd:dateTime ;
+    arden:tradingVolume 45000 .
+
+# Evidence chain for KQ3
+:kq3_evidence_chain a arden-evidence:EvidenceChain ;
+    arden-evidence:chainStrength 0.91 ;
+    arden-evidence:chainCompleteness 0.88 ;
+    arden-evidence:includes :cme_soybean_price_evidence, :storage_receipt_evidence .
+
+:cme_soybean_price_evidence a arden-evidence:CommodityPriceEvidence ;
+    arden-evidence:confidence 0.95 ;
+    arden-evidence:authority arden-evidence:IndustryAuthority ;
+    arden-evidence:wasGeneratedBy arden-evidence:CME ;
+    arden-evidence:extractedOn "2024-09-24T15:30:00Z"^^xsd:dateTime ;
+    arden-evidence:validUntil "2024-09-25T15:30:00Z"^^xsd:dateTime ;
+    arden-evidence:sourceURL <https://www.cmegroup.com/markets/agriculture/oilseeds/soybean.html> ;
+    arden-evidence:supports :soybean_dec2024_futures .
+
+:storage_receipt_evidence a arden-evidence:DocumentEvidence ;
+    arden-evidence:confidence 0.91 ;
+    arden-evidence:authority arden-evidence:CommercialAuthority ;
+    arden-evidence:extractedOn "2024-09-20T08:00:00Z"^^xsd:dateTime ;
+    arden-evidence:textSpan "Warehouse Receipt #WR-2024-456789: 50,000 bushels #2 Yellow Soybeans, stored at Johnson Grain Elevator" ;
+    arden-evidence:supports :soybean_inventory .
+
+# KQ4: OPERATING LOAN CASH FLOW CAPACITY SCENARIO
+
+:kq4_decision a arden:LoanCapacityDecision ;
+    rdfs:label "Schmidt Farm Operating Loan Capacity Analysis" ;
+    arden:involves :schmidt_operating_loan ;
+    bridge:loanCapacityMultiplier 0.75 ;  # Conservative 75% of projected net income
+    arden-evidence:hasEvidenceChain :kq4_evidence_chain ;
+    bridge:decisionOutcome bridge:Approved .
+
+:schmidt_operating_loan a arden-fin:CashFlowBasedLoan ;
+    rdfs:label "Schmidt Farm Operating Loan" ;
+    arden-fin:loanAmount [
+        qudt:numericValue 450000.0 ;
+        qudt:unit unit:USD
+    ] ;
+    bridge:debtServiceCoverageRatio 1.35 ;
+    arden-fin:basedOn :schmidt_cash_flow_projection .
+
+:schmidt_cash_flow_projection a arden-fin:CashFlowProjection ;
+    rdfs:label "Schmidt Farm 2025 Cash Flow Projection" ;
+    arden:projectionPeriod [
+        qudt:numericValue 12 ;
+        qudt:unit unit:MO
+    ] ;
+    bridge:seasonalCashFlowGap [
+        qudt:numericValue 275000.0 ;
+        qudt:unit unit:USD
+    ] .
+
+# Yield-based revenue calculation
+:corn_revenue_projection a bridge:YieldBasedRevenue ;
+    bridge:derivedFromYield :schmidt_corn_yield_projection ;
+    bridge:pricedAt :corn_price_estimate .
+
+:schmidt_corn_yield_projection a arden-ag:YieldProjection ;
+    sosa:hasFeatureOfInterest :schmidt_corn_acres ;
+    arden-ag:projectedYield [
+        qudt:numericValue 185 ;  # 185 bu/ac
+        qudt:unit unit:BU-PER-AC
+    ] .
+
+:schmidt_corn_acres a arden:FarmParcel ;
+    arden:area [
+        qudt:numericValue 800 ;
+        qudt:unit unit:AC
+    ] ;
+    arden-ag:predominantCrop arden-ag:MaizeCrop .
+
+:corn_price_estimate a arden-fin:CommodityPrice ;
+    arden:priceValue [
+        qudt:numericValue 4.75 ;
+        qudt:unit unit:USD-PER-BU
+    ] ;
+    arden:priceTimestamp "2024-09-24T16:00:00Z"^^xsd:dateTime .
+
+# Evidence chain for KQ4
+:kq4_evidence_chain a arden-evidence:EvidenceChain ;
+    arden-evidence:chainStrength 0.76 ;
+    arden-evidence:chainCompleteness 0.82 ;
+    arden-evidence:includes :yield_history_evidence, :input_cost_evidence, :corn_price_evidence, :cash_flow_history .
+
+:yield_history_evidence a arden-evidence:YieldEvidence ;
+    arden-evidence:confidence 0.85 ;
+    arden-evidence:authority arden-evidence:AcademicAuthority ;
+    arden-evidence:extractedOn "2024-09-20T09:00:00Z"^^xsd:dateTime ;
+    arden-evidence:textSpan "Story County average corn yield 2019-2023: 180-195 bu/ac, farm historically performs 5% above county average" .
+
+:input_cost_evidence a arden-evidence:InputCostEvidence ;
+    arden-evidence:confidence 0.78 ;
+    arden-evidence:authority arden-evidence:CommercialAuthority ;
+    arden-evidence:extractedOn "2024-09-15T11:30:00Z"^^xsd:dateTime ;
+    arden-evidence:textSpan "2025 projected input costs: Seed $120/ac, Fertilizer $180/ac, Chemicals $65/ac, Fuel $35/ac" .
+
+:corn_price_evidence a arden-evidence:CommodityPriceEvidence ;
+    arden-evidence:confidence 0.76 ;
+    arden-evidence:authority arden-evidence:CommercialAuthority ;
+    arden-evidence:wasGeneratedBy arden-evidence:YahooFinance ;
+    arden-evidence:extractedOn "2024-09-24T16:00:00Z"^^xsd:dateTime ;
+    arden-evidence:validUntil "2024-09-25T16:00:00Z"^^xsd:dateTime ;
+    arden-evidence:sourceURL <https://finance.yahoo.com/quote/ZC%3DF> .
+
+:cash_flow_history a arden-evidence:CashFlowEvidence ;
+    arden-evidence:confidence 0.82 ;
+    arden-evidence:authority arden-evidence:CommercialAuthority ;
+    arden-evidence:extractedOn "2024-09-10T14:00:00Z"^^xsd:dateTime ;
+    arden-evidence:textSpan "Historical cash flow analysis 2021-2023: Net operating income $580K-$720K, seasonal cash flow gap Mar-Jun: $250K-$300K" .
+
+# Yield downside scenario analysis
+:yield_downside_scenario a arden:YieldDownsideScenario ;
+    arden:appliesTo :schmidt_operating_loan ;
+    arden:yieldReduction 0.15 ;  # 15% yield reduction scenario
+    rdfs:comment "DSCR drops to 1.15 with 15% yield reduction, still above 1.2 minimum with conservative loan sizing" .
+
+# CROSS-CUTTING TEST DATA
+
+# High-stakes decision requirements validation
+:inadequate_evidence_decision a arden:FamilyLaborTaxDecision ;
+    rdfs:label "Inadequate Evidence Example" ;
+    arden:involves :another_child ;
+    arden-evidence:hasEvidenceChain :weak_evidence_chain ;
+    bridge:decisionOutcome bridge:RequiresAdditionalEvidence .
+
+:another_child a arden-labor:FarmFamilyChild ;
+    arden:age 15 .
+
+:weak_evidence_chain a arden-evidence:EvidenceChain ;
+    arden-evidence:chainStrength 0.45 ;  # Below 70% threshold
+    arden-evidence:chainCompleteness 0.60 ;
+    arden-evidence:includes :weak_evidence .
+
+:weak_evidence a arden-evidence:Evidence ;
+    arden-evidence:confidence 0.45 ;  # Low confidence
+    arden-evidence:authority arden-evidence:CommercialAuthority .
+
+# Invalid unit test case
+:invalid_unit_quantity a qudt:Quantity ;
+    qudt:numericValue 1000 ;
+    qudt:unit unit:FURLONG .  # Invalid unit for agricultural context
+
+# Missing evidence test case
+:no_evidence_decision a arden:GrainCollateralDecision ;
+    rdfs:label "No Evidence Decision - Should Fail Validation" ;
+    arden:involves :test_loan .
+
+:test_loan a arden-fin:GrainInventoryLoan ;
+    arden-fin:loanAmount [
+        qudt:numericValue 100000.0 ;
+        qudt:unit unit:USD
+    ] .
+
+# Reference entities
+arden-ag:Soybean a arden:Commodity .
+arden-ag:MaizeCrop a arden:Commodity .
+arden-evidence:IRS a arden-evidence:GovernmentSource .
+arden-evidence:CME a arden-evidence:MarketDataSource .
+arden-evidence:YahooFinance a arden-evidence:MarketDataSource .

@@ -1,0 +1,45 @@
+@prefix arden: <https://arden.ag/ont/core#> .
+@prefix owl:   <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
+@prefix prov:  <http://www.w3.org/ns/prov#> .
+
+<https://arden.ag/ont/core>
+  a owl:Ontology ;
+  rdfs:label "Arden Core"@en ;
+  rdfs:comment "Core entities and relations across ag/finance/geo."@en ;
+  owl:versionInfo "v1.1" .
+
+### Core classes
+arden:FarmOperation a owl:Class ;
+  rdfs:label "Farm Operation"@en ;
+  rdfs:comment "A legal/economic entity engaged in agricultural production."@en .
+
+arden:FarmParcel a owl:Class ;
+  rdfs:label "Farm Parcel"@en ;
+  rdfs:comment "A spatial unit of cultivation, geometry via GeoSPARQL."@en .
+
+arden:Farmer a owl:Class ;
+  rdfs:label "Farmer"@en .
+
+arden:Practice a owl:Class ;
+  rdfs:label "Agricultural practice"@en .
+
+### Core properties
+arden:hasParcel a owl:ObjectProperty ;
+  rdfs:domain arden:FarmOperation ;
+  rdfs:range  arden:FarmParcel ;
+  rdfs:label "has parcel"@en .
+
+arden:locatedInCounty a owl:ObjectProperty ;
+  rdfs:domain arden:FarmParcel ;
+  rdfs:label "located in county"@en .
+
+arden:hasLoan a owl:ObjectProperty ;
+  rdfs:domain arden:FarmOperation ;
+  rdfs:label "has loan"@en .
+
+arden:sourceSystemId a owl:DatatypeProperty ;
+  rdfs:label "source system identifier"@en ;
+  rdfs:range xsd:string ;
+  rdfs:comment "External primary key for lineage/provenance joins."@en .

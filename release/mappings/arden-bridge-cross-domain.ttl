@@ -1,0 +1,285 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+
+@prefix arden: <https://arden.ag/ont/core#> .
+@prefix arden-ag: <https://arden.ag/ont/ag#> .
+@prefix arden-fin: <https://arden.ag/ont/fin#> .
+@prefix bridge: <https://arden.ag/ont/bridge#> .
+@prefix qudt: <http://qudt.org/schema/qudt/> .
+@prefix unit: <http://qudt.org/vocab/unit/> .
+
+# AGRO and FIBO prefixes (simplified)
+@prefix agro: <http://purl.obolibrary.org/obo/> .
+@prefix fibo-fbc-dae-dbt: <https://spec.edmcouncil.org/fibo/ontology/FBC/DebtAndEquities/Debt/> .
+@prefix fibo-fbc-pas-caa: <https://spec.edmcouncil.org/fibo/ontology/FBC/ProductsAndServices/ClientsAndAccounts/> .
+@prefix fibo-der-drc-comm: <https://spec.edmcouncil.org/fibo/ontology/DER/DerivativesContracts/CommodityContracts/> .
+
+# ===================================================================
+# Arden Cross-Domain Bridge: AGRO ↔ FIBO via QUDT
+# ===================================================================
+#
+# Implements ChatGPT's bridge architecture with:
+# 1. Commodity → Financial Asset patterns
+# 2. Yield → Cash Flow patterns
+# 3. Risk Factor mappings
+# 4. QUDT units integration
+# 5. Property chains for inference
+#
+# This is where Arden's competitive moat lives.
+# ===================================================================
+
+<https://arden.ag/ont/bridge/cross-domain> a owl:Ontology ;
+    dct:title "Arden Cross-Domain Bridge: Agriculture ↔ Finance"@en ;
+    dct:description "Core cross-domain mappings that connect agricultural semantics (AGRO) to financial semantics (FIBO) via units (QUDT). This is Arden's competitive moat."@en ;
+    dct:created "2024-09-24"^^xsd:date ;
+    owl:versionInfo "v1.2.0" ;
+    owl:imports <https://arden.ag/ont/ag> ,
+                <https://arden.ag/ont/fin> .
+
+# ===================================================================
+# BRIDGE NAMESPACE DECLARATIONS
+# ===================================================================
+
+bridge: a owl:Ontology ;
+    rdfs:label "Arden Bridge Vocabulary"@en ;
+    rdfs:comment "Cross-domain properties and patterns for agriculture-finance integration"@en .
+
+# ===================================================================
+# PATTERN 1: COMMODITY → FINANCIAL ASSET
+# ===================================================================
+# Maps AGRO crop concepts to FIBO CommodityAsset
+# Enables: pricing, hedging links, collateral valuation
+
+# Bridge classes
+bridge:CommodityAsset rdfs:subClassOf arden-fin:Asset ;
+    rdfs:label "Commodity Asset"@en ;
+    rdfs:comment "Financial asset representing an agricultural commodity"@en .
+
+# Core bridge properties
+bridge:representsCommodity rdf:type owl:ObjectProperty ;
+    rdfs:label "represents commodity"@en ;
+    rdfs:comment "Links a financial asset to the agricultural commodity it represents"@en ;
+    rdfs:domain bridge:CommodityAsset ;
+    rdfs:range arden-ag:Crop .
+
+bridge:hasMarketPrice rdf:type owl:ObjectProperty ;
+    rdfs:label "has market price"@en ;
+    rdfs:domain bridge:CommodityAsset ;
+    rdfs:range qudt:QuantityValue .
+
+# Specific commodity-asset mappings
+bridge:CornAsset rdfs:subClassOf bridge:CommodityAsset ;
+    rdfs:label "Corn Asset"@en ;
+    owl:equivalentClass [
+        owl:intersectionOf (
+            bridge:CommodityAsset
+            [ owl:hasValue arden-ag:MaizeCrop ; owl:onProperty bridge:representsCommodity ]
+        )
+    ] .
+
+bridge:WheatAsset rdfs:subClassOf bridge:CommodityAsset ;
+    rdfs:label "Wheat Asset"@en ;
+    owl:equivalentClass [
+        owl:intersectionOf (
+            bridge:CommodityAsset
+            [ owl:hasValue arden-ag:WheatCrop ; owl:onProperty bridge:representsCommodity ]
+        )
+    ] .
+
+bridge:SoybeanAsset rdfs:subClassOf bridge:CommodityAsset ;
+    rdfs:label "Soybean Asset"@en ;
+    owl:equivalentClass [
+        owl:intersectionOf (
+            bridge:CommodityAsset
+            [ owl:hasValue arden-ag:SoybeanCrop ; owl:onProperty bridge:representsCommodity ]
+        )
+    ] .
+
+# ===================================================================
+# PATTERN 2: YIELD → CASH FLOW INPUT
+# ===================================================================
+# Treat measured crop yield as quantity that drives farm cash flows
+
+bridge:drivesCashFlow rdf:type owl:ObjectProperty ;
+    rdfs:label "drives cash flow"@en ;
+    rdfs:comment "Links a measured quantity to cash flow assumptions in financial planning"@en ;
+    rdfs:domain qudt:QuantityValue ;
+    rdfs:range arden-fin:CashFlowAssumption .
+
+bridge:cropYieldOf rdf:type owl:ObjectProperty ;
+    rdfs:label "crop yield of"@en ;
+    rdfs:domain qudt:QuantityValue ;
+    rdfs:range arden-ag:ProductionSystem .
+
+bridge:usedInPlan rdf:type owl:ObjectProperty ;
+    rdfs:label "used in plan"@en ;
+    rdfs:domain arden-ag:ProductionSystem ;
+    rdfs:range arden-fin:UnderwritingPlan .
+
+# Property chain: if yield is from production system used in plan, then yield drives cash flow
+bridge:drivesCashFlow owl:propertyChainAxiom ( bridge:cropYieldOf bridge:usedInPlan ) .
+
+# ===================================================================
+# PATTERN 3: SOIL/WATER RISK → COLLATERAL RISK FACTOR
+# ===================================================================
+# Map environmental risks to loan collateral risk dimensions
+
+bridge:mapsToRiskFactor rdf:type owl:ObjectProperty ;
+    rdfs:label "maps to risk factor"@en ;
+    rdfs:comment "Maps agricultural risk factors to financial collateral risk factors"@en ;
+    rdfs:domain arden-ag:AgRiskFactor ;
+    rdfs:range arden-fin:CollateralRiskFactor .
+
+# Specific risk mappings
+bridge:SoilErosionRisk rdfs:subClassOf arden-ag:AgRiskFactor ;
+    rdfs:label "Soil Erosion Risk"@en ;
+    bridge:mapsToRiskFactor bridge:LandValueRisk .
+
+bridge:DroughtRisk rdfs:subClassOf arden-ag:AgRiskFactor ;
+    rdfs:label "Drought Risk"@en ;
+    bridge:mapsToRiskFactor bridge:ProductionRisk .
+
+bridge:LandValueRisk rdfs:subClassOf arden-fin:CollateralRiskFactor ;
+    rdfs:label "Land Value Risk"@en .
+
+bridge:ProductionRisk rdfs:subClassOf arden-fin:CollateralRiskFactor ;
+    rdfs:label "Production Risk"@en .
+
+# ===================================================================
+# PATTERN 4: UNITS NORMALIZATION via QUDT
+# ===================================================================
+# All numeric comparisons happen on normalized QUDT values
+
+bridge:normalizedTo rdf:type owl:ObjectProperty ;
+    rdfs:label "normalized to"@en ;
+    rdfs:comment "Links a quantity value to its normalized equivalent in standard units"@en ;
+    rdfs:domain qudt:QuantityValue ;
+    rdfs:range qudt:QuantityValue .
+
+# Standard agricultural units
+bridge:YieldQuantityKind rdfs:subClassOf qudt:QuantityKind ;
+    rdfs:label "Yield Quantity Kind"@en .
+
+bridge:AreaQuantityKind rdfs:subClassOf qudt:QuantityKind ;
+    rdfs:label "Area Quantity Kind"@en .
+
+# Common conversions (bushels/acre ↔ tonnes/hectare)
+bridge:BushelPerAcreValue rdfs:subClassOf qudt:QuantityValue ;
+    rdfs:subClassOf [
+        owl:onProperty qudt:hasQuantityKind ;
+        owl:hasValue bridge:YieldQuantityKind
+    ] ;
+    rdfs:subClassOf [
+        owl:onProperty qudt:hasUnit ;
+        owl:hasValue unit:BushelPerAcre
+    ] .
+
+bridge:TonnePerHectareValue rdfs:subClassOf qudt:QuantityValue ;
+    rdfs:subClassOf [
+        owl:onProperty qudt:hasQuantityKind ;
+        owl:hasValue bridge:YieldQuantityKind
+    ] ;
+    rdfs:subClassOf [
+        owl:onProperty qudt:hasUnit ;
+        owl:hasValue unit:TonnePerHectare
+    ] .
+
+# ===================================================================
+# PATTERN 5: FUTURES/INDEX → COLLATERAL VALUATION
+# ===================================================================
+# Link futures curves to collateral value adjustments
+
+bridge:FuturesContract rdfs:subClassOf arden-fin:DerivativeContract ;
+    rdfs:label "Futures Contract"@en .
+
+bridge:hasReferenceCommodity rdf:type owl:ObjectProperty ;
+    rdfs:label "has reference commodity"@en ;
+    rdfs:domain bridge:FuturesContract ;
+    rdfs:range arden-ag:Crop .
+
+bridge:valuationAdjustment rdf:type owl:ObjectProperty ;
+    rdfs:label "valuation adjustment"@en ;
+    rdfs:domain arden-fin:Collateral ;
+    rdfs:range arden-fin:ValuationAdjustment .
+
+bridge:influencedByFutures rdf:type owl:ObjectProperty ;
+    rdfs:label "influenced by futures"@en ;
+    rdfs:comment "Links collateral value to futures market trends"@en ;
+    rdfs:domain arden-fin:ValuationAdjustment ;
+    rdfs:range bridge:FuturesContract .
+
+# ===================================================================
+# COMPETENCY QUESTION SUPPORT PATTERNS
+# ===================================================================
+
+# "How do wheat futures prices affect collateral valuation for farm loans?"
+# Pattern: Wheat crop → WheatAsset → FuturesContract → ValuationAdjustment → Collateral
+
+bridge:WheatFuturesContract rdfs:subClassOf bridge:FuturesContract ;
+    rdfs:subClassOf [
+        owl:onProperty bridge:hasReferenceCommodity ;
+        owl:hasValue arden-ag:WheatCrop
+    ] .
+
+# "Convert 150 bushels/acre to tonnes/hectare"
+# Pattern: BushelPerAcreValue → normalizedTo → TonnePerHectareValue
+
+# "Which crops qualify for insurance securitization?"
+bridge:SecuritizationEligible rdf:type owl:Class ;
+    rdfs:label "Securitization Eligible"@en ;
+    rdfs:subClassOf bridge:CommodityAsset .
+
+# Insurance-backed crops
+bridge:CornAsset rdfs:subClassOf bridge:SecuritizationEligible .
+bridge:WheatAsset rdfs:subClassOf bridge:SecuritizationEligible .
+bridge:SoybeanAsset rdfs:subClassOf bridge:SecuritizationEligible .
+
+# ===================================================================
+# EVIDENCE AND AUDITABILITY
+# ===================================================================
+
+bridge:Evidence rdf:type owl:Class ;
+    rdfs:label "Evidence"@en ;
+    rdfs:comment "Supporting evidence for bridge mappings and inferences"@en .
+
+bridge:hasEvidence rdf:type owl:ObjectProperty ;
+    rdfs:label "has evidence"@en ;
+    rdfs:comment "Links a bridge assertion to supporting evidence"@en ;
+    rdfs:range bridge:Evidence .
+
+bridge:CompetencyQuestionEvidence rdfs:subClassOf bridge:Evidence ;
+    rdfs:label "Competency Question Evidence"@en ;
+    rdfs:comment "Evidence derived from competency question requirements"@en .
+
+bridge:MarketDataEvidence rdfs:subClassOf bridge:Evidence ;
+    rdfs:label "Market Data Evidence"@en ;
+    rdfs:comment "Evidence from agricultural and financial market data"@en .
+
+# ===================================================================
+# GOVERNANCE AND METADATA
+# ===================================================================
+
+bridge:BridgeMapping rdf:type owl:Class ;
+    rdfs:label "Bridge Mapping"@en ;
+    rdfs:comment "A semantic mapping between agricultural and financial concepts"@en .
+
+bridge:mappingType rdf:type owl:DatatypeProperty ;
+    rdfs:label "mapping type"@en ;
+    rdfs:domain bridge:BridgeMapping ;
+    rdfs:range xsd:string .
+
+bridge:confidence rdf:type owl:DatatypeProperty ;
+    rdfs:label "confidence"@en ;
+    rdfs:comment "Confidence score for bridge mapping (0.0-1.0)"@en ;
+    rdfs:domain bridge:BridgeMapping ;
+    rdfs:range xsd:decimal .
+
+bridge:competencyQuestion rdf:type owl:DatatypeProperty ;
+    rdfs:label "competency question"@en ;
+    rdfs:comment "Competency question that this mapping supports"@en ;
+    rdfs:domain bridge:BridgeMapping ;
+    rdfs:range xsd:string .

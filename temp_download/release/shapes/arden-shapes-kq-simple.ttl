@@ -1,0 +1,62 @@
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix arden: <https://arden.ag/ont/core#> .
+@prefix arden-evidence: <https://arden.ag/ont/evidence#> .
+@prefix bridge: <https://arden.ag/ont/bridge#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# Simplified Killer Questions Validation for Testing
+
+arden:SimpleHighStakesValidation a sh:NodeShape ;
+    sh:targetClass arden:HighStakesDecision ;
+    rdfs:label "Simple High Stakes Decision Validation" ;
+
+    # Must have evidence chain
+    sh:property [
+        sh:path arden-evidence:hasEvidenceChain ;
+        sh:minCount 1 ;
+        sh:message "High-stakes decision must have evidence chain"
+    ] ;
+
+    # Must have decision outcome
+    sh:property [
+        sh:path bridge:decisionOutcome ;
+        sh:minCount 1 ;
+        sh:message "High-stakes decision must have outcome recorded"
+    ] .
+
+arden:EvidenceChainValidation a sh:NodeShape ;
+    sh:targetClass arden-evidence:EvidenceChain ;
+    rdfs:label "Evidence Chain Validation" ;
+
+    # Chain strength must be reasonable
+    sh:property [
+        sh:path arden-evidence:chainStrength ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 1.0 ;
+        sh:message "Evidence chain strength must be between 0.0 and 1.0"
+    ] ;
+
+    # Chain completeness must be reasonable
+    sh:property [
+        sh:path arden-evidence:chainCompleteness ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 1.0 ;
+        sh:message "Evidence chain completeness must be between 0.0 and 1.0"
+    ] .
+
+arden:EvidenceValidation a sh:NodeShape ;
+    sh:targetClass arden-evidence:Evidence ;
+    rdfs:label "Evidence Validation" ;
+
+    # Evidence must have confidence
+    sh:property [
+        sh:path arden-evidence:confidence ;
+        sh:datatype xsd:decimal ;
+        sh:minCount 1 ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 1.0 ;
+        sh:message "Evidence must have confidence score (0.0-1.0)"
+    ] .

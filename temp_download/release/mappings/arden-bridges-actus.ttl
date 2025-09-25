@@ -1,0 +1,215 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+@prefix arden: <https://arden.ag/ont/core#> .
+@prefix arden-fin: <https://arden.ag/ont/fin#> .
+@prefix actus: <https://spec.edmcouncil.org/fibo/ontology/ACTUS/ACTUSControlledVocabulary/> .
+@prefix actus-param: <https://spec.edmcouncil.org/fibo/ontology/ACTUS/ACTUSParameterDefinitions/> .
+
+# ===================================================================
+# Arden ↔ ACTUS (Algorithmic Contract Types) Bridge Mappings
+# ===================================================================
+#
+# Maps Arden agricultural loan concepts to ACTUS contract types and
+# parameters. Focus on core amortizing types: ANN, LAM, opt PAM.
+# Uses restrictions and property mappings for deterministic cash flows.
+#
+# Created: 2024-09-19 for Arden v1.2.0
+# ===================================================================
+
+<https://arden.ag/ont/mappings/actus> a owl:Ontology ;
+    dct:title "Arden-ACTUS Bridge Mappings"@en ;
+    dct:description "Bridge mappings between Arden agricultural loan concepts and ACTUS (Algorithmic Contract Types) for cash flow modeling."@en ;
+    dct:created "2024-09-19"^^xsd:date ;
+    owl:imports <https://arden.ag/ont/fin> .
+
+# ===================================================================
+# ACTUS CONTRACT TYPE MAPPINGS
+# ===================================================================
+
+# Property to link agricultural loans to ACTUS contract types
+arden-fin:actusContractType a owl:ObjectProperty ;
+    rdfs:domain arden-fin:AgriculturalLoan ;
+    rdfs:range actus:ACTUSContractType ;
+    rdfs:label "ACTUS contract type"@en ;
+    rdfs:comment "Links an agricultural loan to its corresponding ACTUS contract type for cash flow generation."@en .
+
+# Specific loan types mapped to ACTUS contract types
+arden-fin:AnnuityLoan rdfs:subClassOf arden-fin:AgriculturalLoan ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty arden-fin:actusContractType ;
+        owl:hasValue actus:ACTUSContractType-Annuity
+    ] ;
+    rdfs:label "Annuity Loan"@en ;
+    rdfs:comment "Agricultural loan with equal periodic payments of principal and interest (ACTUS ANN)."@en .
+
+arden-fin:LinearAmortizingLoan rdfs:subClassOf arden-fin:AgriculturalLoan ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty arden-fin:actusContractType ;
+        owl:hasValue actus:ACTUSContractType-LinearAmortizer
+    ] ;
+    rdfs:label "Linear Amortizing Loan"@en ;
+    rdfs:comment "Agricultural loan with equal principal payments and decreasing interest (ACTUS LAM)."@en .
+
+arden-fin:PrincipalAtMaturityLoan rdfs:subClassOf arden-fin:AgriculturalLoan ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty arden-fin:actusContractType ;
+        owl:hasValue actus:ACTUSContractType-PrincipalAtMaturity
+    ] ;
+    rdfs:label "Principal at Maturity Loan"@en ;
+    rdfs:comment "Agricultural loan with interest-only payments and principal due at maturity (ACTUS PAM)."@en .
+
+# ===================================================================
+# ACTUS PARAMETER MAPPINGS
+# ===================================================================
+
+# Notional Principal
+arden-fin:hasNotionalPrincipal a owl:ObjectProperty ;
+    skos:exactMatch actus-param:hasNotionalPrincipal ;
+    rdfs:domain arden-fin:AgriculturalLoan ;
+    rdfs:label "has notional principal"@en .
+
+# Interest Rate Parameters
+arden-fin:hasNominalInterestRate a owl:ObjectProperty ;
+    skos:exactMatch actus-param:hasNominalInterestRate ;
+    rdfs:domain arden-fin:AgriculturalLoan ;
+    rdfs:label "has nominal interest rate"@en .
+
+# Day Count Convention
+arden-fin:hasDayCountConvention a owl:ObjectProperty ;
+    skos:exactMatch actus-param:hasDayCountConvention ;
+    rdfs:domain arden-fin:AgriculturalLoan ;
+    rdfs:label "has day count convention"@en .
+
+# Contract Role
+arden-fin:hasContractRole a owl:ObjectProperty ;
+    skos:exactMatch actus-param:hasContractRole ;
+    rdfs:domain arden-fin:AgriculturalLoan ;
+    rdfs:label "has contract role"@en .
+
+# ===================================================================
+# PAYMENT CYCLE PARAMETERS
+# ===================================================================
+
+# Interest Payment Cycle
+arden-fin:interestPaymentCycle a owl:ObjectProperty ;
+    skos:exactMatch actus-param:CycleOfInterestPayment ;
+    rdfs:domain arden-fin:AgriculturalLoan ;
+    rdfs:label "interest payment cycle"@en .
+
+# Principal Redemption Cycle
+arden-fin:principalRedemptionCycle a owl:ObjectProperty ;
+    skos:exactMatch actus-param:CycleOfPrincipalRedemption ;
+    rdfs:domain arden-fin:AgriculturalLoan ;
+    rdfs:label "principal redemption cycle"@en .
+
+# ===================================================================
+# CONTRACT LIFECYCLE DATES
+# ===================================================================
+
+# Initial Exchange Date (loan origination)
+arden-fin:hasInitialExchangeDate a owl:ObjectProperty ;
+    skos:exactMatch actus-param:InitialExchangeDate ;
+    rdfs:domain arden-fin:AgriculturalLoan ;
+    rdfs:label "has initial exchange date"@en .
+
+# Status Date (current evaluation date)
+arden-fin:hasStatusDate a owl:ObjectProperty ;
+    skos:exactMatch actus-param:StatusDate ;
+    rdfs:domain arden-fin:AgriculturalLoan ;
+    rdfs:label "has status date"@en .
+
+# ===================================================================
+# BUSINESS DAY CONVENTIONS
+# ===================================================================
+
+# Business Day Convention
+arden-fin:hasBusinessDayConvention a owl:ObjectProperty ;
+    skos:exactMatch actus-param:BusinessDayConvention ;
+    rdfs:domain arden-fin:AgriculturalLoan ;
+    rdfs:label "has business day convention"@en .
+
+# Calendar
+arden-fin:hasCalendar a owl:ObjectProperty ;
+    skos:exactMatch actus-param:Calendar ;
+    rdfs:domain arden-fin:AgriculturalLoan ;
+    rdfs:label "has calendar"@en .
+
+# ===================================================================
+# RESTRICTIONS FOR AGRICULTURAL LOANS WITH ACTUS
+# ===================================================================
+
+# Agricultural loans with ACTUS contract type must have required parameters
+arden-fin:AgriculturalLoan rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty arden-fin:actusContractType ;
+    owl:maxCardinality 1
+] .
+
+# If ACTUS contract type is specified, certain parameters are required
+[] a owl:Class ;
+    owl:intersectionOf (
+        arden-fin:AgriculturalLoan
+        [
+            a owl:Restriction ;
+            owl:onProperty arden-fin:actusContractType ;
+            owl:someValuesFrom actus:ACTUSContractType
+        ]
+    ) ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty arden-fin:hasNotionalPrincipal ;
+        owl:cardinality 1
+    ] ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty arden-fin:hasNominalInterestRate ;
+        owl:cardinality 1
+    ] ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty arden-fin:hasDayCountConvention ;
+        owl:cardinality 1
+    ] ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty arden-fin:hasContractRole ;
+        owl:cardinality 1
+    ] .
+
+# ===================================================================
+# AGRICULTURAL-SPECIFIC EXTENSIONS
+# ===================================================================
+
+# Seasonal payment adjustments for agricultural loans
+arden-fin:hasSeasonalPaymentAdjustment a owl:ObjectProperty ;
+    rdfs:domain arden-fin:AgriculturalLoan ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "has seasonal payment adjustment"@en ;
+    rdfs:comment "Indicates if the loan has seasonal payment adjustments for agricultural cash flow patterns."@en .
+
+# Crop season alignment
+arden-fin:alignedToCropSeason a owl:ObjectProperty ;
+    rdfs:domain arden-fin:AgriculturalLoan ;
+    rdfs:range arden-ag:CropSeason ;
+    rdfs:label "aligned to crop season"@en ;
+    rdfs:comment "Links the loan payment schedule to specific crop seasons."@en .
+
+# ===================================================================
+# VALIDATION RULES
+# ===================================================================
+
+# Documentation for validation rules (implemented in SHACL)
+# 1. If actusContractType is ANN, interestPaymentCycle = principalRedemptionCycle
+# 2. If actusContractType is LAM, principalRedemptionCycle must be specified
+# 3. If actusContractType is PAM, only interestPaymentCycle needed (no principal payments until maturity)
+# 4. All ACTUS loans must have maturityDate > initialExchangeDate
+# 5. nominalInterestRate must be >= 0
+# 6. notionalPrincipal must be > 0

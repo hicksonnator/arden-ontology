@@ -1,0 +1,203 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+@prefix arden: <https://arden.ag/ont/core#> .
+@prefix arden-geo: <https://arden.ag/ont/geo#> .
+@prefix usda-soil: <https://arden.ag/ont/soil/usda#> .
+@prefix envo: <http://purl.obolibrary.org/obo/ENVO_> .
+
+# ===================================================================
+# Arden ↔ USDA Soil Taxonomy Bridge Mappings
+# ===================================================================
+#
+# Maps Arden soil and parcel concepts to USDA Soil Taxonomy SKOS
+# scheme and environmental ontology concepts. Provides classification
+# constraints for farm parcels and soil characteristics.
+#
+# Created: 2024-09-19 for Arden v1.2.0
+# ===================================================================
+
+<https://arden.ag/ont/mappings/soil> a owl:Ontology ;
+    dct:title "Arden-Soil Taxonomy Bridge Mappings"@en ;
+    dct:description "Bridge mappings between Arden soil/parcel concepts and USDA Soil Taxonomy classification."@en ;
+    dct:created "2024-09-19"^^xsd:date ;
+    owl:imports <https://arden.ag/ont/geo> ,
+                <https://arden.ag/ont/soil/usda> .
+
+# ===================================================================
+# SOIL CLASSIFICATION MAPPINGS
+# ===================================================================
+
+# Arden soil concepts align with USDA taxonomy
+arden-geo:Soil rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty arden-geo:hasSoilClassification ;
+    owl:someValuesFrom usda-soil:SoilTaxonomy
+] ;
+rdfs:label "Soil"@en ;
+rdfs:comment "Soil entity that must have a classification within USDA Soil Taxonomy."@en .
+
+# Property to link soil to USDA taxonomy classification
+arden-geo:hasSoilClassification a owl:ObjectProperty ;
+    rdfs:domain arden-geo:Soil ;
+    rdfs:range skos:Concept ;
+    rdfs:label "has soil classification"@en ;
+    rdfs:comment "Links a soil entity to its USDA Soil Taxonomy classification."@en .
+
+# Property to link parcels to soil types
+arden:FarmParcel rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty arden-geo:hasSoil ;
+    owl:someValuesFrom arden-geo:Soil
+] .
+
+arden-geo:hasSoil a owl:ObjectProperty ;
+    rdfs:domain arden:FarmParcel ;
+    rdfs:range arden-geo:Soil ;
+    rdfs:label "has soil"@en ;
+    rdfs:comment "Links a farm parcel to its soil characteristics."@en .
+
+# ===================================================================
+# SPECIFIC SOIL ORDER MAPPINGS
+# ===================================================================
+
+# Arden-specific soil order concepts aligned with USDA taxonomy
+arden-geo:AlfisolSoil a owl:Class ;
+    rdfs:subClassOf arden-geo:Soil ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty arden-geo:hasSoilClassification ;
+        owl:hasValue usda-soil:Alfisols
+    ] ;
+    rdfs:label "Alfisol Soil"@en .
+
+arden-geo:MollisolSoil a owl:Class ;
+    rdfs:subClassOf arden-geo:Soil ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty arden-geo:hasSoilClassification ;
+        owl:hasValue usda-soil:Mollisols
+    ] ;
+    rdfs:label "Mollisol Soil"@en .
+
+arden-geo:VertisolSoil a owl:Class ;
+    rdfs:subClassOf arden-geo:Soil ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty arden-geo:hasSoilClassification ;
+        owl:hasValue usda-soil:Vertisols
+    ] ;
+    rdfs:label "Vertisol Soil"@en .
+
+# ===================================================================
+# SOIL PROPERTY MAPPINGS
+# ===================================================================
+
+# Soil pH
+arden-geo:hasSoilPH a owl:DatatypeProperty ;
+    rdfs:domain arden-geo:Soil ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "has soil pH"@en ;
+    rdfs:comment "The pH value of the soil, measured on a scale from 0 to 14."@en .
+
+# Organic Matter Content
+arden-geo:hasOrganicMatterContent a owl:DatatypeProperty ;
+    rdfs:domain arden-geo:Soil ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "has organic matter content"@en ;
+    rdfs:comment "The percentage of organic matter in the soil, typically 0-20%."@en .
+
+# Soil Texture
+arden-geo:hasSoilTexture a owl:ObjectProperty ;
+    rdfs:domain arden-geo:Soil ;
+    rdfs:range arden-geo:SoilTexture ;
+    rdfs:label "has soil texture"@en ;
+    rdfs:comment "The soil texture classification (sand, silt, clay proportions)."@en .
+
+# Drainage Class
+arden-geo:hasDrainageClass a owl:ObjectProperty ;
+    rdfs:domain arden-geo:Soil ;
+    rdfs:range arden-geo:DrainageClass ;
+    rdfs:label "has drainage class"@en ;
+    rdfs:comment "The soil drainage classification (well-drained, poorly-drained, etc.)."@en .
+
+# ===================================================================
+# SOIL TEXTURE CLASSES
+# ===================================================================
+
+arden-geo:SoilTexture a owl:Class ;
+    rdfs:label "Soil Texture"@en ;
+    rdfs:comment "Classification of soil based on particle size distribution."@en .
+
+arden-geo:SandyLoam a arden-geo:SoilTexture ;
+    rdfs:label "Sandy Loam"@en .
+
+arden-geo:SiltLoam a arden-geo:SoilTexture ;
+    rdfs:label "Silt Loam"@en .
+
+arden-geo:ClayLoam a arden-geo:SoilTexture ;
+    rdfs:label "Clay Loam"@en .
+
+arden-geo:Loam a arden-geo:SoilTexture ;
+    rdfs:label "Loam"@en .
+
+# ===================================================================
+# DRAINAGE CLASSES
+# ===================================================================
+
+arden-geo:DrainageClass a owl:Class ;
+    rdfs:label "Drainage Class"@en ;
+    rdfs:comment "Classification of soil drainage characteristics."@en .
+
+arden-geo:WellDrained a arden-geo:DrainageClass ;
+    rdfs:label "Well Drained"@en .
+
+arden-geo:ModeratelyWellDrained a arden-geo:DrainageClass ;
+    rdfs:label "Moderately Well Drained"@en .
+
+arden-geo:SomewhatPoorlyDrained a arden-geo:DrainageClass ;
+    rdfs:label "Somewhat Poorly Drained"@en .
+
+arden-geo:PoorlyDrained a arden-geo:DrainageClass ;
+    rdfs:label "Poorly Drained"@en .
+
+# ===================================================================
+# PARCEL SOIL REQUIREMENTS
+# ===================================================================
+
+# Farm parcels in scope must have soil classification
+arden:FarmParcel rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty arden-geo:hasSoil ;
+    owl:someValuesFrom [
+        a owl:Restriction ;
+        owl:onProperty arden-geo:hasSoilClassification ;
+        owl:someValuesFrom [
+            a owl:Restriction ;
+            owl:onProperty skos:inScheme ;
+            owl:hasValue usda-soil:SoilTaxonomy
+        ]
+    ]
+] .
+
+# ===================================================================
+# ENVIRONMENTAL ONTOLOGY ALIGNMENT (Optional)
+# ===================================================================
+
+# If ENVO is available, align soil concepts
+# arden-geo:Soil skos:relatedMatch envo:ENVO_00001998 .  # soil
+
+# ===================================================================
+# VALIDATION CONSTRAINTS (Implemented in SHACL)
+# ===================================================================
+
+# Documentation for SHACL validation rules:
+# 1. Soil pH must be between 0 and 14
+# 2. Organic matter content must be between 0 and 20 percent
+# 3. Farm parcels must have at least one soil classification
+# 4. Soil classification must be from USDA Soil Taxonomy scheme
+# 5. All soil measurements must have appropriate units
