@@ -14,6 +14,13 @@
   <uri name="https://arden.ag/ont/integration" uri="ontology/arden-integration.ttl"/>
   <uri name="https://arden.ag/ont/regulatory" uri="ontology/arden-regulatory.ttl"/>
 
+  <!-- Map bridge ontology imports to local files -->
+  <uri name="https://arden.ag/ont/bridge" uri="mappings/arden-bridge-enhanced-v1.2.1.ttl"/>
+  <uri name="https://arden.ag/ont/bridge/markets" uri="mappings/arden-bridge-markets.ttl"/>
+
+  <!-- Map SHACL shapes imports to local files -->
+  <uri name="https://arden.ag/ont/shapes/market" uri="shapes/arden-shapes-market-data.ttl"/>
+
   <!-- Map external ontology imports to local files -->
   <uri name="http://www.w3.org/2006/time#" uri="externals/time.rdf"/>
   <uri name="http://www.w3.org/2006/time" uri="externals/time.rdf"/>

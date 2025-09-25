@@ -1,0 +1,464 @@
+@prefix arden-bridge-markets: <https://arden.ag/ont/bridge/markets#> .
+@prefix arden: <https://arden.ag/ont/core#> .
+@prefix arden-markets: <https://arden.ag/ont/markets#> .
+@prefix arden-fin: <https://arden.ag/ont/fin#> .
+@prefix arden-crops: <https://arden.ag/ont/crops#> .
+@prefix bridge: <https://arden.ag/ont/bridge#> .
+@prefix fibo: <https://spec.edmcouncil.org/fibo/ontology/> .
+@prefix sosa: <http://www.w3.org/ns/sosa/> .
+@prefix time: <http://www.w3.org/2006/time#> .
+@prefix qudt: <http://qudt.org/schema/qudt/> .
+@prefix unit: <http://qudt.org/vocab/unit/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+
+<https://arden.ag/ont/bridge/markets> a owl:Ontology ;
+    rdfs:label "Arden Market Bridge Mappings"@en ;
+    rdfs:comment "Semantic bridges connecting market data to agricultural and financial ontologies for real-time pricing integration"@en ;
+    dct:created "2025-09-25"^^xsd:date ;
+    dct:modified "2025-09-25"^^xsd:date ;
+    owl:versionInfo "1.2.1" ;
+    owl:imports <https://arden.ag/ont/core> ,
+                <https://arden.ag/ont/markets> ,
+                <https://arden.ag/ont/fin> ,
+                <https://arden.ag/ont/crops> ,
+                <https://arden.ag/ont/bridge> ,
+                <http://www.w3.org/ns/sosa/> ,
+                <http://www.w3.org/2006/time> ,
+                <http://qudt.org/schema/qudt> .
+
+# =============================================================================
+# MARKET DATA TO AGRICULTURAL COMMODITY BRIDGES
+# =============================================================================
+
+# Bridge market instruments to agricultural commodities
+arden-bridge-markets:CornPricingBridge a owl:Class ;
+    rdfs:subClassOf bridge:PricingBridge ;
+    rdfs:label "Corn Pricing Bridge"@en ;
+    rdfs:comment "Connection between corn commodity and market pricing data"@en ;
+    bridge:connectsCommodity arden-crops:Corn ;
+    bridge:connectsMarketInstrument arden-markets:CornFuture .
+
+arden-bridge-markets:SoybeanPricingBridge a owl:Class ;
+    rdfs:subClassOf bridge:PricingBridge ;
+    rdfs:label "Soybean Pricing Bridge"@en ;
+    rdfs:comment "Connection between soybean commodity and market pricing data"@en ;
+    bridge:connectsCommodity arden-crops:Soybean ;
+    bridge:connectsMarketInstrument arden-markets:SoybeanFuture .
+
+arden-bridge-markets:WheatPricingBridge a owl:Class ;
+    rdfs:subClassOf bridge:PricingBridge ;
+    rdfs:label "Wheat Pricing Bridge"@en ;
+    rdfs:comment "Connection between wheat commodity and market pricing data"@en ;
+    bridge:connectsCommodity arden-crops:Wheat ;
+    bridge:connectsMarketInstrument arden-markets:WheatFuture .
+
+# Define pricing bridge base class if not exists
+bridge:PricingBridge a owl:Class ;
+    rdfs:subClassOf bridge:SemanticBridge ;
+    rdfs:label "Pricing Bridge"@en ;
+    rdfs:comment "Semantic connection between agricultural commodities and market pricing instruments"@en .
+
+# Bridge Properties
+bridge:connectsCommodity a owl:ObjectProperty ;
+    rdfs:domain bridge:PricingBridge ;
+    rdfs:range arden-crops:Crop ;
+    rdfs:label "connects commodity"@en ;
+    rdfs:comment "Agricultural commodity represented by pricing bridge"@en .
+
+bridge:connectsMarketInstrument a owl:ObjectProperty ;
+    rdfs:domain bridge:PricingBridge ;
+    rdfs:range arden-markets:MarketInstrument ;
+    rdfs:label "connects market instrument"@en ;
+    rdfs:comment "Market instrument providing price data for commodity"@en .
+
+# =============================================================================
+# MARKET DATA TO FINANCIAL IMPACT BRIDGES
+# =============================================================================
+
+# Collateral Valuation Impact
+arden-bridge-markets:CollateralPriceImpactBridge a owl:Class ;
+    rdfs:subClassOf bridge:FinancialBridge ;
+    rdfs:label "Collateral Price Impact Bridge"@en ;
+    rdfs:comment "Connection between market price changes and collateral valuation adjustments"@en .
+
+# Define financial bridge class if not exists
+bridge:FinancialBridge a owl:Class ;
+    rdfs:subClassOf bridge:SemanticBridge ;
+    rdfs:label "Financial Bridge"@en ;
+    rdfs:comment "Semantic connection between market data and financial instruments or calculations"@en .
+
+# Market Price Impact Properties
+arden-bridge-markets:triggersCollateralRevaluation a owl:ObjectProperty ;
+    rdfs:subPropertyOf bridge:triggers ;
+    rdfs:domain arden-markets:MarketDataObservation ;
+    rdfs:range arden-fin:CollateralRevaluation ;
+    rdfs:label "triggers collateral revaluation"@en ;
+    rdfs:comment "Market price observation that triggers automatic collateral value recalculation"@en .
+
+arden-bridge-markets:updatesLoanToValueRatio a owl:ObjectProperty ;
+    rdfs:subPropertyOf bridge:updates ;
+    rdfs:domain arden-markets:MarketDataObservation ;
+    rdfs:range arden-fin:LoanToValueRatio ;
+    rdfs:label "updates loan-to-value ratio"@en ;
+    rdfs:comment "Market price changes that affect loan-to-value calculations"@en .
+
+arden-bridge-markets:affectsCreditLineAvailability a owl:ObjectProperty ;
+    rdfs:subPropertyOf bridge:affects ;
+    rdfs:domain arden-markets:MarketDataObservation ;
+    rdfs:range arden-fin:CreditLine ;
+    rdfs:label "affects credit line availability"@en ;
+    rdfs:comment "Market price movements that impact available credit facility amounts"@en .
+
+# Cash Flow Projection Impact
+arden-bridge-markets:RevenuePricingBridge a owl:Class ;
+    rdfs:subClassOf bridge:FinancialBridge ;
+    rdfs:label "Revenue Pricing Bridge"@en ;
+    rdfs:comment "Connection between commodity pricing and agricultural revenue projections"@en .
+
+arden-bridge-markets:updatesRevenueProjection a owl:ObjectProperty ;
+    rdfs:subPropertyOf bridge:updates ;
+    rdfs:domain arden-markets:MarketDataObservation ;
+    rdfs:range arden-fin:RevenueProjection ;
+    rdfs:label "updates revenue projection"@en ;
+    rdfs:comment "Market prices used to update agricultural revenue forecasts"@en .
+
+arden-bridge-markets:adjustsDebtServiceCapacity a owl:ObjectProperty ;
+    rdfs:subPropertyOf bridge:adjusts ;
+    rdfs:domain arden-markets:MarketDataObservation ;
+    rdfs:range arden-fin:DebtServiceCapacity ;
+    rdfs:label "adjusts debt service capacity"@en ;
+    rdfs:comment "Market price impacts on farm's ability to service debt obligations"@en .
+
+# =============================================================================
+# TEMPORAL MARKET DATA BRIDGES
+# =============================================================================
+
+# Seasonal Pricing Patterns
+arden-bridge-markets:SeasonalPricingBridge a owl:Class ;
+    rdfs:subClassOf bridge:TemporalBridge ;
+    rdfs:label "Seasonal Pricing Bridge"@en ;
+    rdfs:comment "Connection between seasonal agricultural cycles and market pricing patterns"@en .
+
+# Define temporal bridge if not exists
+bridge:TemporalBridge a owl:Class ;
+    rdfs:subClassOf bridge:SemanticBridge ;
+    rdfs:label "Temporal Bridge"@en ;
+    rdfs:comment "Semantic connection with time-based relationships"@en .
+
+arden-bridge-markets:alignsWithHarvestSeason a owl:ObjectProperty ;
+    rdfs:subPropertyOf bridge:aligns ;
+    rdfs:domain arden-markets:MarketDataObservation ;
+    rdfs:range arden:HarvestSeason ;
+    rdfs:label "aligns with harvest season"@en ;
+    rdfs:comment "Market pricing data that correlates with harvest timing"@en .
+
+arden-bridge-markets:precedesPlantingSeason a owl:ObjectProperty ;
+    rdfs:subPropertyOf bridge:precedes ;
+    rdfs:domain arden-markets:MarketDataObservation ;
+    rdfs:range arden:PlantingSeason ;
+    rdfs:label "precedes planting season"@en ;
+    rdfs:comment "Market pricing that influences planting decisions"@en .
+
+# Loan Payment Timing Alignment
+arden-bridge-markets:PaymentScheduleBridge a owl:Class ;
+    rdfs:subClassOf bridge:TemporalBridge ;
+    rdfs:label "Payment Schedule Bridge"@en ;
+    rdfs:comment "Connection between market pricing timing and loan payment schedules"@en .
+
+arden-bridge-markets:synchronizesWithPaymentSchedule a owl:ObjectProperty ;
+    rdfs:subPropertyOf bridge:synchronizes ;
+    rdfs:domain arden-markets:MarketDataObservation ;
+    rdfs:range arden-fin:PaymentSchedule ;
+    rdfs:label "synchronizes with payment schedule"@en ;
+    rdfs:comment "Market pricing that aligns with loan payment timing"@en .
+
+# =============================================================================
+# RISK ASSESSMENT BRIDGES
+# =============================================================================
+
+# Price Volatility to Risk Factor Bridge
+arden-bridge-markets:VolatilityRiskBridge a owl:Class ;
+    rdfs:subClassOf bridge:RiskBridge ;
+    rdfs:label "Volatility Risk Bridge"@en ;
+    rdfs:comment "Connection between market price volatility and agricultural risk assessment"@en .
+
+# Define risk bridge if not exists
+bridge:RiskBridge a owl:Class ;
+    rdfs:subClassOf bridge:SemanticBridge ;
+    rdfs:label "Risk Bridge"@en ;
+    rdfs:comment "Semantic connection between data sources and risk assessment factors"@en .
+
+arden-bridge-markets:contributesToMarketRisk a owl:ObjectProperty ;
+    rdfs:subPropertyOf bridge:contributesTo ;
+    rdfs:domain arden-markets:MarketDataObservation ;
+    rdfs:range arden-fin:MarketRiskFactor ;
+    rdfs:label "contributes to market risk"@en ;
+    rdfs:comment "Market data contributing to overall market risk assessment"@en .
+
+arden-bridge-markets:indicatesVolatilityRisk a owl:ObjectProperty ;
+    rdfs:subPropertyOf bridge:indicates ;
+    rdfs:domain arden-markets:MarketDataObservation ;
+    rdfs:range arden-fin:VolatilityRisk ;
+    rdfs:label "indicates volatility risk"@en ;
+    rdfs:comment "Price movements that signal increased market volatility risk"@en .
+
+# Concentration Risk Bridge
+arden-bridge-markets:ConcentrationRiskBridge a owl:Class ;
+    rdfs:subClassOf bridge:RiskBridge ;
+    rdfs:label "Concentration Risk Bridge"@en ;
+    rdfs:comment "Connection between commodity concentration and portfolio risk"@en .
+
+arden-bridge-markets:exposesConcentrationRisk a owl:ObjectProperty ;
+    rdfs:subPropertyOf bridge:exposes ;
+    rdfs:domain arden-markets:CommodityFuture ;
+    rdfs:range arden-fin:ConcentrationRisk ;
+    rdfs:label "exposes concentration risk"@en ;
+    rdfs:comment "Commodity futures that create concentration risk in agricultural portfolios"@en .
+
+# =============================================================================
+# MARKET DATA QUALITY AND VALIDATION BRIDGES
+# =============================================================================
+
+# Data Quality Bridge
+arden-bridge-markets:DataQualityBridge a owl:Class ;
+    rdfs:subClassOf bridge:ValidationBridge ;
+    rdfs:label "Market Data Quality Bridge"@en ;
+    rdfs:comment "Connection between market data quality indicators and validation processes"@en .
+
+# Define validation bridge if not exists
+bridge:ValidationBridge a owl:Class ;
+    rdfs:subClassOf bridge:SemanticBridge ;
+    rdfs:label "Validation Bridge"@en ;
+    rdfs:comment "Semantic connection supporting data validation and quality assurance"@en .
+
+arden-bridge-markets:validatesPriceReasonableness a owl:ObjectProperty ;
+    rdfs:subPropertyOf bridge:validates ;
+    rdfs:domain arden-markets:MarketDataObservation ;
+    rdfs:range arden:DataQualityCheck ;
+    rdfs:label "validates price reasonableness"@en ;
+    rdfs:comment "Market data validation against reasonable price bounds"@en .
+
+arden-bridge-markets:detectsPriceAnomaly a owl:ObjectProperty ;
+    rdfs:subPropertyOf bridge:detects ;
+    rdfs:domain arden-markets:MarketDataObservation ;
+    rdfs:range arden:DataAnomaly ;
+    rdfs:label "detects price anomaly"@en ;
+    rdfs:comment "Market price observations that indicate data quality issues"@en .
+
+# Historical Comparison Bridge
+arden-bridge-markets:HistoricalComparisonBridge a owl:Class ;
+    rdfs:subClassOf bridge:ValidationBridge ;
+    rdfs:label "Historical Comparison Bridge"@en ;
+    rdfs:comment "Connection between current and historical market data for validation"@en .
+
+arden-bridge-markets:comparesWithHistoricalRange a owl:ObjectProperty ;
+    rdfs:subPropertyOf bridge:compares ;
+    rdfs:domain arden-markets:MarketDataObservation ;
+    rdfs:range arden-markets:HistoricalPriceRange ;
+    rdfs:label "compares with historical range"@en ;
+    rdfs:comment "Current price data validation against historical price ranges"@en .
+
+# =============================================================================
+# KILLER COMPETENCY QUESTION SUPPORT BRIDGES
+# =============================================================================
+
+# Bridge supporting "Wheat futures drop affects grain bin collateral value?"
+arden-bridge-markets:WheatCollateralBridge a owl:Class ;
+    rdfs:subClassOf bridge:CollateralPriceImpactBridge ;
+    rdfs:label "Wheat Collateral Bridge"@en ;
+    rdfs:comment "Specific bridge connecting wheat futures prices to grain bin collateral valuation"@en ;
+    bridge:connectsCommodity arden-crops:Wheat ;
+    bridge:connectsMarketInstrument arden-markets:ZW ;
+    bridge:triggersRevaluation arden-fin:GrainBinCollateral .
+
+# Bridge supporting "Amortization schedule if soybean yield falls 10%?"
+arden-bridge-markets:SoybeanCashFlowBridge a owl:Class ;
+    rdfs:subClassOf bridge:RevenuePricingBridge ;
+    rdfs:label "Soybean Cash Flow Bridge"@en ;
+    rdfs:comment "Connection between soybean pricing and debt service cash flow projections"@en ;
+    bridge:connectsCommodity arden-crops:Soybean ;
+    bridge:connectsMarketInstrument arden-markets:ZS ;
+    bridge:impactsAmortization arden-fin:AmortizationSchedule .
+
+# Bridge supporting "Line of credit if land values drop below $5,000/acre?"
+arden-bridge-markets:LandValueCreditBridge a owl:Class ;
+    rdfs:subClassOf bridge:CollateralPriceImpactBridge ;
+    rdfs:label "Land Value Credit Bridge"@en ;
+    rdfs:comment "Connection between land value indices and agricultural credit line availability"@en ;
+    bridge:monitorsThreshold [
+        a arden-fin:PriceThreshold ;
+        qudt:numericValue "5000.00"^^xsd:decimal ;
+        qudt:unit unit:DollarPerAcre
+    ] ;
+    bridge:triggersCreditReview arden-fin:CreditLineReview .
+
+# =============================================================================
+# BRIDGE ACTIVATION AND TRIGGER CONDITIONS
+# =============================================================================
+
+# Define trigger conditions and thresholds
+bridge:PriceThreshold a owl:Class ;
+    rdfs:subClassOf arden:Threshold ;
+    rdfs:label "Price Threshold"@en ;
+    rdfs:comment "Threshold value that triggers bridge activation for price-based events"@en .
+
+bridge:triggersRevaluation a owl:ObjectProperty ;
+    rdfs:domain bridge:CollateralPriceImpactBridge ;
+    rdfs:range arden-fin:CollateralAsset ;
+    rdfs:label "triggers revaluation"@en ;
+    rdfs:comment "Collateral assets that require revaluation when bridge conditions are met"@en .
+
+bridge:impactsAmortization a owl:ObjectProperty ;
+    rdfs:domain bridge:RevenuePricingBridge ;
+    rdfs:range arden-fin:AmortizationSchedule ;
+    rdfs:label "impacts amortization"@en ;
+    rdfs:comment "Loan amortization schedules affected by revenue price changes"@en .
+
+bridge:triggersCreditReview a owl:ObjectProperty ;
+    rdfs:domain bridge:CollateralPriceImpactBridge ;
+    rdfs:range arden-fin:CreditReview ;
+    rdfs:label "triggers credit review"@en ;
+    rdfs:comment "Credit review processes initiated by collateral value changes"@en .
+
+bridge:monitorsThreshold a owl:ObjectProperty ;
+    rdfs:domain bridge:SemanticBridge ;
+    rdfs:range bridge:PriceThreshold ;
+    rdfs:label "monitors threshold"@en ;
+    rdfs:comment "Price threshold monitored by semantic bridge for trigger conditions"@en .
+
+# =============================================================================
+# MARKET DATA INTEGRATION PATTERNS
+# =============================================================================
+
+# Real-time Integration Pattern
+arden-bridge-markets:RealTimeIntegrationPattern a owl:Class ;
+    rdfs:subClassOf bridge:IntegrationPattern ;
+    rdfs:label "Real-Time Integration Pattern"@en ;
+    rdfs:comment "Pattern for integrating real-time market data with agricultural and financial systems"@en .
+
+# Define integration pattern if not exists
+bridge:IntegrationPattern a owl:Class ;
+    rdfs:subClassOf bridge:SemanticBridge ;
+    rdfs:label "Integration Pattern"@en ;
+    rdfs:comment "Reusable semantic pattern for data integration and processing"@en .
+
+# Batch Integration Pattern
+arden-bridge-markets:BatchIntegrationPattern a owl:Class ;
+    rdfs:subClassOf bridge:IntegrationPattern ;
+    rdfs:label "Batch Integration Pattern"@en ;
+    rdfs:comment "Pattern for integrating historical market data in batch processing workflows"@en .
+
+# Update Frequency Properties
+arden-bridge-markets:updateFrequency a owl:DatatypeProperty ;
+    rdfs:domain bridge:IntegrationPattern ;
+    rdfs:range xsd:duration ;
+    rdfs:label "update frequency"@en ;
+    rdfs:comment "How frequently market data integration should occur"@en .
+
+arden-bridge-markets:latencyTolerance a owl:DatatypeProperty ;
+    rdfs:domain bridge:IntegrationPattern ;
+    rdfs:range xsd:duration ;
+    rdfs:label "latency tolerance"@en ;
+    rdfs:comment "Maximum acceptable delay for market data integration"@en .
+
+# =============================================================================
+# COMMODITY FUTURE SYMBOL MAPPINGS
+# =============================================================================
+
+# Yahoo Finance Symbol Mappings
+arden-bridge-markets:SymbolMapping a owl:Class ;
+    rdfs:label "Yahoo Finance Symbol Mapping"@en ;
+    rdfs:comment "Mapping between Arden commodity concepts and Yahoo Finance trading symbols"@en .
+
+# Corn Future Symbol Mapping
+arden-bridge-markets:CornSymbolMapping a arden-bridge-markets:SymbolMapping ;
+    rdfs:label "Corn Future Symbol Mapping"@en ;
+    bridge:mapsCommodity arden-crops:Corn ;
+    bridge:mapsToSymbol "ZC=F" ;
+    bridge:mapsToMarketInstrument arden-markets:ZC ;
+    bridge:primaryExchange arden-markets:CBOT .
+
+# Soybean Future Symbol Mapping
+arden-bridge-markets:SoybeanSymbolMapping a arden-bridge-markets:SymbolMapping ;
+    rdfs:label "Soybean Future Symbol Mapping"@en ;
+    bridge:mapsCommodity arden-crops:Soybean ;
+    bridge:mapsToSymbol "ZS=F" ;
+    bridge:mapsToMarketInstrument arden-markets:ZS ;
+    bridge:primaryExchange arden-markets:CBOT .
+
+# Wheat Future Symbol Mapping
+arden-bridge-markets:WheatSymbolMapping a arden-bridge-markets:SymbolMapping ;
+    rdfs:label "Wheat Future Symbol Mapping"@en ;
+    bridge:mapsCommodity arden-crops:Wheat ;
+    bridge:mapsToSymbol "ZW=F" ;
+    bridge:mapsToMarketInstrument arden-markets:ZW ;
+    bridge:primaryExchange arden-markets:CBOT .
+
+# Cotton Future Symbol Mapping
+arden-bridge-markets:CottonSymbolMapping a arden-bridge-markets:SymbolMapping ;
+    rdfs:label "Cotton Future Symbol Mapping"@en ;
+    bridge:mapsCommodity arden-crops:Cotton ;
+    bridge:mapsToSymbol "CT=F" ;
+    bridge:mapsToMarketInstrument arden-markets:CT ;
+    bridge:primaryExchange arden-markets:ICE .
+
+# Symbol Mapping Properties
+bridge:mapsCommodity a owl:ObjectProperty ;
+    rdfs:domain arden-bridge-markets:SymbolMapping ;
+    rdfs:range arden-crops:Crop ;
+    rdfs:label "maps commodity"@en ;
+    rdfs:comment "Agricultural commodity represented by trading symbol"@en .
+
+bridge:mapsToSymbol a owl:DatatypeProperty ;
+    rdfs:domain arden-bridge-markets:SymbolMapping ;
+    rdfs:range xsd:string ;
+    rdfs:label "maps to symbol"@en ;
+    rdfs:comment "Yahoo Finance trading symbol for commodity"@en .
+
+bridge:mapsToMarketInstrument a owl:ObjectProperty ;
+    rdfs:domain arden-bridge-markets:SymbolMapping ;
+    rdfs:range arden-markets:MarketInstrument ;
+    rdfs:label "maps to market instrument"@en ;
+    rdfs:comment "Market instrument instance corresponding to symbol"@en .
+
+bridge:primaryExchange a owl:ObjectProperty ;
+    rdfs:domain arden-bridge-markets:SymbolMapping ;
+    rdfs:range arden-markets:MarketExchange ;
+    rdfs:label "primary exchange"@en ;
+    rdfs:comment "Primary trading exchange for instrument"@en .
+
+# =============================================================================
+# BRIDGE RELATIONSHIP PROPERTY CHAIN AXIOMS
+# =============================================================================
+
+# Define property chain for collateral value impact
+arden-bridge-markets:affectsCollateralValueChain owl:propertyChainAxiom (
+    arden-markets:observesInstrument
+    arden-markets:representsCommodity
+    bridge:representsCollateral
+    arden-fin:hasCollateralValue
+) ;
+rdfs:comment "Property chain connecting market observations to collateral value impact through commodity representation" .
+
+# Define property chain for cash flow projection
+arden-bridge-markets:drivesCashFlowChain owl:propertyChainAxiom (
+    arden-markets:observesInstrument
+    arden-markets:representsCommodity
+    arden:producedBy
+    arden-fin:generatesCashFlow
+) ;
+rdfs:comment "Property chain connecting market prices to cash flow projections through commodity production" .
+
+# Define property chain for loan risk assessment
+arden-bridge-markets:contributesToLoanRiskChain owl:propertyChainAxiom (
+    arden-markets:observesInstrument
+    bridge:affectsCollateralValue
+    arden-fin:securesLoan
+    arden-fin:hasRiskAssessment
+) ;
+rdfs:comment "Property chain connecting market data to loan risk through collateral relationships" .
