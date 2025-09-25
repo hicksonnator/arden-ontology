@@ -168,8 +168,24 @@ bash scripts/build-enhanced-v1.2.1.sh
 grep -c "CornFuture\|SoybeanFuture\|WheatFuture\|OHLCVObservation" ontology/arden-markets.ttl
 ```
 
-### GitHub Release Command
-**ALWAYS use the exact command provided by the validated release script:**
+### Automated Release Process
+The release script automatically:
+1. **Validates ontology completeness** (≥1,250 terms for v1.2.2+)
+2. **Updates LATEST_RELEASE.json** with current version, SHA256, and metadata
+3. **Provides exact GitHub release command** with validated archive
+
+**ALWAYS follow the exact steps provided by the release script:**
 ```bash
-gh release create v1.2.2 --title "Arden Ontology v1.2.2" --notes "Enhanced ontology with 911 terms" "arden-ontology-production-v1.2.2-TIMESTAMP.tar.gz"
+# Step 1: Commit updated version manifest
+git add LATEST_RELEASE.json && git commit -m 'Update LATEST_RELEASE.json for v1.2.2'
+
+# Step 2: Create GitHub release (exact command provided by script)
+gh release create v1.2.2 --title "Arden Ontology v1.2.2" --notes "Enhanced ontology with 1,268 terms" "arden-ontology-production-v1.2.2-TIMESTAMP.tar.gz"
 ```
+
+### Harvester Integration
+The `LATEST_RELEASE.json` file enables automatic version checking:
+- **Runtime validation**: Harvesters check version at startup
+- **Integrity verification**: SHA256 hash prevents corrupted ontologies
+- **Self-updating**: Automatic download when new releases available
+- **See**: `scripts/check_latest_release.py` for implementation example

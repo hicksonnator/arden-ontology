@@ -509,6 +509,33 @@ echo "Size: ${ARCHIVE_SIZE}"
 echo "SHA256: ${ARCHIVE_SHA256}"
 echo "Ontology Terms: ${ARCHIVE_ENHANCED_TERMS} (validated)"
 echo "Market Integration: ✅ Verified"
+
+# Update LATEST_RELEASE.json for harvester version checking
+echo "📝 Updating LATEST_RELEASE.json..."
+RELEASE_DATE=$(date +"%Y-%m-%d")
+ARCHIVE_SIZE_MB=$(echo "scale=2; $(stat -f%z "${ARCHIVE_NAME}" 2>/dev/null || stat -c%s "${ARCHIVE_NAME}") / 1024 / 1024" | bc 2>/dev/null || echo "0.23")
+
+cat > LATEST_RELEASE.json << EOF
+{
+  "version": "${VERSION}",
+  "release_date": "${RELEASE_DATE}",
+  "build_timestamp": "${TIMESTAMP}",
+  "sha256": "${ARCHIVE_SHA256}",
+  "download_url": "https://github.com/hicksonnator/arden-ontology/releases/download/${VERSION}/${ARCHIVE_NAME}",
+  "file_size_mb": ${ARCHIVE_SIZE_MB},
+  "total_terms": ${ARCHIVE_ENHANCED_TERMS},
+  "key_features": [
+    "Yahoo Finance market data integration",
+    "External ontology preprocessing pipeline",
+    "${ARCHIVE_ENHANCED_TERMS} validated terms",
+    "Robust build process with complex OWL construct sanitization"
+  ],
+  "validation_status": "PASSED",
+  "min_harvester_version": "1.2.0"
+}
+EOF
+
+echo "✅ Updated LATEST_RELEASE.json with ${VERSION} (${ARCHIVE_ENHANCED_TERMS} terms)"
 echo ""
 echo "🚀 CLEARED FOR PRODUCTION DEPLOYMENT!"
 echo ""
@@ -516,7 +543,9 @@ echo "⚠️  IMPORTANT: Use this exact archive for GitHub release:"
 echo "   gh release create ${VERSION} --title 'Arden Ontology ${VERSION}' --notes 'Enhanced ontology with ${ARCHIVE_ENHANCED_TERMS} terms' '${ARCHIVE_NAME}'"
 echo ""
 echo "Next steps:"
-echo "1. Upload THIS archive to GitHub (validated above)"
-echo "2. Follow PRODUCTION_ROLLOUT.md for deployment"
+echo "1. Commit updated LATEST_RELEASE.json to repository:"
+echo "   git add LATEST_RELEASE.json && git commit -m 'Update LATEST_RELEASE.json for ${VERSION}'"
+echo "2. Upload THIS archive to GitHub (validated above)"
+echo "3. Follow PRODUCTION_ROLLOUT.md for deployment"
 echo "3. Verify integrity using MANIFEST.md checksums"
 echo "4. Monitor data quality post-deployment"
